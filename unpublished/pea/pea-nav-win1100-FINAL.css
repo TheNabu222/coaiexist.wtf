@@ -1,0 +1,206 @@
+/* WINDOWS 1100 AD - MEDIEVAL OS TASKBAR - SINGLE LINE PERFECTION */
+
+body {
+    margin-bottom: 60px; /* Make room for taskbar */
+}
+
+.medieval-taskbar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    border-top: 2px solid #ffffff;
+    box-shadow: 0 -2px 0 #000000, inset 0 1px 0 #dfdfdf;
+    z-index: 99999;
+    display: flex;
+    align-items: stretch;
+    padding: 3px;
+    gap: 2px;
+    font-family: 'MS Sans Serif', 'Microsoft Sans Serif', sans-serif;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.medieval-taskbar::-webkit-scrollbar {
+    height: 16px;
+    background: #c0c0c0;
+}
+
+.medieval-taskbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #dfdfdf 0%, #808080 100%);
+    border: 2px outset #c0c0c0;
+}
+
+/* START BUTTON */
+.medieval-taskbar .start-btn {
+    background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    color: #000000;
+    border: 2px outset #ffffff;
+    padding: 4px 20px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+    box-shadow: inset -1px -1px 0 #000000, inset 1px 1px 0 #dfdfdf;
+    transition: all 0.1s;
+    white-space: nowrap;
+}
+
+.medieval-taskbar .start-btn:before {
+    content: '🗝️';
+    font-size: 20px;
+    filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.3));
+}
+
+.medieval-taskbar .start-btn:hover {
+    background: linear-gradient(180deg, #e0e0e0 0%, #a0a0a0 100%);
+}
+
+.medieval-taskbar .start-btn:active {
+    border-style: inset;
+    box-shadow: inset 1px 1px 0 #000000, inset -1px -1px 0 #dfdfdf;
+    padding: 5px 19px 3px 21px;
+}
+
+/* DIVIDER */
+.medieval-taskbar .divider {
+    width: 2px;
+    background: linear-gradient(180deg, #808080 0%, #ffffff 50%, #808080 100%);
+    margin: 4px 3px;
+    flex-shrink: 0;
+}
+
+/* NAV LINKS */
+.medieval-taskbar .nav-link,
+.medieval-taskbar .pip-link,
+.medieval-taskbar .back-main {
+    background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    color: #000000;
+    border: 2px outset #ffffff;
+    padding: 4px 12px;
+    text-decoration: none;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: inset -1px -1px 0 #000000, inset 1px 1px 0 #dfdfdf;
+    transition: all 0.1s;
+    white-space: nowrap;
+    font-weight: normal;
+}
+
+.medieval-taskbar .nav-link:hover,
+.medieval-taskbar .pip-link:hover,
+.medieval-taskbar .back-main:hover {
+    background: linear-gradient(180deg, #e0e0e0 0%, #a0a0a0 100%);
+}
+
+.medieval-taskbar .nav-link:active,
+.medieval-taskbar .pip-link:active,
+.medieval-taskbar .back-main:active {
+    border-style: inset;
+    box-shadow: inset 1px 1px 0 #000000, inset -1px -1px 0 #dfdfdf;
+    padding: 5px 11px 3px 13px;
+}
+
+/* PIP LINKS - Slightly different color */
+.medieval-taskbar .pip-link {
+    background: linear-gradient(180deg, #c8f0c8 0%, #80c880 100%);
+}
+
+.medieval-taskbar .pip-link:hover {
+    background: linear-gradient(180deg, #e0ffe0 0%, #a0d0a0 100%);
+}
+
+/* BACK BUTTON */
+.medieval-taskbar .back-main {
+    background: linear-gradient(180deg, #c0c0ff 0%, #8080c0 100%);
+    font-weight: bold;
+}
+
+.medieval-taskbar .back-main:hover {
+    background: linear-gradient(180deg, #e0e0ff 0%, #a0a0d0 100%);
+}
+
+/* TITLE BADGE */
+.medieval-taskbar .nav-title {
+    background: linear-gradient(180deg, #000080 0%, #000060 100%);
+    color: #ffffff;
+    border: 2px outset #ffffff;
+    padding: 4px 16px;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    box-shadow: inset -1px -1px 0 #000000, inset 1px 1px 0 #4040ff;
+    letter-spacing: 1px;
+}
+
+.medieval-taskbar .icon {
+    font-size: 16px;
+    filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.2));
+}
+
+/* Mobile - allow horizontal scroll */
+@media (max-width: 900px) {
+    .medieval-taskbar {
+        justify-content: flex-start;
+    }
+}
+
+/* Fake START MENU popup */
+.start-menu {
+    display: none;
+    position: fixed;
+    bottom: 50px;
+    left: 3px;
+    width: 300px;
+    background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    border: 2px outset #ffffff;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+    z-index: 999999;
+    padding: 8px;
+}
+
+.start-menu.open {
+    display: block;
+}
+
+.start-menu-title {
+    background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+    color: #ffffff;
+    padding: 6px 12px;
+    font-weight: bold;
+    margin: -8px -8px 8px -8px;
+    border-bottom: 2px solid #ffffff;
+}
+
+.start-menu-item {
+    background: #c0c0c0;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    margin: 2px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.start-menu-item:hover {
+    background: #000080;
+    color: #ffffff;
+    border: 1px dotted #ffffff;
+}
+
+.start-menu-divider {
+    height: 2px;
+    background: linear-gradient(90deg, #808080 0%, #ffffff 50%, #808080 100%);
+    margin: 4px 0;
+}
