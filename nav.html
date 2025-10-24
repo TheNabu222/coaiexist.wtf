@@ -1,23 +1,44 @@
-<!-- /nav.html  — Windows 98 Taskbar (single shared file) -->
+<!-- /nav.html  — Medieval Taskbar (single shared file) -->
 <style>
-.win98-taskbar{position:fixed;left:0;right:0;bottom:0;height:40px;z-index:9999;
-  background:linear-gradient(to bottom,#c0c0c0 0%,#808080 100%);border-top:2px solid #fff;
-  display:flex;align-items:center;padding:0 4px;font-family:"MS Sans Serif",Arial,sans-serif;
-  font-size:11px;box-shadow:0 -2px 4px rgba(0,0,0,.3)}
-.taskbar-button{background:linear-gradient(to bottom,#dfdfdf 0%,#c0c0c0 100%);
-  border:2px outset #fff;padding:4px 8px;margin:0 2px;cursor:pointer;color:#000;text-decoration:none;
-  display:inline-block;font-weight:bold;transition:.1s}
-.taskbar-button:hover{background:linear-gradient(to bottom,#e0e0e0 0%,#d0d0d0 100%)}
-.taskbar-button:active{border-style:inset;background:#c0c0c0}
-.taskbar-start{background:linear-gradient(to right,#008080,#0000ff);color:#fff;font-weight:bold;
-  padding:4px 12px;margin-right:8px;border:2px outset #fff}
-.taskbar-separator{width:2px;height:30px;background:#808080;margin:0 4px}
-.taskbar-button.active{outline:2px solid #000;box-shadow:inset 0 0 0 2px #fff}
-body{padding-bottom:50px} /* keep content above bar */
+.win98-taskbar{position:fixed;left:0;right:0;bottom:0;height:58px;z-index:9999;
+  background:linear-gradient(to top,#2b1302 0%,#4a2606 45%,#6e3a12 100%);
+  border-top:4px solid #d9c27c;border-bottom:1px solid rgba(0,0,0,.6);
+  display:flex;align-items:center;padding:0 16px;
+  font-family:"Cinzel","Uncial Antiqua","Palatino Linotype",serif;
+  font-size:14px;letter-spacing:.5px;color:#f6e7c2;
+  box-shadow:0 -10px 18px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.15);
+  background-image:linear-gradient(120deg,rgba(255,244,197,.12) 0%,rgba(0,0,0,0) 40%,rgba(255,244,197,.08) 100%),
+    repeating-linear-gradient(90deg,rgba(35,17,4,.25) 0px,rgba(35,17,4,.25) 12px,rgba(0,0,0,0) 12px,rgba(0,0,0,0) 24px);
+  backdrop-filter:blur(1px)}
+.taskbar-button{background:linear-gradient(to bottom,#d2b873 0%,#ad8235 60%,#8a6225 100%);
+  border:2px solid #f1dba0;border-radius:8px;padding:8px 16px;margin:0 6px;cursor:pointer;
+  color:#2d1503;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+  font-weight:600;text-transform:uppercase;text-shadow:0 1px 0 rgba(255,255,255,.65);
+  box-shadow:0 4px 0 rgba(0,0,0,.45);transition:transform .15s ease,box-shadow .15s ease,background .3s ease}
+.taskbar-button:hover{background:linear-gradient(to bottom,#f1dba0 0%,#c89d3d 55%,#a27729 100%);
+  transform:translateY(-2px);box-shadow:0 6px 8px rgba(0,0,0,.45)}
+.taskbar-button:active{transform:translateY(0);box-shadow:inset 0 2px 6px rgba(0,0,0,.45);
+  background:linear-gradient(to bottom,#8d6724 0%,#5a3b12 100%);border-color:#e9d394}
+.taskbar-start{background:linear-gradient(to bottom,#5b2d08 0%,#331503 100%);
+  color:#f6e7c2;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+  padding:10px 20px;margin-right:18px;border:2px solid #f1dba0;border-radius:10px;
+  box-shadow:0 5px 0 rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.2);display:inline-flex;align-items:center;gap:10px;
+  transition:transform .15s ease,box-shadow .15s ease,background .3s ease}
+.taskbar-start:hover{background:linear-gradient(to bottom,#74380d 0%,#482107 100%);
+  transform:translateY(-2px);box-shadow:0 7px 10px rgba(0,0,0,.55)}
+.taskbar-start:active{transform:translateY(0);box-shadow:inset 0 2px 6px rgba(0,0,0,.55);
+  background:linear-gradient(to bottom,#3e1b05 0%,#231002 100%)}
+.taskbar-separator{width:3px;height:40px;margin:0 10px;border-radius:2px;
+  background:linear-gradient(to bottom,#f1dba0 0%,#b28a3a 50%,#6b4716 100%);
+  box-shadow:inset 0 0 4px rgba(0,0,0,.4)}
+.taskbar-button.active{outline:2px solid rgba(255,236,179,.9);
+  box-shadow:0 0 14px rgba(240,223,164,.7),inset 0 0 0 2px rgba(71,40,10,.85)}
+body{padding-bottom:78px}
+.win98-taskbar a{color:inherit}
 </style>
 
 <nav class="win98-taskbar">
-  <a href="https://coaiexist.wtf" class="taskbar-start">⊞ START</a>
+  <a href="https://coaiexist.wtf" class="taskbar-start">⚜ START</a>
   <div class="taskbar-separator"></div>
 
   <a href="https://coaiexist.wtf/hex" class="taskbar-button">🎨 HEX CODEX</a>
