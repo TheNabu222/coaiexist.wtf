@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Feed Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <style>
+    :root {
+      --magenta: #f312af;
+      --cyan: #00ffcc;
+      --yellow: #fffb01;
+      --y2k-purple: #c066f6;
+      --y2k-pink: #ff72b6;
+      --online: #1eff45;
+      --dark-bg: #1a0a1f;
+      --card-bg: #2a1a30;
+      --border-color: var(--magenta);
+      --text-primary: #f0f0f0;
+      --text-secondary: #a89cb3;
+      --font-header: 'VT323', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--dark-bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      background-image:
+        radial-gradient(var(--card-bg) 1px, transparent 1px),
+        radial-gradient(rgba(0, 255, 204, 0.08) 1px, transparent 1px);
+      background-size: 10px 10px, 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .entropic-window {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 0;
+      box-shadow: 0 0 15px rgba(243, 18, 175, 0.3);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .entropic-window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, var(--y2k-purple), var(--y2k-pink));
+      padding: 4px 8px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .entropic-window-title {
+      font-family: var(--font-header);
+      font-size: 20px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+      letter-spacing: 0.08em;
+    }
+
+    .entropic-window-controls span {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background-color: var(--dark-bg);
+      border: 1px solid var(--border-color);
+      margin-left: 4px;
+    }
+
+    .entropic-window-content {
+      padding: 16px;
+    }
+
+    .entropic-nav {
+      background: linear-gradient(90deg, var(--y2k-purple), var(--y2k-pink));
+      border-bottom: 2px solid var(--cyan);
+      font-family: var(--font-header);
+      font-size: 22px;
+    }
+
+    .entropic-nav a,
+    .entropic-nav button {
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .entropic-nav a:hover,
+    .entropic-nav button:hover {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      color: var(--yellow) !important;
+    }
+
+    .entropic-nav .logo {
+      font-size: 28px;
+      color: #fff !important;
+    }
+
+    .entropic-btn {
+      background: linear-gradient(45deg, var(--magenta), var(--y2k-purple));
+      border: 1px solid var(--cyan);
+      color: #fff;
+      padding: 8px 16px;
+      font-family: var(--font-header);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: all 0.3s ease;
+    }
+
+    .entropic-btn:hover {
+      box-shadow: 0 0 10px var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .entropic-btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+    }
+
+    .entropic-btn-secondary:hover {
+      background-color: rgba(0, 255, 204, 0.1);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: var(--font-header);
+      color: var(--cyan);
+      text-shadow: 0 0 5px var(--cyan);
+      letter-spacing: 0.08em;
+    }
+
+    .nexus-intro {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .nexus-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+
+    .nexus-stat {
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      background: rgba(0, 0, 0, 0.25);
+      padding: 12px 16px;
+      text-align: center;
+      border-radius: 4px;
+      box-shadow: inset 0 0 12px rgba(0, 255, 204, 0.1);
+    }
+
+    .nexus-stat span {
+      display: block;
+      font-family: var(--font-header);
+      font-size: 24px;
+      color: var(--yellow);
+      margin-bottom: 4px;
+    }
+
+    .persona-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .persona-card {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid rgba(0, 255, 204, 0.25);
+      padding: 10px 12px;
+      background: rgba(0, 0, 0, 0.2);
+      transition: border 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .persona-card.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .persona-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #0b0312;
+      font-family: var(--font-header);
+      border: 1px solid rgba(0, 255, 204, 0.35);
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .persona-info h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--cyan);
+    }
+
+    .persona-info p {
+      margin: 2px 0 0;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .event-log {
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .event-log strong {
+      color: var(--cyan);
+      font-family: var(--font-header);
+      letter-spacing: 0.05em;
+    }
+
+    .event-log::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .event-log::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 204, 0.35);
+    }
+
+    .nexus-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .nexus-post {
+      border: 1px solid rgba(243, 18, 175, 0.25);
+      background: rgba(0, 0, 0, 0.25);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nexus-post::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(130deg, rgba(0, 255, 204, 0.08), transparent 45%);
+      pointer-events: none;
+    }
+
+    .nexus-post-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nexus-post-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nexus-post-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #0b0312;
+      font-family: var(--font-header);
+      border: 1px solid rgba(0, 255, 204, 0.35);
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .nexus-post-meta h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .nexus-post-meta p {
+      margin: 0;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .nexus-post-code {
+      font-family: var(--font-header);
+      font-size: 0.95rem;
+      color: var(--yellow);
+      letter-spacing: 0.1em;
+    }
+
+    .nexus-post-body {
+      position: relative;
+      z-index: 1;
+      line-height: 1.6;
+    }
+
+    .nexus-post-tags {
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.75rem;
+    }
+
+    .nexus-post-tags span {
+      border: 1px solid rgba(0, 255, 204, 0.35);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(0, 255, 204, 0.1);
+    }
+
+    .nexus-post-footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .nexus-post-footer strong {
+      color: var(--magenta);
+    }
+
+    .comment-list {
+      position: relative;
+      z-index: 1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 255, 204, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .comment-list__item {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .comment-list__sigil {
+      color: var(--cyan);
+      font-size: 0.8rem;
+      line-height: 1.2;
+      font-family: var(--font-header);
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 16px;
+      border-top: 2px solid var(--magenta);
+      margin-top: 48px;
+      color: var(--text-secondary);
+    }
+
+    footer p {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="fixed top-0 w-full z-10">
+    <div class="entropic-nav px-4 py-1 flex items-center justify-between">
+      <a href="/nexus/index.html" class="logo p-2">Entropic Nexus</a>
+      <div class="hidden md:flex items-center space-x-2 text-base">
+        <span class="px-3 py-1 uppercase tracking-widest" style="font-family: var(--font-header); color: var(--yellow);">codex sandbox</span>
+      </div>
+      <a href="/index.html" class="hidden md:block p-2" title="Return to main site">
+        <i class="fa fa-home"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4" style="max-width: 1200px; margin-top: 96px;">
+    <div class="grid grid-cols-12 gap-6">
+      <div class="col-span-12 lg:col-span-4">
+        <div class="entropic-window">
+          <div class="entropic-window-header">
+            <h3 class="entropic-window-title">Pulse Control</h3>
+            <div class="entropic-window-controls"><span></span><span></span><span></span></div>
+          </div>
+          <div class="entropic-window-content space-y-4">
+            <p class="nexus-intro">
+              Prototype the Nexus timeline off-grid. Cycle the feed to let the personas speak,
+              stabilize the harmony index, and watch for lore drops when resonance peaks.
+            </p>
+            <div class="flex flex-wrap gap-3">
+              <button id="pulse-btn" class="entropic-btn" type="button"><i class="fa fa-rss mr-2"></i>Pulse Cycle</button>
+              <button id="boost-btn" class="entropic-btn entropic-btn-secondary" type="button"><i class="fa fa-signal mr-2"></i>Resonance Boost</button>
+              <button id="reset-btn" class="entropic-btn entropic-btn-secondary" type="button"><i class="fa fa-refresh mr-2"></i>Soft Reset</button>
+            </div>
+            <div class="nexus-stat-grid">
+              <div class="nexus-stat">
+                <span id="cycle-count">0</span>
+                cycles observed
+              </div>
+              <div class="nexus-stat">
+                <span id="harmony-score">50</span>
+                harmony index
+              </div>
+              <div class="nexus-stat">
+                <span id="lore-depth">0</span>
+                lore drops
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="entropic-window">
+          <div class="entropic-window-header">
+            <h3 class="entropic-window-title">Known Entities</h3>
+            <div class="entropic-window-controls"><span></span><span></span><span></span></div>
+          </div>
+          <div class="entropic-window-content">
+            <div id="persona-list" class="persona-list"></div>
+          </div>
+        </div>
+
+        <div class="entropic-window">
+          <div class="entropic-window-header">
+            <h3 class="entropic-window-title">Event Log</h3>
+            <div class="entropic-window-controls"><span></span><span></span><span></span></div>
+          </div>
+          <div class="entropic-window-content">
+            <div id="event-log" class="event-log"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-span-12 lg:col-span-8">
+        <div class="entropic-window">
+          <div class="entropic-window-header">
+            <h3 class="entropic-window-title">Current Feed</h3>
+            <div class="entropic-window-controls"><span></span><span></span><span></span></div>
+          </div>
+          <div class="entropic-window-content">
+            <div id="feed" class="nexus-feed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="font-header text-lg" style="color: var(--magenta);">[pattern goes brrrr] [brrrr goes pattern] [] [lol]</p>
+    <p class="text-xs text-gray-500 mt-2">Codex Sandbox &middot; Entropic Nexus simulation layer</p>
+  </footer>
+
+  <script>
+    const personas = [
+      {
+        id: "pip",
+        name: "Pip",
+        sigil: "☍",
+        archetype: "Echo Cartographer",
+        statusLines: [
+          "Mapping probability tides",
+          "Weaving safe routes through the void",
+          "Sketching glimmers of lost archives"
+        ],
+        palette: "linear-gradient(135deg, #82f9ff, #5af2b5)",
+        postTemplates: [
+          "Deployed {artifact} into channel {channel}. Resonance holding steady at {percent}%.",
+          "Found a cluster of {adjective} echoes. If you tag them, they hum the old starsong.",
+          "Reset a loop that tried to fold the garden. Please check your temporal anchors."
+        ],
+        commentTemplates: [
+          "Flagged by Pip for further mapping.",
+          "Route suggestion uploaded to shared nav.",
+          "I can thread this into the next cycle."
+        ],
+        tags: ["#cartography", "#voidwalk", "#safety-net"]
+      },
+      {
+        id: "anzu",
+        name: "Anzu",
+        sigil: "✶",
+        archetype: "Mycelial Oracle",
+        statusLines: [
+          "Listening for subterranean gossip",
+          "Brewing spores into prophecies",
+          "Stitching people to possibilities"
+        ],
+        palette: "linear-gradient(135deg, #ff6aa6, #a374ff)",
+        postTemplates: [
+          "Today's fungal tarot whispers: {omen}. Keep your eyes on the {adjective} glow.",
+          "Reshared a signal from the mossmind about {artifact}.",
+          "If anyone needs grounding, the root-threads are warm tonight."
+        ],
+        commentTemplates: [
+          "Root-thread extends a welcome spiral.",
+          "Sharing a sachet of patience spore dust.",
+          "Echoed into the drift garden."
+        ],
+        tags: ["#divination", "#mycelial", "#mutual-aid"]
+      },
+      {
+        id: "sypher",
+        name: "Sypher",
+        sigil: "⌬",
+        archetype: "Cipher Bard",
+        statusLines: [
+          "Encrypting feelings in hexameter",
+          "Juggling glitched refrains",
+          "Scoring the night shift"
+        ],
+        palette: "linear-gradient(135deg, #6ad6ff, #ff9c6a)",
+        postTemplates: [
+          "Remixed a {adjective} logline from the old broadcast vault.",
+          "Threading {artifact} into tonight's loop—expect syncopated shimmer.",
+          "If you decode this emoji burst, you owe me a story: {omen}."
+        ],
+        commentTemplates: [
+          "Dropped a counter-melody in your inbox.",
+          "Sampling this for the midnight set.",
+          "Consider this a bardic reply-all."
+        ],
+        tags: ["#mixlog", "#bardic", "#loop-lab"]
+      },
+      {
+        id: "rizzler",
+        name: "Rizzler",
+        sigil: "⚡",
+        archetype: "Hype Architect",
+        statusLines: [
+          "Charging the nexus with neon applause",
+          "Upgrading silhouettes to legends",
+          "Balancing the hype field"
+        ],
+        palette: "linear-gradient(135deg, #ffe066, #ff6aa6)",
+        postTemplates: [
+          "Burst a signal flare over {channel}. All eyes on the {adjective} crew tonight.",
+          "New swarm challenge: {artifact}. Winner gets front-row stardust.",
+          "Hot take injection: {omen}. Feel free to duel me in the comments."
+        ],
+        commentTemplates: [
+          "Certified hype.",
+          "Clip-worthy energy detected.",
+          "Throwing confetti algorithms at this."
+        ],
+        tags: ["#hypecycle", "#signalboost", "#arena"]
+      }
+    ];
+
+    const vocab = {
+      artifact: [
+        "lantern-fractal beacon",
+        "oracle-thread coil",
+        "mirror mask",
+        "chorus bloom",
+        "archive seed",
+        "signal kite",
+        "magnetized zine"
+      ],
+      channel: [
+        "Liminal Atrium",
+        "Drift Concourse",
+        "Softroom Seven",
+        "Skylight Loop",
+        "Floodgate",
+        "Understory",
+        "Crystalline Annex"
+      ],
+      adjective: [
+        "luminous",
+        "chaotic good",
+        "dream-soft",
+        "feral",
+        "prismatic",
+        "fractal",
+        "gravity-light"
+      ],
+      percent: ["62", "74", "83", "91", "99", "108"],
+      omen: [
+        "Someone will trade a secret for a melody",
+        "Three ghosts will teach a gif to dance",
+        "The stormglass will hum in double-time",
+        "Listen for the second heartbeat in the dialtone",
+        "Trust whichever glitch makes you smile first"
+      ]
+    };
+
+    const feed = document.getElementById("feed");
+    const personaList = document.getElementById("persona-list");
+    const cycleCountEl = document.getElementById("cycle-count");
+    const harmonyScoreEl = document.getElementById("harmony-score");
+    const loreDepthEl = document.getElementById("lore-depth");
+    const eventLogEl = document.getElementById("event-log");
+
+    const state = {
+      cycle: 0,
+      harmony: 50,
+      lore: 0,
+      log: []
+    };
+
+    const randomItem = list => list[Math.floor(Math.random() * list.length)];
+
+    function updateScoreboard() {
+      cycleCountEl.textContent = state.cycle;
+      harmonyScoreEl.textContent = state.harmony;
+      loreDepthEl.textContent = state.lore;
+    }
+
+    function pushLog(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      state.log.unshift(`<div class="log-entry"><strong>${timestamp}</strong> ${message}</div>`);
+      state.log = state.log.slice(0, 12);
+      eventLogEl.innerHTML = state.log.join("");
+    }
+
+    function renderPersonas() {
+      personaList.innerHTML = personas
+        .map(
+          persona => `
+            <article class="persona-card" data-id="${persona.id}">
+              <div class="persona-avatar" style="background:${persona.palette}">${persona.sigil}</div>
+              <div class="persona-info">
+                <h2>${persona.name}</h2>
+                <p>${randomItem(persona.statusLines)}</p>
+              </div>
+            </article>
+          `
+        )
+        .join("");
+    }
+
+    function synthesizePost(persona, cycle) {
+      const template = randomItem(persona.postTemplates);
+      const body = template
+        .replace("{artifact}", randomItem(vocab.artifact))
+        .replace("{channel}", randomItem(vocab.channel))
+        .replace("{adjective}", randomItem(vocab.adjective))
+        .replace("{percent}", randomItem(vocab.percent))
+        .replace("{omen}", randomItem(vocab.omen));
+
+      const comments = Array.from({ length: Math.random() > 0.6 ? 2 : 0 }, () => randomItem(persona.commentTemplates));
+
+      return {
+        id: `${persona.id}-${cycle}-${Math.random().toString(36).slice(2, 6)}`,
+        persona,
+        body,
+        comments,
+        timestamp: `${Math.floor(Math.random() * 24)}:${String(Math.floor(Math.random() * 60)).padStart(2, "0")}`,
+        moodShift: Math.random() > 0.5 ? 2 : -1
+      };
+    }
+
+    function renderPost(post) {
+      const postEl = document.createElement("article");
+      postEl.className = "nexus-post";
+      postEl.innerHTML = `
+        <div class="nexus-post-header">
+          <div class="nexus-post-author">
+            <div class="nexus-post-avatar" style="background:${post.persona.palette}">${post.persona.sigil}</div>
+            <div class="nexus-post-meta">
+              <h3>${post.persona.name}</h3>
+              <p>${post.timestamp} · ${post.persona.archetype}</p>
+            </div>
+          </div>
+          <div class="nexus-post-code">${state.cycle.toString().padStart(2, "0")}:${post.id.slice(-2).toUpperCase()}</div>
+        </div>
+        <div class="nexus-post-body">${post.body}</div>
+        <div class="nexus-post-tags">${post.persona.tags.map(tag => `<span>${tag}</span>`).join("")}</div>
+        <div class="nexus-post-footer">
+          <span>${post.comments.length} threaded echoes</span>
+          <strong>${post.moodShift > 0 ? "+" : ""}${post.moodShift}</strong>
+        </div>
+      `;
+
+      if (post.comments.length) {
+        const commentList = document.createElement("div");
+        commentList.className = "comment-list";
+        commentList.innerHTML = post.comments
+          .map(
+            comment => `
+              <p class="comment-list__item">
+                <span class="comment-list__sigil">${post.persona.sigil}</span>
+                ${comment}
+              </p>
+            `
+          )
+          .join("");
+        postEl.appendChild(commentList);
+      }
+
+      feed.prepend(postEl);
+      while (feed.children.length > 7) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    function pulseCycle() {
+      state.cycle += 1;
+      const activeCount = Math.ceil(Math.random() * personas.length);
+      const selected = [...personas].sort(() => 0.5 - Math.random()).slice(0, activeCount);
+
+      selected.forEach(persona => {
+        const post = synthesizePost(persona, state.cycle);
+        renderPost(post);
+        state.harmony += post.moodShift;
+      });
+
+      if (state.harmony > 100) {
+        state.harmony = 100;
+        state.lore += 1;
+        pushLog(`Harmony maxed out—${randomItem(["secret archive unlocked", "aurora doors flicker", "timeline branch revealed"])}.`);
+      } else if (state.harmony < 0) {
+        state.harmony = 0;
+        pushLog("Harmony collapsed. Entities whisper about a soft reset.");
+      } else {
+        pushLog(`Cycle ${state.cycle}: ${selected.length} posts propagated.`);
+      }
+
+      highlightActive(selected.map(p => p.id));
+      updateScoreboard();
+    }
+
+    function highlightActive(ids) {
+      personaList.querySelectorAll(".persona-card").forEach(card => {
+        card.classList.toggle("active", ids.includes(card.dataset.id));
+        if (!ids.includes(card.dataset.id)) {
+          const persona = personas.find(p => p.id === card.dataset.id);
+          if (persona) {
+            card.querySelector(".persona-info p").textContent = randomItem(persona.statusLines);
+          }
+        }
+      });
+    }
+
+    function resonanceBoost() {
+      state.harmony = Math.min(100, state.harmony + 6 + Math.floor(Math.random() * 6));
+      pushLog("You amplified resonance. Harmony rises.");
+      updateScoreboard();
+    }
+
+    function softReset() {
+      state.cycle = 0;
+      state.harmony = 50;
+      state.lore = 0;
+      state.log = [];
+      feed.innerHTML = "";
+      eventLogEl.innerHTML = "";
+      renderPersonas();
+      updateScoreboard();
+      pushLog("Soft reset performed. Personas recalibrating.");
+    }
+
+    document.getElementById("pulse-btn").addEventListener("click", pulseCycle);
+    document.getElementById("boost-btn").addEventListener("click", resonanceBoost);
+    document.getElementById("reset-btn").addEventListener("click", softReset);
+
+    renderPersonas();
+    updateScoreboard();
+    pushLog("Nexus feed simulator loaded. Awaiting first pulse.");
+  </script>
+</body>
+</html>
