@@ -518,6 +518,16 @@ audioControl.addEventListener('click', () => { if (dialupSound.paused) { dialupS
 
 <!-- ✨ RESTORED: Floating navbar at the bottom (your original design) -->
 <div id="taskbar"></div>
+
+<!-- Page View Counter -->
+<div style="position: fixed; bottom: 50px; right: 20px; z-index: 9999;">
+    <div id="page-counter"></div>
+</div>
+
+<!-- Load Page Counter Script -->
+<link rel="stylesheet" href="/css/counter-guestbook.css">
+<script src="/js/pageCounter.js"></script>
+
 <script>
   (async () => {
     const res = await fetch('/nav.html', {cache: 'no-store'});
