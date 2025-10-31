@@ -938,5 +938,22 @@ const threadsData = {
             }
         };
     </script>
+
+    <div id="global-nav"></div>
+    <script>
+      (function() {
+        var container = document.getElementById('global-nav');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'global-nav';
+          document.body.appendChild(container);
+        }
+        fetch('/nav.html', { cache: 'no-store' })
+          .then(function(response) { return response.text(); })
+          .then(function(html) { container.innerHTML = html; })
+          .catch(function(error) { console.error('Navigation failed to load:', error); });
+      })();
+    </script>
+
 </body>
 </html>

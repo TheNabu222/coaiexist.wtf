@@ -1,0 +1,67 @@
+name: Sync Data to Neocities
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      sync_type:
+        description: 'Type of sync (all, data-only, or full-deploy)'
+        required: false
+        default: 'data-only'
+
+  # Auto-run daily to deploy any data changes
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+
+  # Run when data files are updated
+  push:
+    paths:
+      - 'data/**'
+      - '.github/workflows/sync-to-neocities.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Neocities CLI
+        run: npm install -g neocities
+
+      - name: Deploy to Neocities
+        env:
+          NEOCITIES_API_KEY: ${{ secrets.NEOCITIES_API_KEY }}
+          NEOCITIES_SITENAME: ${{ secrets.NEOCITIES_SITENAME }}
+        run: |
+          # Configure Neocities CLI
+          if [ "${{ github.event.inputs.sync_type }}" == "data-only" ]; then
+            echo "Syncing data files only..."
+            neocities upload data/pageviews.json -k $NEOCITIES_API_KEY
+            neocities upload data/guestbook.json -k $NEOCITIES_API_KEY
+          elif [ "${{ github.event.inputs.sync_type }}" == "full-deploy" ]; then
+            echo "Full site deployment..."
+            neocities push . -k $NEOCITIES_API_KEY
+          else
+            # Default: sync data and JavaScript/CSS
+            echo "Syncing data, scripts, and styles..."
+            neocities upload data/pageviews.json -k $NEOCITIES_API_KEY
+            neocities upload data/guestbook.json -k $NEOCITIES_API_KEY
+            neocities upload js/pageCounter.js -k $NEOCITIES_API_KEY
+            neocities upload js/guestbook.js -k $NEOCITIES_API_KEY
+            neocities upload css/counter-guestbook.css -k $NEOCITIES_API_KEY
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Deployment complete!"
+          echo "📊 Timestamp: $(date)"
+          echo "🔄 Sync type: ${{ github.event.inputs.sync_type }}"

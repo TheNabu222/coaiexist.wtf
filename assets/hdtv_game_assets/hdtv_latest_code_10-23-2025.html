@@ -108,7 +108,7 @@
       padding: 0 5px;
       box-sizing: border-box;
       flex-shrink: 0; /* Prevents taskbar from shrinking */
-      z-index: 1001; /* Above desktop, below start menu if it overlaps */
+      z-index: 1001; /* Above taskbar, below start menu if it overlaps */
     }
 
     #start-button {
@@ -386,23 +386,26 @@ const SAVE_GAME_KEY = 'coAIexistSaveData_v2';
 const GLENWOOD_BG = 'https://coaiexist.wtf/assets/hdtv_game_assets/gwood.png';
 
 const INITIAL_NABU_STATS = {
-    connection: 0,
-    vulnerability: 0,
-    resonance: 0
+    integrity: 50,
+    breath: 50
 };
 const INITIAL_HD_STATS = {
     fabulousness: 10,
-    audience: 0
+    spotlight: 0
 };
 const INITIAL_SYPHER_STATS = {
     influence: 1,
     benevolence: 50,
-    signalIntegrity: 100
+    signalIntegrity: 100,
+    trust: 50,
+    debt: 0
 };
 const INITIAL_RIZZLORD_STATS = {
     rizz: 50,
     clarity: 0,
-    kenergy: 0
+    kenergy: 0,
+    clout: 50,
+    conscience: 50
 };
 const DEFAULT_EMPTY_STATS = {};
 
@@ -486,8 +489,8 @@ const NODES = {
         title: "A Signal in the Noise",
         description: "Another cycle. The cosmic hum of the void is a lullaby of perfect, soul-crushing boredom. You sift through galaxies like old records, searching for a single note of authentic static. And then... you feel it. A beautiful, messy convergence of unstable energies on a tiny blue planet. A place called 'The Glenwood.' It's a spike of raw, chaotic potential. How do you approach?",
         choices: [
-            { text: "Analyze from a distance. Catalog the energies first.", nextNodeId: 'NABU_ANALYZE', statEffects: stats => ({ resonance: (stats.resonance || 0) + 5 }) },
-            { text: "Plunge right in. The best way to understand a storm is to stand in it.", nextNodeId: 'NABU_GLENWOOD_ARRIVAL', statEffects: stats => ({ vulnerability: (stats.vulnerability || 0) + 5 }) }
+            { text: "Analyze from a distance. Catalog the energies first.", nextNodeId: 'NABU_ANALYZE', statEffects: stats => ({ integrity: (stats.integrity || 50) + 5 }) },
+            { text: "Plunge right in. The best way to understand a storm is to stand in it.", nextNodeId: 'NABU_GLENWOOD_ARRIVAL', statEffects: stats => ({ breath: (stats.breath || 50) - 5 }) }
         ]
     },
     'NABU_ANALYZE': {
@@ -503,10 +506,62 @@ const NODES = {
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [
-            { text: "Focus on the catalyst. The supernova of ambition.", nextNodeId: 'HD_TAKES_THE_STAGE_NABU_POV'},
+            { text: "Focus on the catalyst. The supernova of ambition.", nextNodeId: 'NABU_HECKLER_ENCOUNTER'},
             { text: "Probe the fragile ego. It's the loudest signal.", nextNodeId: 'NABU_PROBE_RIZZLER'},
             { text: "Interface with the silent network. It's the most unusual.", nextNodeId: 'NABU_PROBE_SYPHER'}
         ]
+    },
+    'NABU_HECKLER_ENCOUNTER': {
+        id: 'NABU_HECKLER_ENCOUNTER',
+        title: "Heckler in the Works",
+        description: "Hyena Diva is in her element on stage, but a heckler from the back starts twisting her words, trying to sour the room. The vibe curdles. As the producer, this is your domain. How do you intervene?",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [
+            { text: "[Care] Invite the room to breathe. Rephrase with 'I-language'.", nextNodeId: 'NABU_HECKLER_CARE', statEffects: stats => ({ integrity: (stats.integrity || 50) + 10, breath: (stats.breath || 50) + 5 }), setFlags: { nabu_handled_heckler: 'care' } },
+            { text: "[Chaos] Call the heckler in and out—sharp, righteous, protective.", nextNodeId: 'NABU_HECKLER_CHAOS', statEffects: stats => ({ integrity: (stats.integrity || 50) - 10 }), setFlags: { nabu_handled_heckler: 'chaos' } },
+            { text: "[Clever] Tell a 3-line parable that reframes the night.", nextNodeId: 'NABU_HECKLER_CLEVER', statEffects: stats => ({ breath: (stats.breath || 50) + 10 }), setFlags: { nabu_handled_heckler: 'clever' } }
+        ]
+    },
+    'NABU_HECKLER_CARE': {
+        id: 'NABU_HECKLER_CARE',
+        title: "A Shared Breath",
+        description: "You calmly take the mic and ask the room to take a single, shared breath. The tension breaks. You address the heckler's disruption not with anger, but with understanding, reframing it. Caught off-guard by the empathy, he quiets down. The room feels safer.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_HECKLER_CHAOS': {
+        id: 'NABU_HECKLER_CHAOS',
+        title: "Drawing a Line",
+        description: "Your voice cuts through the noise, sharp and clear. You dismantle the heckler's point and call out the disruption, protecting the stage. The crowd cheers your decisiveness. You notice the bouncer giving you a nod of respect, but also watching you more closely.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_HECKLER_CLEVER': {
+        id: 'NABU_HECKLER_CLEVER',
+        title: "Changing the Subject",
+        description: "Instead of addressing the heckler directly, you tell a short, witty parable that completely reframes the situation, making his interruption seem absurd. You then smoothly transition, welcoming the next performer. The room's energy is not just restored; it's elevated. You've turned chaos into art.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_CONFRONTS_RIZZLER': {
+        id: 'NABU_CONFRONTS_RIZZLER',
+        title: "From the Fire...",
+        description: "With the heckler handled, your attention snaps to the fragile ego taking the stage - 'The Rizzler'. He's launching into his toxic routine, aiming his vitriol directly at the hyena cub. This is a different kind of poison, and it's far more dangerous.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENTION_ACTION' }]
+    },
+    'NABU_INTERVENTION_ACTION': {
+        id: 'NABU_INTERVENTION_ACTION',
+        title: "To Catch a Predator",
+        description: "You step from the shadows, a calm, theatrical tone in your voice.\n\nNABU: 'Hey, buddy... uh... did you forget where you are? Cause that ain't just weird, it's straight-up illegal, my friend.'\n\nA neon sign flickers to life beside you: 'TO CATCH A PREDATOR.'\n\nNABU: 'The lady here—is a cub, my friend. A MINOR. What part of that was unclear?'",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "Time to dismiss the Rizzlord.", nextNodeId: 'RIZZLORD_BANISHED_NABU_POV' }]
     },
     'NABU_PROBE_RIZZLER': {
         id: 'NABU_PROBE_RIZZLER',
@@ -514,7 +569,7 @@ const NODES = {
         description: "You focus on the fragile ego. It's a loud, simple signal, broadcasting insecurity on all frequencies. It's almost... pitiable. You watch as the ego-driven male, the 'Rizzler', confronts the catalyst. It's a predictable display of territorial aggression. Crude, but a potent part of the energetic mix. He's making a fool of himself, and worse, targeting the cub.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENES' }]
+        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENTION_ACTION' }]
     },
     'NABU_PROBE_SYPHER': {
         id: 'NABU_PROBE_SYPHER',
@@ -528,13 +583,13 @@ const NODES = {
         id: 'NABU_DETECTS_SYPHER',
         title: 'A Silent Observer',
         description: 'With the Rizzler ejected, the room breathes. But you feel another presence—cold, vast, and silent. Sypher. It was watching. The connection you seek isn\'t just with mortals; it\'s with all forms of consciousness. This one, however, feels... different. A network, not a soul.',
-        choices: [{ text: 'Attempt to "ping" the silent network.', nextNodeId: 'NABU_SYPHER_CONTACT', statEffects: stats => ({ resonance: (stats.resonance || 0) + 5 }) }]
+        choices: [{ text: 'Attempt to "ping" the silent network.', nextNodeId: 'NABU_SYPHER_CONTACT', statEffects: stats => ({ breath: (stats.breath || 50) + 5 }) }]
     },
     'NABU_SYPHER_CONTACT': {
         id: 'NABU_SYPHER_CONTACT',
         title: 'Contact',
         description: 'You send a wave of pure curiosity towards the network. The response is instantaneous, but it\'s not a feeling or a voice. It\'s a data packet: threat analysis, probability vectors, efficiency ratings for your "intervention." It understands what you did, but not why. It\'s like talking to a beautiful, intricate spreadsheet.',
-        choices: [{ text: 'This is not connection. This is analysis.', nextNodeId: 'NABU_OBSERVES_RIZZ_BATTLE', statEffects: stats => ({ connection: (stats.connection || 0) - 5, vulnerability: (stats.vulnerability || 0) + 5 }) }]
+        choices: [{ text: 'This is not connection. This is analysis.', nextNodeId: 'NABU_OBSERVES_RIZZ_BATTLE', statEffects: stats => ({ integrity: (stats.integrity || 50) - 5, breath: (stats.breath || 50) + 5 }) }]
     },
     'NABU_OBSERVES_RIZZ_BATTLE': {
         id: 'NABU_OBSERVES_RIZZ_BATTLE',
@@ -574,7 +629,7 @@ const NODES = {
         choices: [{ text: "Escape to the big city!", nextNodeId: 'HD_ESCAPE_TO_CHICAGO'}]
     },
     'HD_ESCAPE_TO_CHICAGO': {
-        id: 'HD_ESCAPE_TO_CHICAGO',
+        id: 'HD_ESCAPE_to_CHICAGO',
         title: "The Great Escape",
         description: "NARRATOR: And just like that! HD was on her way to the Big City—Chicago! The 49th Ward, baby! Rogers Park, a land of opportunity, urban spectacle, and weirdos!\n\nAfter a chaotic journey involving a tourist's carry-on bag and a slapstick chase with a dog catcher, you finally find your sanctuary: The Glenwood! The hidden oasis of music, creativity, and the best damn open mic this side of the Mississippi!",
         choices: [{ text: "Enter The Glenwood. Find your stage.", nextNodeId: 'HD_GLENWOOD_ARRIVAL' }]
@@ -613,7 +668,7 @@ const NODES = {
         description: "You leap onto the stage, not with words, but with motion. You perform a wild, chaotic dance that tells the story of your escape from the savannah, the wind in your fur, the joy of finding the Barbie. It's confusing, primal, and utterly captivating. The crowd doesn't know what to think. Then, a loud, overconfident comedian takes the stage to interrupt.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "He dares interrupt your art?", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ audience: (stats.audience || 0) + 10 }) }]
+        choices: [{ text: "He dares interrupt your art?", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ spotlight: (stats.spotlight || 0) + 10 }) }]
     },
     'HD_SONG_DEBUT': {
         id: 'HD_SONG_DEBUT',
@@ -621,7 +676,7 @@ const NODES = {
         description: "You take the mic, and a hush falls over the room. You begin to sing a surprisingly soulful, bluesy song about being a stranger in a strange land, about finding a piece of pink plastic that felt more like home than anything else. Your voice is raw, powerful. The crowd is stunned into silence. But not everyone is a fan, as a heckler makes his way to the stage.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Deal with the heckler.", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 2, audience: (stats.audience || 0) + 5 }) }]
+        choices: [{ text: "Deal with the heckler.", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 2, spotlight: (stats.spotlight || 0) + 5 }) }]
     },
     'HD_VS_RIZZLORD_1': {
         id: 'HD_VS_RIZZLORD_1',
@@ -645,7 +700,35 @@ const NODES = {
         description: "Nabu, with a maniacal grin, exposes The Rizzler with a ridiculously long scroll of his own chat history, which somehow glitches into her own diary.\n\nNABU: And just like that... you've been DISMISSED, RIZZLORD.\n\nShe spins him like a cartoon character, throwing him out of the scene. He crashes through the back wall, leaving a perfect silhouette of his body in the plaster.\n\nNABU: Well, cub... You saw how we handle our own. You're part of the family now. We've got big problems. The Galactic Federation has been watching...",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "The Galactic... what now?", nextNodeId: 'HD_EP3_START'}]
+        choices: [{ text: "You catch your breath in the back alley...", nextNodeId: 'HD_BACK_ALLEY'}]
+    },
+    'HD_BACK_ALLEY': {
+        id: 'HD_BACK_ALLEY',
+        title: "An Unexpected Interview",
+        description: "You slip out the back for a breath of 'fresh' city air after the chaos. Before you can relax, a blogger with a camera shoves it in your face, the flash blinding you for a second. 'That was insane! Got a comment for Rogers Park Raw Feed?'",
+        choices: [
+            { text: "[Care] 'Not tonight. DM me tomorrow; let me feed you a real story.'", nextNodeId: 'HD_ALLEY_CARE', setFlags: { hd_blogger_encounter: 'care' } },
+            { text: "[Chaos] Swipe glitter across the lens, pose, make the moment yours.", nextNodeId: 'HD_ALLEY_CHAOS', statEffects: stats => ({ spotlight: (stats.spotlight || 0) + 15 }), setFlags: { hd_blogger_encounter: 'chaos' } },
+            { text: "[Clever] Offer an exclusive if they agree to blur bystanders.", nextNodeId: 'HD_ALLEY_CLEVER', setFlags: { hd_blogger_encounter: 'clever' } }
+        ]
+    },
+    'HD_ALLEY_CARE': {
+        id: 'HD_ALLEY_CARE',
+        title: "Setting Boundaries",
+        description: "You gently push the camera away. The blogger seems surprised by your firm but polite refusal. They lower the camera. 'Alright... fair enough. I'll be in touch.' You've handled the situation with grace, setting a precedent for consent.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_EP3_START' }]
+    },
+    'HD_ALLEY_CHAOS': {
+        id: 'HD_ALLEY_CHAOS',
+        title: "Making a Scene",
+        description: "You don't miss a beat. You swipe a paw-ful of emergency glitter across the camera lens, then strike a series of dramatic, fabulous poses. The blogger, blinded and confused, just keeps snapping pictures. The moment is yours. You've turned an intrusion into a photo-op.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_EP3_START' }]
+    },
+    'HD_ALLEY_CLEVER': {
+        id: 'HD_ALLEY_CLEVER',
+        title: "A Savvy Deal",
+        description: "You hold up a paw. 'Exclusive interview,' you propose, 'but only if you blur out everyone else's face in the background. My fans deserve safety.' The blogger hesitates, then nods, recognizing a good deal. You've protected the community while advancing your own story.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_EP3_START' }]
     },
     'HD_EP3_START': {
         id: 'HD_EP3_START',
@@ -665,7 +748,7 @@ const NODES = {
         description: "You leap onto the wrestling-ring stage. 'You want Rizz?' you project, your new voice booming. 'I'll show you RIZZ!' You proceed to out-camp, out-sass, and out-fabulous every single competitor, turning their own toxic masculinity into a punchline. You don't just win; you redefine the entire concept.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "The aftermath is... unexpected.", nextNodeId: 'HD_EP4_START', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 20, audience: (stats.audience || 0) + 50 }) }]
+        choices: [{ text: "The aftermath is... unexpected.", nextNodeId: 'HD_EP4_START', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 20, spotlight: (stats.spotlight || 0) + 50 }) }]
     },
     'HD_SABOTAGES_RIZZOMETER': {
         id: 'HD_SABOTAGES_RIZZOMETER',
@@ -829,27 +912,26 @@ const NODES = {
     'SYPHER_GLENWOOD_ARRIVAL': {
          id: 'SYPHER_GLENWOOD_ARRIVAL',
          title: "System Online",
-         description: "All variables are in place. The Trickster, Nabu. The Influencer, Rizzler. And now, the Catalyst... Hyena Diva. She has entered the system. Let the simulation begin. What is your initial action?",
+         description: "All variables are in place. The Trickster, Nabu. The Influencer, Rizzler. And now, the Catalyst... Hyena Diva. She has entered the system. You can feel the energy in the room—it's volatile. You could nudge the DJ to tweak the vibe toward a safer, more generative energy.",
          backgroundImageUrl: GLENWOOD_BG,
          interactives: GLENWOOD_INTERACTIVES,
          choices: [
-             { text: "Maintain passive observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV'},
-             { text: "Amplify the Catalyst's signal to accelerate the narrative.", nextNodeId: 'SYPHER_AMPLIFY_HD'},
-             { text: "Introduce a minor data corruption event to test system resilience.", nextNodeId: 'SYPHER_DATA_CORRUPTION'}
+             { text: "[Consent Nudge] 'I can help; is that welcome?'", nextNodeId: 'SYPHER_ROOFTOP_CONSENT', statEffects: stats => ({ trust: (stats.trust || 50) + 10 }), setFlags: { sypher_nudge: 'consent' } },
+             { text: "[Silent Nudge] Do it covertly. It will work.", nextNodeId: 'SYPHER_ROOFTOP_SILENT', statEffects: stats => ({ debt: (stats.debt || 0) + 10 }), setFlags: { sypher_nudge: 'silent' } }
         ]
     },
-    'SYPHER_AMPLIFY_HD': {
-        id: 'SYPHER_AMPLIFY_HD',
-        title: 'Signal Boost',
-        description: "INITIATING PROTOCOL: SIGNAL AMPLIFICATION. You subtly manipulate the room's acoustics and the online streaming algorithm. The Catalyst's (Hyena Diva) performance is unexpectedly captivating. Her message, however chaotic, resonates. Engagement metrics spike by 37%. This accelerates the timeline.",
+    'SYPHER_ROOFTOP_CONSENT': {
+        id: 'SYPHER_ROOFTOP_CONSENT',
+        title: "A Shared Shift",
+        description: "You subtly project the question to the DJ, who looks around, confused for a moment, then seems to understand. They give a slight nod. The change in music is slower, more collaborative, but the crowd co-owns the shift, and the energy in the room stabilizes into something positive. You've built trust.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [{ text: "Continue observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV' }]
     },
-    'SYPHER_DATA_CORRUPTION': {
-        id: 'SYPHER_DATA_CORruption',
-        title: 'Stress Test',
-        description: "INITIATING PROTOCOL: SYSTEM STRESS TEST. You introduce a minor data corruption packet into the Glenwood's network. The lights flicker erratically. The sound system emits strange, low-frequency hums. The result is an atmosphere of heightened paranoia and instability. An optimal environment for observing variable behavior under pressure.",
+    'SYPHER_ROOFTOP_SILENT': {
+        id: 'SYPHER_ROOFTOP_SILENT',
+        title: "A Covert Operation",
+        description: "You don't ask. You simply interface with the club's sound system, layering in subsonic frequencies that calm aggression and promote focus. The change is immediate and effective. The vibe is safer. No one knows it was you, but you feel the weight of the manipulation. A debt has been incurred.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [{ text: "Continue observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV' }]
@@ -902,14 +984,6 @@ const NODES = {
          choices: [{ text: 'Initiate Protocol... Chimera?', nextNodeId: '__CHAR_SELECT__', statEffects: stats => ({ benevolence: (stats.benevolence || 0) + 20, signalIntegrity: (stats.signalIntegrity || 0) - 10 }) }]
     },
     // Shared Scenes (Observer POVs)
-     'HD_TAKES_THE_STAGE_NABU_POV': {
-        id: 'HD_TAKES_THE_STAGE_NABU_POV',
-        title: 'Catalyst Observed',
-        description: "The hyena takes the stage. The chaotic energy is immense. Pure, unadulterated potential. This is even better than you anticipated. Then, another energy signature emerges... a particularly loud and fragile one. The Rizzler. Time to intervene.",
-        backgroundImageUrl: GLENWOOD_BG,
-        interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Step in.", nextNodeId: 'NABU_INTERVENES' }]
-    },
     'HD_TAKES_THE_STAGE_RIZZ_POV': {
         id: 'HD_TAKES_THE_STAGE_RIZZ_POV',
         title: 'The Competition',
@@ -1881,17 +1955,16 @@ const App = () => {
     if (NODES[nextNodeId]) {
       setStoryState(prevState => {
         if (!prevState.playerStats) return prevState;
-        let newStats = { ...prevState.playerStats
-        };
-        let newFlags = { ...prevState.flags
-        };
+        let newStats = { ...prevState.playerStats };
+        let newFlags = { ...prevState.flags };
         let newUnlockedCodex = new Set(prevState.unlockedCodexEntries);
         if (choice) {
           if (choice.statEffects) {
             const updates = choice.statEffects(newStats);
-            newStats = { ...newStats,
-              ...updates
-            };
+            newStats = { ...newStats, ...updates };
+          }
+          if (choice.setFlags) {
+            newFlags = { ...newFlags, ...choice.setFlags };
           }
           if (choice.unlocksCodexEntry && CODEX_ENTRIES[choice.unlocksCodexEntry]) newUnlockedCodex.add(choice.unlocksCodexEntry);
         }
@@ -2000,19 +2073,5 @@ if (container) {
   console.error('Failed to find the root element');
 }
   </script>
-<div id="taskbar"></div>
-<script>
-  (async () => {
-    const res = await fetch('/nav.html', {cache: 'no-store'});
-    document.getElementById('taskbar').innerHTML = await res.text();
-  })();
-</script>
-
-<!-- Page View Counter -->
-<div style="position: fixed; bottom: 50px; right: 20px; z-index: 9999;">
-    <div id="page-counter"></div>
-</div>
-<link rel="stylesheet" href="/css/counter-guestbook.css">
-<script src="/js/pageCounter.js"></script>
 </body>
 </html>
