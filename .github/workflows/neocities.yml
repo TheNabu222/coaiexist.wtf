@@ -1,0 +1,34 @@
+name: Deploy to Neocities
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: neocities-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Stage only the files you want to publish into ./out
+      - name: Stage site into ./out
+        run: |
+          mkdir -p out
+          rsync -av --delete \
+            --exclude '.git*' --exclude '.github' \
+            --exclude 'README*' --exclude 'LICENSE*' \
+            . out
+
+      - name: Deploy
+        uses: bcomnes/deploy-to-neocities@v3
+        with:
+          api_key: ${{ secrets.NEOCITIES_API_TOKEN }}
+          dist_dir: out
+          preview_before_deploy: true
+          cleanup: false
+          # set true if you’re a Supporter to allow otherwise-blocked types
+          neocities_supporter: false
