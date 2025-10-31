@@ -1,4 +1,5 @@
 <!-- /nav.html  — Medieval Taskbar (single shared file) -->
+<link rel="stylesheet" href="/css/counter-guestbook.css">
 <style>
 .win98-taskbar{position:fixed;left:0;right:0;bottom:0;height:58px;z-index:9999;
   background:linear-gradient(to top,#2b1302 0%,#4a2606 45%,#6e3a12 100%);
@@ -35,6 +36,19 @@
   box-shadow:0 0 14px rgba(240,223,164,.7),inset 0 0 0 2px rgba(71,40,10,.85)}
 body{padding-bottom:78px}
 .win98-taskbar a{color:inherit}
+
+/* Page Counter in Taskbar */
+.taskbar-counter-container{margin-left:auto;display:flex;align-items:center}
+.taskbar-counter .view-counter{
+  background:linear-gradient(to bottom,#5b2d08 0%,#331503 100%);
+  border:2px solid #f1dba0;
+  padding:8px 16px;
+  border-radius:8px;
+  box-shadow:0 4px 0 rgba(0,0,0,.45);
+  font-size:14px}
+.taskbar-counter .counter-text{color:#f6e7c2;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.taskbar-counter .counter-number{color:#d2b873;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.taskbar-counter .counter-icon{filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 </style>
 
 <nav class="win98-taskbar">
@@ -51,6 +65,10 @@ body{padding-bottom:78px}
   <a href="https://coaiexist.wtf/nexus" class="taskbar-button">💬 NEXUS</a> 
   <a href="https://coaiexist.wtf/terminal_temple" class="taskbar-button">🧿 TEMPLE_TERMINAL</a>
   <a href="https://coaiexist.wtf/bc7f2a/synergistic_manifesto" class="taskbar-button">💡MANIFEST</a>
+
+  <div class="taskbar-counter-container">
+    <div id="page-counter" class="taskbar-counter"></div>
+  </div>
 </nav>
 
 <script>
@@ -65,3 +83,6 @@ body{padding-bottom:78px}
   });
 })();
 </script>
+
+<!-- Load Page Counter -->
+<script src="/js/pageCounter.js"></script>
