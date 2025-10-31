@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COAIEXIST Admin - Data Manager</title>
-    <link rel="stylesheet" href="/css/counter-guestbook.css">
+    <link rel="stylesheet" href="css/counter-guestbook.css">
     <style>
         :root {
             --magenta: #f312af;
@@ -294,8 +294,8 @@
         async function loadCurrentData() {
             try {
                 const [viewsRes, guestbookRes] = await Promise.all([
-                    fetch('/data/pageviews.json?t=' + Date.now()),
-                    fetch('/data/guestbook.json?t=' + Date.now())
+                    fetch('data/pageviews.json?t=' + Date.now()),
+                    fetch('data/guestbook.json?t=' + Date.now())
                 ]);
 
                 currentPageViews = await viewsRes.json();
