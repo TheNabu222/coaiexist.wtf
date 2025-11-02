@@ -1,12 +1,15 @@
 // Guestbook Widget for coaiexist.wtf
-// Uses GitHub repo as backend storage
+// Uses Supabase as backend storage
 
 class Guestbook {
   constructor(containerId = 'guestbook-container') {
     this.containerId = containerId;
-    this.dataUrl = '/data/guestbook.json';
     this.maxNameLength = 50;
     this.maxMessageLength = 500;
+
+    // Supabase configuration
+    this.supabaseUrl = 'https://aqxrogaltuwtlparwdkq.supabase.co';
+    this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHJvZ2FsdHV3dGxwYXJ3ZGtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY0NzAsImV4cCI6MjA3NzY4MjQ3MH0.qvkQaoQa7MaN7drGHKGxU3c1KnTQOdTH022MynR6fzI';
   }
 
   // Initialize and render the guestbook
@@ -17,7 +20,7 @@ class Guestbook {
       return;
     }
 
-    // Load entries
+    // Load entries from Supabase
     const entries = await this.loadEntries();
 
     // Render UI
@@ -27,12 +30,25 @@ class Guestbook {
     this.attachEventListeners();
   }
 
-  // Load guestbook entries from JSON
+  // Load guestbook entries from Supabase
   async loadEntries() {
     try {
-      const response = await fetch(this.dataUrl + '?t=' + Date.now());
-      const data = await response.json();
-      return data.entries || [];
+      const response = await fetch(
+        `${this.supabaseUrl}/rest/v1/guestbook_entries?approved=eq.true&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': this.supabaseKey,
+            'Authorization': `Bearer ${this.supabaseKey}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to load entries');
+      }
+
+      const entries = await response.json();
+      return entries;
     } catch (error) {
       console.error('Error loading guestbook entries:', error);
       return [];
@@ -116,12 +132,7 @@ class Guestbook {
       `;
     }
 
-    // Sort by newest first
-    const sorted = [...entries].sort((a, b) =>
-      new Date(b.timestamp) - new Date(a.timestamp)
-    );
-
-    const entriesHtml = sorted.map(entry => this.renderEntry(entry)).join('');
+    const entriesHtml = entries.map(entry => this.renderEntry(entry)).join('');
 
     return `
       <div class="guestbook-entries">
@@ -133,7 +144,7 @@ class Guestbook {
 
   // Render single entry
   renderEntry(entry) {
-    const date = new Date(entry.timestamp);
+    const date = new Date(entry.created_at);
     const formattedDate = date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -201,18 +212,33 @@ class Guestbook {
     try {
       // Create entry object
       const entry = {
-        id: this.generateId(),
         name: name,
         message: message,
         website: website || null,
-        timestamp: new Date().toISOString()
+        approved: true // Auto-approve (you can change this to false for moderation)
       };
 
-      // Store in localStorage pending queue
-      this.addToPendingQueue(entry);
+      // Save to Supabase
+      const response = await fetch(
+        `${this.supabaseUrl}/rest/v1/guestbook_entries`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': this.supabaseKey,
+            'Authorization': `Bearer ${this.supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(entry)
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to save entry');
+      }
 
       // Show success message
-      this.showStatus('Thanks for signing! Your entry will appear after approval.', 'success');
+      this.showStatus('Thanks for signing! Your entry has been added!', 'success');
 
       // Reset form
       form.reset();
@@ -230,19 +256,6 @@ class Guestbook {
     }
   }
 
-  // Add entry to pending queue
-  addToPendingQueue(entry) {
-    try {
-      const queueKey = 'coaiexist_pending_guestbook';
-      const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
-      queue.push(entry);
-      localStorage.setItem(queueKey, JSON.stringify(queue));
-    } catch (e) {
-      console.error('Could not save entry to localStorage:', e);
-      throw e;
-    }
-  }
-
   // Show status message
   showStatus(message, type = 'info') {
     const status = document.getElementById('form-status');
@@ -257,30 +270,11 @@ class Guestbook {
     }
   }
 
-  // Generate unique ID
-  generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
   // Escape HTML to prevent XSS
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-  }
-
-  // Static method to get pending entries (for admin)
-  static getPendingEntries() {
-    try {
-      return JSON.parse(localStorage.getItem('coaiexist_pending_guestbook') || '[]');
-    } catch (e) {
-      return [];
-    }
-  }
-
-  // Static method to clear pending entries
-  static clearPendingEntries() {
-    localStorage.removeItem('coaiexist_pending_guestbook');
   }
 }
 
