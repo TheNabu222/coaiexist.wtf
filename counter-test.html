@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Counter Test</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #00ffcc;
+            font-family: 'Courier New', monospace;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 { color: #f312af; }
+        .counter {
+            background: #c0c0c0;
+            border: 2px inset #fff;
+            padding: 1rem 2rem;
+            display: inline-block;
+            margin: 2rem;
+            font-size: 1.5rem;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 Page Counter Test</h1>
+    <p>This page tests if the Supabase counter works.</p>
+
+    <div class="counter" id="counter">👁️ Loading...</div>
+
+    <script>
+        const SUPABASE_URL = 'https://aqxrogaltuwtlparwdkq.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHJvZ2FsdHV3dGxwYXJ3ZGtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY0NzAsImV4cCI6MjA3NzY4MjQ3MH0.qvkQaoQa7MaN7drGHKGxU3c1KnTQOdTH022MynR6fzI';
+
+        async function testCounter() {
+            const pagePath = '/test';
+
+            try {
+                // 1. Get current count
+                console.log('1. Fetching current count...');
+                const getRes = await fetch(
+                    `${SUPABASE_URL}/rest/v1/page_views?page_path=eq.${encodeURIComponent(pagePath)}`,
+                    {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`
+                        }
+                    }
+                );
+
+                const data = await getRes.json();
+                console.log('2. Got data:', data);
+
+                let count = 0;
+
+                if (data.length === 0) {
+                    // No entry exists, create one
+                    console.log('3. No entry found, creating new...');
+                    const insertRes = await fetch(
+                        `${SUPABASE_URL}/rest/v1/page_views`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return=representation'
+                            },
+                            body: JSON.stringify({
+                                page_path: pagePath,
+                                view_count: 1
+                            })
+                        }
+                    );
+
+                    const newData = await insertRes.json();
+                    console.log('4. Created entry:', newData);
+                    count = 1;
+
+                } else {
+                    // Entry exists, increment it
+                    count = data[0].view_count;
+                    console.log('3. Entry exists with count:', count);
+
+                    // Check if should increment
+                    const sessionKey = 'test_viewed';
+                    if (!sessionStorage.getItem(sessionKey)) {
+                        count++;
+                        console.log('4. Incrementing to:', count);
+
+                        await fetch(
+                            `${SUPABASE_URL}/rest/v1/page_views?page_path=eq.${encodeURIComponent(pagePath)}`,
+                            {
+                                method: 'PATCH',
+                                headers: {
+                                    'apikey': SUPABASE_KEY,
+                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    view_count: count
+                                })
+                            }
+                        );
+
+                        sessionStorage.setItem(sessionKey, 'true');
+                    } else {
+                        console.log('4. Already viewed this session, not incrementing');
+                    }
+                }
+
+                console.log('5. Final count:', count);
+                document.getElementById('counter').textContent = '👁️ Views: ' + count;
+
+            } catch (error) {
+                console.error('ERROR:', error);
+                document.getElementById('counter').textContent = '👁️ ERROR: ' + error.message;
+            }
+        }
+
+        testCounter();
+    </script>
+</body>
+</html>
