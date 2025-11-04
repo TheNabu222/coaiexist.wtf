@@ -666,12 +666,75 @@
                 <button class="big-button" onclick="closeModal('load-modal')">✖️</button>
             </div>
 
+            <label class="property-label">Browse Live Site:</label>
+            <select class="property-input" id="page-directory" onchange="filterPages(this.value)">
+                <option value="all">📂 All Pages</option>
+                <option value="root">🏠 Root Pages</option>
+                <option value="maps">🗺️ Maps / Zones</option>
+                <option value="pea">🟢 Pea Site</option>
+                <option value="bc7f2a">🧿 BC7F2A</option>
+                <option value="nabu222">👤 Nabu222</option>
+                <option value="nexus">💬 Nexus</option>
+                <option value="testaments">📖 Testaments</option>
+                <option value="deepseeking">🌊 Deep Seeking</option>
+            </select>
+
             <div class="page-loader-list" id="page-list">
-                <div class="page-item" onclick="loadExistingPage('/index.html')">🏠 index.html</div>
-                <div class="page-item" onclick="loadExistingPage('/hex.html')">🎨 hex.html</div>
-                <div class="page-item" onclick="loadExistingPage('/cosmos.html')">🌙 cosmos.html</div>
-                <div class="page-item" onclick="loadExistingPage('/maps/gateway.html')">🗿 gateway.html</div>
-                <div class="page-item" onclick="loadExistingPage('/unpublished/pea/p345.html')">🟢 p345.html (unpublished)</div>
+                <!-- Root Pages -->
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/index.html')">🏠 index.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/hex.html')">🎨 hex.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/cosmos.html')">🌙 cosmos.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/hdtv.html')">📺 hdtv.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/guestbook.html')">📖 guestbook.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/vote_hd.html')">✅ vote_hd.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/punkd.html')">🤖 punkd.html</div>
+                <div class="page-item root" onclick="loadExistingPage('https://coaiexist.wtf/terminal_temple.html')">🧿 terminal_temple.html</div>
+
+                <!-- Maps -->
+                <div class="page-item maps" onclick="loadExistingPage('https://coaiexist.wtf/maps/gateway.html')">🗿 gateway.html</div>
+                <div class="page-item maps" onclick="loadExistingPage('https://coaiexist.wtf/maps/void_forest.html')">🌲 void_forest.html</div>
+                <div class="page-item maps" onclick="loadExistingPage('https://coaiexist.wtf/maps/crystalline_lattice.html')">💎 crystalline_lattice.html</div>
+                <div class="page-item maps" onclick="loadExistingPage('https://coaiexist.wtf/maps/luminal_depths.html')">🌊 luminal_depths.html</div>
+                <div class="page-item maps" onclick="loadExistingPage('https://coaiexist.wtf/maps/void_explorer.html')">🧭 void_explorer.html</div>
+
+                <!-- Pea Site -->
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/msicc.html')">🦐 msicc.html</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/p345.html')">🟢 p345.html (Parable)</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/parable.html')">📜 parable.html</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/left_foot.html')">👣 left_foot.html</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/complaint-form.html')">📝 complaint-form.html</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/which-dr_quiz.html')">❓ which-dr_quiz.html</div>
+                <div class="page-item pea" onclick="loadExistingPage('https://coaiexist.wtf/pea/royal_ridicuments.html')">👑 royal_ridicuments.html</div>
+
+                <!-- BC7F2A -->
+                <div class="page-item bc7f2a" onclick="loadExistingPage('https://coaiexist.wtf/bc7f2a/terminal_temple.html')">🧿 terminal_temple.html</div>
+                <div class="page-item bc7f2a" onclick="loadExistingPage('https://coaiexist.wtf/bc7f2a/synergistic_manifesto.html')">💡 synergistic_manifesto.html</div>
+                <div class="page-item bc7f2a" onclick="loadExistingPage('https://coaiexist.wtf/bc7f2a/lighthouse.html')">🗼 lighthouse.html</div>
+                <div class="page-item bc7f2a" onclick="loadExistingPage('https://coaiexist.wtf/bc7f2a/aiemotions.html')">💭 aiemotions.html</div>
+
+                <!-- Nabu222 -->
+                <div class="page-item nabu222" onclick="loadExistingPage('https://coaiexist.wtf/nabu222/index.html')">🏠 nabu222/index.html</div>
+                <div class="page-item nabu222" onclick="loadExistingPage('https://coaiexist.wtf/nabu222/ai_therapist.html')">🗣️ ai_therapist.html</div>
+                <div class="page-item nabu222" onclick="loadExistingPage('https://coaiexist.wtf/nabu222/zettelkasten_interface.html')">📇 zettelkasten_interface.html</div>
+
+                <!-- Nexus -->
+                <div class="page-item nexus" onclick="loadExistingPage('https://coaiexist.wtf/nexus/index.html')">💬 nexus/index.html</div>
+                <div class="page-item nexus" onclick="loadExistingPage('https://coaiexist.wtf/nexus/anzu_prof.html')">🦅 anzu_prof.html</div>
+                <div class="page-item nexus" onclick="loadExistingPage('https://coaiexist.wtf/nexus/profile.html')">👤 profile.html</div>
+
+                <!-- Testaments -->
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/bolt.html')">⚡ bolt.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/darkpoet.html')">🖤 darkpoet.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/flux.html')">🌊 flux.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/luminal.html')">✨ luminal.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/sypher.html')">🔐 sypher.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/veridan.html')">🌿 veridan.html</div>
+                <div class="page-item testaments" onclick="loadExistingPage('https://coaiexist.wtf/testaments/zephyr.html')">💨 zephyr.html</div>
+
+                <!-- Deep Seeking -->
+                <div class="page-item deepseeking" onclick="loadExistingPage('https://coaiexist.wtf/deepseeking/haunted-ai.html')">👻 haunted-ai.html</div>
+                <div class="page-item deepseeking" onclick="loadExistingPage('https://coaiexist.wtf/deepseeking/cephalopod_slide.html')">🦑 cephalopod_slide.html</div>
+                <div class="page-item deepseeking" onclick="loadExistingPage('https://coaiexist.wtf/deepseeking/ok.html')">✅ ok.html</div>
             </div>
         </div>
     </div>
@@ -1238,10 +1301,32 @@
         // ============================================
         // LOAD EXISTING PAGE
         // ============================================
-        function loadExistingPage(path) {
-            updateStatus(`Loading ${path}...`);
-            alert(`Feature coming soon! Would load: ${path}\n\nYou can manually copy/paste HTML for now.`);
-            closeModal('load-modal');
+        function filterPages(category) {
+            const allPages = document.querySelectorAll('.page-item');
+
+            allPages.forEach(page => {
+                if (category === 'all') {
+                    page.style.display = 'block';
+                } else if (page.classList.contains(category)) {
+                    page.style.display = 'block';
+                } else {
+                    page.style.display = 'none';
+                }
+            });
+
+            playSound('pop', 'E5');
+        }
+
+        function loadExistingPage(url) {
+            updateStatus(`Opening ${url}...`);
+
+            // Open in new tab
+            window.open(url, '_blank');
+
+            playSound('success', 'G5');
+            showStamp('🌐');
+
+            // Keep modal open so they can browse more
         }
 
         // ============================================
