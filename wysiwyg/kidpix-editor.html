@@ -1328,6 +1328,14 @@
             playSound('pop', 'E5');
         }
 
+        // Store loaded page data
+        let loadedPageData = {
+            html: '',
+            css: '',
+            js: '',
+            fullHtml: ''
+        };
+
         function loadExistingPage(url) {
             updateStatus(`Loading ${url}...`);
 
@@ -1340,17 +1348,44 @@
                     return response.text();
                 })
                 .then(htmlContent => {
+                    // Store full HTML
+                    loadedPageData.fullHtml = htmlContent;
+
                     // Parse the HTML
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlContent, 'text/html');
 
+                    // Extract CSS from <style> tags and <link> tags
+                    let extractedCSS = '';
+                    doc.querySelectorAll('style').forEach(style => {
+                        extractedCSS += style.textContent + '\n\n';
+                    });
+                    doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                        extractedCSS += `/* External stylesheet: ${link.href} */\n`;
+                    });
+
+                    // Extract JavaScript from <script> tags
+                    let extractedJS = '';
+                    doc.querySelectorAll('script').forEach(script => {
+                        if (script.src) {
+                            extractedJS += `// External script: ${script.src}\n`;
+                        } else {
+                            extractedJS += script.textContent + '\n\n';
+                        }
+                    });
+
                     // Extract body content
-                    const bodyContent = doc.body.innerHTML;
+                    const bodyContent = doc.body ? doc.body.innerHTML : '';
+
+                    // Store extracted data
+                    loadedPageData.html = bodyContent;
+                    loadedPageData.css = extractedCSS;
+                    loadedPageData.js = extractedJS;
 
                     // Clear current canvas
                     canvasElements = [];
 
-                    // Add the loaded content as a single element
+                    // Add the loaded content
                     const id = 'el-' + (++elementIdCounter);
                     canvasElements.push({
                         id,
@@ -1358,11 +1393,11 @@
                         html: bodyContent
                     });
 
-                    // Render and update
+                    // Render
                     renderCanvas();
                     updateElementCount();
 
-                    updateStatus(`Loaded ${url.split('/').pop()} successfully!`);
+                    updateStatus(`Loaded ${url.split('/').pop()} - Click "Edit Code" to modify HTML/CSS/JS!`);
                     closeModal('load-modal');
                     playSound('success', 'G5');
                     showStamp('🌐');
