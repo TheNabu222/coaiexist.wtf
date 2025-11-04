@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 KidPix Web Builder</title>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+    <style>
+        /* ============================================
+           PRIMARY COLORS & KIDPIX AESTHETIC
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* PRIMARY COLORS ONLY! */
+            --red: #FF0000;
+            --blue: #0000FF;
+            --yellow: #FFFF00;
+            --green: #00FF00;
+            --orange: #FF6600;
+            --purple: #9900FF;
+            --pink: #FF69B4;
+
+            /* Basics */
+            --white: #FFFFFF;
+            --black: #000000;
+            --gray: #CCCCCC;
+            --dark-gray: #666666;
+
+            /* Chunky! */
+            --border-thick: 4px;
+            --border-super-thick: 6px;
+            --spacing: 12px;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Black', sans-serif;
+            background: var(--gray);
+            color: var(--black);
+            overflow: hidden;
+        }
+
+        /* ============================================
+           LAYOUT - Big Chunky Sections!
+           ============================================ */
+        .editor-wrapper {
+            display: grid;
+            grid-template-columns: 220px 1fr 280px;
+            grid-template-rows: 80px 1fr 50px;
+            grid-template-areas:
+                "toolbar toolbar toolbar"
+                "toolbox canvas sidebar"
+                "statusbar statusbar statusbar";
+            height: 100vh;
+            gap: 4px;
+            background: var(--dark-gray);
+        }
+
+        /* ============================================
+           TOP TOOLBAR - Big Colorful Buttons
+           ============================================ */
+        .toolbar {
+            grid-area: toolbar;
+            background: var(--white);
+            border-bottom: var(--border-super-thick) solid var(--black);
+            display: flex;
+            align-items: center;
+            padding: var(--spacing);
+            gap: var(--spacing);
+            flex-wrap: wrap;
+        }
+
+        .toolbar-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--red);
+            text-shadow: 2px 2px var(--black);
+            margin-right: 20px;
+        }
+
+        .big-button {
+            background: var(--white);
+            border: var(--border-thick) solid var(--black);
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Comic Sans MS', sans-serif;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--black);
+            transition: all 0.1s;
+        }
+
+        .big-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--black);
+        }
+
+        .big-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+
+        .big-button.red { background: var(--red); color: var(--white); }
+        .big-button.blue { background: var(--blue); color: var(--white); }
+        .big-button.green { background: var(--green); color: var(--black); }
+        .big-button.yellow { background: var(--yellow); color: var(--black); }
+        .big-button.orange { background: var(--orange); color: var(--white); }
+        .big-button.purple { background: var(--purple); color: var(--white); }
+
+        /* ============================================
+           LEFT TOOLBOX - Organized Bins!
+           ============================================ */
+        .toolbox {
+            grid-area: toolbox;
+            background: var(--white);
+            border-right: var(--border-super-thick) solid var(--black);
+            overflow-y: auto;
+            padding: var(--spacing);
+        }
+
+        .tool-section {
+            margin-bottom: var(--spacing);
+            border: var(--border-thick) solid var(--black);
+            background: var(--white);
+        }
+
+        .tool-section-header {
+            background: var(--blue);
+            color: var(--white);
+            padding: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: var(--border-thick) solid var(--black);
+            user-select: none;
+        }
+
+        .tool-section-header:hover {
+            background: var(--purple);
+        }
+
+        .tool-items {
+            padding: 8px;
+            display: none;
+        }
+
+        .tool-section.open .tool-items {
+            display: block;
+        }
+
+        .tool-item {
+            background: var(--yellow);
+            border: var(--border-thick) solid var(--black);
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 3px 3px 0 var(--black);
+        }
+
+        .tool-item:hover {
+            background: var(--orange);
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--black);
+        }
+
+        .tool-item:active {
+            transform: translate(3px, 3px);
+            box-shadow: none;
+        }
+
+        /* ============================================
+           CENTER CANVAS - The Drawing Area!
+           ============================================ */
+        .canvas-area {
+            grid-area: canvas;
+            background: var(--dark-gray);
+            overflow: auto;
+            padding: 20px;
+        }
+
+        #canvas {
+            background: var(--white);
+            border: var(--border-super-thick) solid var(--black);
+            min-height: 600px;
+            padding: 20px;
+            box-shadow: 8px 8px 0 var(--black);
+        }
+
+        #canvas:empty::before {
+            content: '🎨 Drag stuff here OR pick a template! 🎨';
+            display: block;
+            text-align: center;
+            color: var(--gray);
+            font-size: 24px;
+            margin-top: 200px;
+        }
+
+        .canvas-element {
+            position: relative;
+            margin: 10px 0;
+            padding: 10px;
+            border: 3px dashed transparent;
+            cursor: pointer;
+        }
+
+        .canvas-element:hover {
+            border-color: var(--blue);
+            background: rgba(0, 0, 255, 0.1);
+        }
+
+        .canvas-element.selected {
+            border-color: var(--red);
+            border-style: solid;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .element-toolbar {
+            position: absolute;
+            top: -35px;
+            right: 0;
+            display: none;
+            gap: 4px;
+        }
+
+        .canvas-element.selected .element-toolbar {
+            display: flex;
+        }
+
+        .mini-btn {
+            background: var(--yellow);
+            border: 2px solid var(--black);
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .mini-btn:hover {
+            background: var(--orange);
+        }
+
+        /* ============================================
+           RIGHT SIDEBAR - Property Inspector!
+           ============================================ */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--white);
+            border-left: var(--border-super-thick) solid var(--black);
+            overflow-y: auto;
+            padding: var(--spacing);
+        }
+
+        .property-box {
+            border: var(--border-thick) solid var(--black);
+            margin-bottom: var(--spacing);
+            background: var(--white);
+        }
+
+        .property-header {
+            background: var(--green);
+            color: var(--black);
+            padding: 8px;
+            font-weight: bold;
+            border-bottom: var(--border-thick) solid var(--black);
+        }
+
+        .property-content {
+            padding: var(--spacing);
+        }
+
+        .property-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .property-input {
+            width: 100%;
+            border: var(--border-thick) solid var(--black);
+            padding: 8px;
+            font-family: 'Comic Sans MS', sans-serif;
+            font-size: 14px;
+            margin-bottom: var(--spacing);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: var(--spacing) 0;
+        }
+
+        .color-box {
+            width: 100%;
+            aspect-ratio: 1;
+            border: var(--border-thick) solid var(--black);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--black);
+        }
+
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+
+        .color-box.active {
+            box-shadow: 4px 4px 0 var(--black);
+            transform: scale(1.15);
+        }
+
+        /* ============================================
+           BOTTOM STATUS BAR
+           ============================================ */
+        .statusbar {
+            grid-area: statusbar;
+            background: var(--blue);
+            color: var(--white);
+            border-top: var(--border-thick) solid var(--black);
+            padding: 0 var(--spacing);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* ============================================
+           MODALS - Popup Windows!
+           ============================================ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border: var(--border-super-thick) solid var(--black);
+            padding: 20px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 10px 10px 0 var(--black);
+        }
+
+        .modal-header {
+            background: var(--red);
+            color: var(--white);
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-bottom: var(--border-thick) solid var(--black);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing);
+        }
+
+        .template-card {
+            border: var(--border-thick) solid var(--black);
+            padding: var(--spacing);
+            background: var(--yellow);
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .template-card:hover {
+            background: var(--orange);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--black);
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .asset-item {
+            border: var(--border-thick) solid var(--black);
+            padding: 8px;
+            background: var(--white);
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .asset-item:hover {
+            background: var(--yellow);
+        }
+
+        .asset-preview {
+            max-width: 100%;
+            max-height: 60px;
+            margin-bottom: 4px;
+        }
+
+        /* ============================================
+           SCROLLBARS
+           ============================================ */
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray);
+            border: 2px solid var(--black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue);
+            border: 2px solid var(--black);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--purple);
+        }
+
+        /* ============================================
+           FUN FEEDBACK
+           ============================================ */
+        .stamp {
+            position: fixed;
+            font-size: 48px;
+            pointer-events: none;
+            animation: stamp 0.5s ease-out forwards;
+            z-index: 9999;
+        }
+
+        @keyframes stamp {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(5deg);
+                opacity: 0;
+            }
+        }
+
+        .page-loader-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .page-item {
+            border: var(--border-thick) solid var(--black);
+            padding: 12px;
+            margin-bottom: 8px;
+            background: var(--green);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .page-item:hover {
+            background: var(--yellow);
+        }
+
+        .code-display {
+            background: var(--gray);
+            border: var(--border-thick) solid var(--black);
+            padding: var(--spacing);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-wrapper">
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="toolbar-title">🎨 KidPix Web Builder</div>
+            <button class="big-button red" onclick="newProject()">📄 NEW</button>
+            <button class="big-button blue" onclick="openModal('template-modal')">📐 TEMPLATE</button>
+            <button class="big-button green" onclick="openModal('load-modal')">📂 LOAD PAGE</button>
+            <button class="big-button yellow" onclick="openModal('asset-modal')">🖼️ ASSETS</button>
+            <button class="big-button orange" onclick="exportCode()">💾 EXPORT</button>
+            <button class="big-button purple" onclick="openModal('code-modal')">🔍 VIEW CODE</button>
+        </div>
+
+        <!-- LEFT TOOLBOX -->
+        <div class="toolbox">
+            <h3 style="margin-bottom: 12px; font-size: 18px;">🧰 TOOLBOX</h3>
+
+            <div class="tool-section open">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    📦 CONTAINERS
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addElement('box')">⬜ Box</div>
+                    <div class="tool-item" onclick="addElement('card')">🎴 Card</div>
+                    <div class="tool-item" onclick="addElement('section')">📦 Section</div>
+                </div>
+            </div>
+
+            <div class="tool-section open">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    ✏️ TEXT
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addElement('heading')">📝 Heading</div>
+                    <div class="tool-item" onclick="addElement('paragraph')">📄 Paragraph</div>
+                    <div class="tool-item" onclick="addElement('list')">📋 List</div>
+                </div>
+            </div>
+
+            <div class="tool-section open">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    🎨 MEDIA
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addElement('image')">🖼️ Image</div>
+                    <div class="tool-item" onclick="addElement('gif')">✨ GIF</div>
+                    <div class="tool-item" onclick="addElement('audio')">🎵 Audio</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    🔧 SPECIAL
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="openModal('nav-modal')">🧭 Nav Bar</div>
+                    <div class="tool-item" onclick="openModal('ascii-modal')">📟 ASCII Art</div>
+                    <div class="tool-item" onclick="openModal('imagemap-modal')">🗺️ Image Map</div>
+                    <div class="tool-item" onclick="addElement('pip')">🦎 Pip (3D)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CANVAS -->
+        <div class="canvas-area">
+            <div id="canvas"></div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <h3 style="margin-bottom: 12px; font-size: 18px;">🔧 PROPERTIES</h3>
+
+            <div id="properties-container">
+                <div style="text-align: center; color: var(--dark-gray); margin-top: 40px; font-size: 16px;">
+                    Click something to edit it!
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="statusbar">
+            <div id="status-message">✨ Ready to create!</div>
+            <div id="element-count">Elements: 0</div>
+        </div>
+    </div>
+
+    <!-- TEMPLATE MODAL -->
+    <div class="modal" id="template-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📐 Pick a Template</div>
+                <button class="big-button" onclick="closeModal('template-modal')">✖️</button>
+            </div>
+
+            <h3 style="margin: 16px 0 12px 0;">Classic Layouts:</h3>
+            <div class="template-grid">
+                <div class="template-card" onclick="loadTemplate('single-column')">
+                    📱<br>Single Column
+                </div>
+                <div class="template-card" onclick="loadTemplate('two-column-left')">
+                    ◫<br>Two Column (Left)
+                </div>
+                <div class="template-card" onclick="loadTemplate('two-column-right')">
+                    ◧<br>Two Column (Right)
+                </div>
+                <div class="template-card" onclick="loadTemplate('three-column')">
+                    ☷<br>Three Column
+                </div>
+                <div class="template-card" onclick="loadTemplate('grid')">
+                    ▦<br>Grid Layout
+                </div>
+                <div class="template-card" onclick="loadTemplate('fullscreen')">
+                    ⛶<br>Full Screen
+                </div>
+                <div class="template-card" onclick="loadTemplate('centered')">
+                    ◉<br>Centered Card
+                </div>
+                <div class="template-card" onclick="loadTemplate('split')">
+                    ▭<br>Split Screen
+                </div>
+            </div>
+
+            <h3 style="margin: 16px 0 12px 0;">Site Templates:</h3>
+            <div class="template-grid">
+                <div class="template-card" onclick="loadTemplate('index')">
+                    🖥️<br>Index (OS)
+                </div>
+                <div class="template-card" onclick="loadTemplate('gateway')">
+                    📜<br>Gateway (Maps)
+                </div>
+                <div class="template-card" onclick="loadTemplate('cosmos')">
+                    🌙<br>Cosmos (Y2K)
+                </div>
+                <div class="template-card" onclick="loadTemplate('terminal')">
+                    🧿<br>Terminal
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOAD PAGE MODAL -->
+    <div class="modal" id="load-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📂 Load Existing Page</div>
+                <button class="big-button" onclick="closeModal('load-modal')">✖️</button>
+            </div>
+
+            <div class="page-loader-list" id="page-list">
+                <div class="page-item" onclick="loadExistingPage('/index.html')">🏠 index.html</div>
+                <div class="page-item" onclick="loadExistingPage('/hex.html')">🎨 hex.html</div>
+                <div class="page-item" onclick="loadExistingPage('/cosmos.html')">🌙 cosmos.html</div>
+                <div class="page-item" onclick="loadExistingPage('/maps/gateway.html')">🗿 gateway.html</div>
+                <div class="page-item" onclick="loadExistingPage('/unpublished/pea/p345.html')">🟢 p345.html (unpublished)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ASSET BROWSER MODAL -->
+    <div class="modal" id="asset-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <div class="modal-title">🖼️ Asset Browser</div>
+                <button class="big-button" onclick="closeModal('asset-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Asset Type:</label>
+            <select class="property-input" onchange="browseAssets(this.value)">
+                <option value="gifs">🎞️ GIFs</option>
+                <option value="sounds">🎵 Sounds/Music</option>
+                <option value="glbs">🦎 3D Models (GLB)</option>
+                <option value="entity">👤 Entity Sprites</option>
+            </select>
+
+            <div class="asset-grid" id="asset-grid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CODE VIEW MODAL -->
+    <div class="modal" id="code-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <div class="modal-title">🔍 Your Code</div>
+                <button class="big-button" onclick="closeModal('code-modal')">✖️</button>
+            </div>
+
+            <div class="code-display" id="code-display"></div>
+            <button class="big-button green" onclick="copyCode()" style="margin-top: 12px; width: 100%;">
+                📋 Copy to Clipboard
+            </button>
+        </div>
+    </div>
+
+    <!-- NAV EDITOR MODAL -->
+    <div class="modal" id="nav-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🧭 Nav Bar Creator</div>
+                <button class="big-button" onclick="closeModal('nav-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Nav Style:</label>
+            <select class="property-input" id="nav-style">
+                <option value="medieval">⚜️ Medieval (Main Nav)</option>
+                <option value="floating">📚 Floating (Pea Style)</option>
+                <option value="simple">📌 Simple Top Bar</option>
+            </select>
+
+            <label class="property-label">Nav Links (one per line, format: "Text | URL"):</label>
+            <textarea class="property-input" id="nav-links" rows="6" placeholder="Home | /&#10;About | /about&#10;Contact | /contact"></textarea>
+
+            <button class="big-button blue" onclick="createNav()" style="width: 100%;">
+                ✨ Create Nav Bar
+            </button>
+        </div>
+    </div>
+
+    <!-- ASCII ART MODAL -->
+    <div class="modal" id="ascii-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📟 ASCII Art Injector</div>
+                <button class="big-button" onclick="closeModal('ascii-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Paste ASCII Art:</label>
+            <textarea class="property-input" id="ascii-input" rows="10" placeholder="Paste your ASCII art here..." style="font-family: monospace;"></textarea>
+
+            <button class="big-button green" onclick="addASCII()" style="width: 100%;">
+                ✨ Add to Canvas
+            </button>
+        </div>
+    </div>
+
+    <!-- IMAGE MAP MODAL -->
+    <div class="modal" id="imagemap-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🗺️ Image Map Creator</div>
+                <button class="big-button" onclick="closeModal('imagemap-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Image URL:</label>
+            <input type="text" class="property-input" id="imagemap-url" placeholder="/assets/maps/worldmap.png">
+
+            <label class="property-label">Clickable Areas (format: "x,y,width,height | URL | Title"):</label>
+            <textarea class="property-input" id="imagemap-areas" rows="6" placeholder="100,100,50,50 | /void | Void Forest&#10;200,150,60,40 | /crystal | Crystal Cave"></textarea>
+
+            <button class="big-button purple" onclick="createImageMap()" style="width: 100%;">
+                ✨ Create Image Map
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SOUNDS
+        // ============================================
+        const sounds = {
+            pop: new Tone.Synth({ oscillator: { type: 'triangle' }, envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination(),
+            boop: new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 0.2 } }).toDestination(),
+            success: new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 0.3 } }).toDestination()
+        };
+
+        function playSound(type, note = 'C5') {
+            if (sounds[type]) {
+                sounds[type].triggerAttackRelease(note, '16n');
+            }
+        }
+
+        function showStamp(emoji) {
+            const stamp = document.createElement('div');
+            stamp.className = 'stamp';
+            stamp.textContent = emoji;
+            stamp.style.left = Math.random() * window.innerWidth + 'px';
+            stamp.style.top = Math.random() * window.innerHeight + 'px';
+            document.body.appendChild(stamp);
+            setTimeout(() => stamp.remove(), 500);
+        }
+
+        // ============================================
+        // STATE
+        // ============================================
+        let canvasElements = [];
+        let selectedElement = null;
+        let elementIdCounter = 0;
+
+        // ============================================
+        // ELEMENT TEMPLATES
+        // ============================================
+        const elementTemplates = {
+            box: '<div style="border: 4px solid #000; padding: 20px; background: #FFFF00;">Box content here!</div>',
+            card: '<div style="border: 4px solid #000; padding: 20px; background: #FFF; box-shadow: 6px 6px 0 #000;"><h3>Card Title</h3><p>Card content goes here!</p></div>',
+            section: '<section style="border: 4px solid #000; padding: 20px; margin: 20px 0; background: #CCC;"><h2>Section Title</h2><p>Section content...</p></section>',
+            heading: '<h1 style="font-size: 36px; color: #FF0000; font-weight: bold;">Big Heading!</h1>',
+            paragraph: '<p style="font-size: 18px; line-height: 1.6;">This is a paragraph of text. Click to edit!</p>',
+            list: '<ul style="font-size: 18px; margin-left: 40px;"><li>First item</li><li>Second item</li><li>Third item</li></ul>',
+            image: '<img src="https://via.placeholder.com/400x200/FFFF00/000000?text=Your+Image" style="border: 4px solid #000; max-width: 100%;">',
+            gif: '<img src="/assets/bg_gifs/1zeV.gif" style="border: 4px solid #000; max-width: 200px;">',
+            audio: '<audio controls style="border: 4px solid #000;"><source src="/assets/sounds/pink_panther.mid" type="audio/midi"></audio>',
+            pip: '<div style="border: 4px solid #000; padding: 20px; background: #00FF00; text-align: center;"><p>🦎 Pip 3D Character Here!</p><p style="font-size: 14px;">(Requires Three.js integration)</p></div>'
+        };
+
+        // ============================================
+        // CORE FUNCTIONS
+        // ============================================
+        function addElement(type) {
+            const id = 'el-' + (++elementIdCounter);
+            const html = elementTemplates[type] || '<div>Unknown element</div>';
+
+            canvasElements.push({ id, type, html });
+            renderCanvas();
+            playSound('pop', 'E5');
+            showStamp('✨');
+            updateStatus(`Added ${type}!`);
+            updateElementCount();
+        }
+
+        function renderCanvas() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = canvasElements.map(el => `
+                <div class="canvas-element" data-id="${el.id}" onclick="selectElement('${el.id}')">
+                    <div class="element-toolbar">
+                        <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); duplicateElement('${el.id}')">📋 COPY</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
+                    </div>
+                    ${el.html}
+                </div>
+            `).join('');
+        }
+
+        function selectElement(id) {
+            document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[data-id="${id}"]`).classList.add('selected');
+            selectedElement = id;
+            renderProperties(id);
+            playSound('boop', 'C5');
+        }
+
+        function editElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const newHtml = prompt('Edit HTML:', el.html);
+            if (newHtml !== null) {
+                el.html = newHtml;
+                renderCanvas();
+                playSound('success', 'G5');
+                showStamp('💾');
+            }
+        }
+
+        function duplicateElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const newId = 'el-' + (++elementIdCounter);
+            canvasElements.push({ id: newId, type: el.type, html: el.html });
+            renderCanvas();
+            playSound('pop', 'A5');
+            showStamp('📋');
+            updateElementCount();
+        }
+
+        function deleteElement(id) {
+            canvasElements = canvasElements.filter(e => e.id !== id);
+            renderCanvas();
+            playSound('boop', 'C4');
+            showStamp('🗑️');
+            updateStatus('Element deleted!');
+            updateElementCount();
+            clearProperties();
+        }
+
+        function renderProperties(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            document.getElementById('properties-container').innerHTML = `
+                <div class="property-box">
+                    <div class="property-header">Element Info</div>
+                    <div class="property-content">
+                        <label class="property-label">Type:</label>
+                        <div style="font-weight: bold; color: var(--blue);">${el.type}</div>
+                    </div>
+                </div>
+
+                <div class="property-box">
+                    <div class="property-header">Quick Colors</div>
+                    <div class="property-content">
+                        <div class="color-grid">
+                            <div class="color-box" style="background: #FF0000;" onclick="applyColor('${id}', '#FF0000')"></div>
+                            <div class="color-box" style="background: #0000FF;" onclick="applyColor('${id}', '#0000FF')"></div>
+                            <div class="color-box" style="background: #FFFF00;" onclick="applyColor('${id}', '#FFFF00')"></div>
+                            <div class="color-box" style="background: #00FF00;" onclick="applyColor('${id}', '#00FF00')"></div>
+                            <div class="color-box" style="background: #FF6600;" onclick="applyColor('${id}', '#FF6600')"></div>
+                            <div class="color-box" style="background: #9900FF;" onclick="applyColor('${id}', '#9900FF')"></div>
+                            <div class="color-box" style="background: #FF69B4;" onclick="applyColor('${id}', '#FF69B4')"></div>
+                            <div class="color-box" style="background: #000000;" onclick="applyColor('${id}', '#000000')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="property-box">
+                    <div class="property-header">Actions</div>
+                    <div class="property-content">
+                        <button class="big-button yellow" onclick="editElement('${id}')" style="width: 100%; margin-bottom: 8px;">
+                            ✏️ Edit HTML
+                        </button>
+                        <button class="big-button green" onclick="duplicateElement('${id}')" style="width: 100%; margin-bottom: 8px;">
+                            📋 Duplicate
+                        </button>
+                        <button class="big-button red" onclick="deleteElement('${id}')" style="width: 100%;">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearProperties() {
+            document.getElementById('properties-container').innerHTML = `
+                <div style="text-align: center; color: var(--dark-gray); margin-top: 40px; font-size: 16px;">
+                    Click something to edit it!
+                </div>
+            `;
+        }
+
+        function applyColor(id, color) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const temp = document.createElement('div');
+            temp.innerHTML = el.html;
+            const firstChild = temp.firstElementChild;
+            if (firstChild) {
+                firstChild.style.color = color;
+                el.html = temp.innerHTML;
+                renderCanvas();
+                selectElement(id);
+                playSound('pop', 'E5');
+            }
+        }
+
+        // ============================================
+        // TEMPLATES
+        // ============================================
+        function loadTemplate(type) {
+            const templates = {
+                'single-column': '<div style="max-width: 800px; margin: 0 auto; padding: 20px;"><h1>Single Column Layout</h1><p>Main content goes here!</p></div>',
+                'two-column-left': '<div style="display: flex; gap: 20px;"><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #FFFF00;"><h3>Sidebar</h3></div><div style="flex: 1;"><h1>Main Content</h1><p>Content here!</p></div></div>',
+                'two-column-right': '<div style="display: flex; gap: 20px;"><div style="flex: 1;"><h1>Main Content</h1><p>Content here!</p></div><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #00FF00;"><h3>Sidebar</h3></div></div>',
+                'three-column': '<div style="display: flex; gap: 20px;"><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #FF6600;">Left</div><div style="flex: 1;">Main</div><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #9900FF;">Right</div></div>',
+                'grid': '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;"><div style="border: 4px solid #000; padding: 20px; background: #FF0000; color: #FFF;">Card 1</div><div style="border: 4px solid #000; padding: 20px; background: #0000FF; color: #FFF;">Card 2</div><div style="border: 4px solid #000; padding: 20px; background: #FFFF00;">Card 3</div><div style="border: 4px solid #000; padding: 20px; background: #00FF00;">Card 4</div></div>',
+                'fullscreen': '<div style="min-height: 100vh; display: flex; flex-direction: column;"><div style="background: #0000FF; color: #FFF; padding: 20px; border-bottom: 4px solid #000;">Header</div><div style="flex: 1; padding: 20px;">Main Content</div><div style="background: #FF0000; color: #FFF; padding: 20px; border-top: 4px solid #000;">Footer</div></div>',
+                'centered': '<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #666;"><div style="max-width: 600px; background: #FFF; border: 6px solid #000; padding: 40px; box-shadow: 10px 10px 0 #000;"><h1>Centered Card</h1><p>Your content here!</p></div></div>',
+                'split': '<div style="display: flex; min-height: 100vh;"><div style="flex: 1; background: #FFFF00; padding: 40px;"><h2>Left Panel</h2></div><div style="flex: 1; background: #00FF00; padding: 40px;"><h2>Right Panel</h2></div></div>'
+            };
+
+            if (templates[type]) {
+                canvasElements = [{ id: 'el-' + (++elementIdCounter), type: 'template', html: templates[type] }];
+                renderCanvas();
+                closeModal('template-modal');
+                playSound('success', 'C6');
+                showStamp('📐');
+                updateStatus(`Loaded ${type} template!`);
+                updateElementCount();
+            }
+        }
+
+        // ============================================
+        // MODALS
+        // ============================================
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            playSound('pop', 'G5');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            playSound('pop', 'C5');
+        }
+
+        function toggleSection(header) {
+            header.parentElement.classList.toggle('open');
+            playSound('boop', 'E5');
+        }
+
+        // ============================================
+        // EXPORT / CODE VIEW
+        // ============================================
+        function exportCode() {
+            const html = canvasElements.map(el => el.html).join('\n\n');
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my-page.html';
+            a.click();
+            playSound('success', 'C6');
+            showStamp('💾');
+            updateStatus('Exported!');
+        }
+
+        function openModal(id) {
+            if (id === 'code-modal') {
+                const html = canvasElements.map(el => el.html).join('\n\n');
+                document.getElementById('code-display').textContent = html;
+            }
+            document.getElementById(id).classList.add('active');
+            playSound('pop', 'G5');
+        }
+
+        function copyCode() {
+            const code = document.getElementById('code-display').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                playSound('success', 'E6');
+                showStamp('📋');
+                updateStatus('Code copied!');
+            });
+        }
+
+        // ============================================
+        // NAV CREATOR
+        // ============================================
+        function createNav() {
+            const style = document.getElementById('nav-style').value;
+            const linksText = document.getElementById('nav-links').value;
+            const links = linksText.split('\n').map(line => {
+                const [text, url] = line.split('|').map(s => s.trim());
+                return { text, url };
+            }).filter(l => l.text && l.url);
+
+            let navHtml = '';
+            if (style === 'medieval') {
+                navHtml = `<nav style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, #2b1302, #6e3a12); border-top: 4px solid #d9c27c; padding: 16px; display: flex; gap: 12px;">
+                    ${links.map(l => `<a href="${l.url}" style="background: #d2b873; border: 2px solid #f1dba0; padding: 10px 16px; text-decoration: none; color: #2d1503; font-weight: bold; border-radius: 8px;">${l.text}</a>`).join('\n')}
+                </nav>`;
+            } else if (style === 'floating') {
+                navHtml = `<nav style="position: fixed; right: 20px; top: 20px; background: #FFF; border: 4px solid #000; padding: 16px; box-shadow: 6px 6px 0 #000;">
+                    ${links.map(l => `<a href="${l.url}" style="display: block; padding: 8px; text-decoration: none; color: #000; font-weight: bold; border-bottom: 2px solid #000;">${l.text}</a>`).join('\n')}
+                </nav>`;
+            } else {
+                navHtml = `<nav style="background: #0000FF; color: #FFF; padding: 16px; border-bottom: 4px solid #000; display: flex; gap: 20px;">
+                    ${links.map(l => `<a href="${l.url}" style="color: #FFF; text-decoration: none; font-weight: bold;">${l.text}</a>`).join('\n')}
+                </nav>`;
+            }
+
+            addElementDirect('nav', navHtml);
+            closeModal('nav-modal');
+            playSound('success', 'A5');
+            showStamp('🧭');
+        }
+
+        function addElementDirect(type, html) {
+            const id = 'el-' + (++elementIdCounter);
+            canvasElements.push({ id, type, html });
+            renderCanvas();
+            updateElementCount();
+        }
+
+        // ============================================
+        // ASCII
+        // ============================================
+        function addASCII() {
+            const ascii = document.getElementById('ascii-input').value;
+            if (!ascii) return;
+
+            const html = `<pre style="font-family: monospace; font-size: 12px; line-height: 1; border: 4px solid #000; padding: 20px; background: #000; color: #00FF00; overflow-x: auto;">${ascii}</pre>`;
+            addElementDirect('ascii', html);
+            closeModal('ascii-modal');
+            playSound('success', 'C6');
+            showStamp('📟');
+            document.getElementById('ascii-input').value = '';
+        }
+
+        // ============================================
+        // IMAGE MAP
+        // ============================================
+        function createImageMap() {
+            const imageUrl = document.getElementById('imagemap-url').value;
+            const areasText = document.getElementById('imagemap-areas').value;
+
+            const areas = areasText.split('\n').map(line => {
+                const [coords, url, title] = line.split('|').map(s => s.trim());
+                const [x, y, w, h] = coords.split(',').map(n => parseInt(n));
+                return { x, y, w, h, url, title };
+            }).filter(a => a.x && a.url);
+
+            const mapName = 'map-' + Date.now();
+            const html = `
+                <div style="position: relative; display: inline-block; border: 4px solid #000;">
+                    <img src="${imageUrl}" usemap="#${mapName}" style="max-width: 100%;">
+                    <map name="${mapName}">
+                        ${areas.map(a => `<area shape="rect" coords="${a.x},${a.y},${a.x + a.w},${a.y + a.h}" href="${a.url}" alt="${a.title}" title="${a.title}">`).join('\n')}
+                    </map>
+                </div>
+            `;
+
+            addElementDirect('imagemap', html);
+            closeModal('imagemap-modal');
+            playSound('success', 'E6');
+            showStamp('🗺️');
+        }
+
+        // ============================================
+        // ASSET BROWSER
+        // ============================================
+        function browseAssets(type) {
+            const assetPaths = {
+                gifs: ['/assets/bg_gifs/1zeV.gif', '/assets/dollz/dumpz/desk1050.gif', '/assets/misc_gif/metapara/internet.gif'],
+                sounds: ['/assets/sounds/pink_panther.mid', '/assets/sounds/Aqua_Barbie_Girl.mid', '/assets/sounds/MapleLeafRag.mp3'],
+                glbs: ['/assets/pollywog/pip_jazz.glb', '/assets/pollywog/pip_wave.glb', '/assets/pollywog/pip_walk.glb'],
+                entity: ['/assets/entity/anzu/', '/assets/entity/hyenadiva/', '/assets/entity/sypher/']
+            };
+
+            const assets = assetPaths[type] || [];
+            const grid = document.getElementById('asset-grid');
+
+            grid.innerHTML = assets.map(path => {
+                const name = path.split('/').pop();
+                const isImage = path.match(/\.(gif|png|jpg)$/i);
+
+                return `
+                    <div class="asset-item" onclick="insertAsset('${path}', '${type}')">
+                        ${isImage ? `<img src="${path}" class="asset-preview">` : ''}
+                        <div>${name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function insertAsset(path, type) {
+            let html = '';
+            if (type === 'gifs') {
+                html = `<img src="${path}" style="border: 4px solid #000; max-width: 300px;">`;
+            } else if (type === 'sounds') {
+                html = `<audio controls style="border: 4px solid #000;"><source src="${path}"></audio>`;
+            } else if (type === 'glbs') {
+                html = `<div style="border: 4px solid #000; padding: 20px; background: #00FF00; text-align: center;"><p>🦎 3D Model: ${path.split('/').pop()}</p></div>`;
+            }
+
+            if (html) {
+                addElementDirect(type, html);
+                closeModal('asset-modal');
+                playSound('success', 'G5');
+                showStamp('✨');
+            }
+        }
+
+        // ============================================
+        // LOAD EXISTING PAGE
+        // ============================================
+        function loadExistingPage(path) {
+            updateStatus(`Loading ${path}...`);
+            alert(`Feature coming soon! Would load: ${path}\n\nYou can manually copy/paste HTML for now.`);
+            closeModal('load-modal');
+        }
+
+        // ============================================
+        // PROJECT MANAGEMENT
+        // ============================================
+        function newProject() {
+            if (confirm('Start a new project? Current work will be lost!')) {
+                canvasElements = [];
+                renderCanvas();
+                clearProperties();
+                playSound('boop', 'C5');
+                updateStatus('New project started!');
+                updateElementCount();
+                showStamp('📄');
+            }
+        }
+
+        // ============================================
+        // UI HELPERS
+        // ============================================
+        function updateStatus(msg) {
+            document.getElementById('status-message').textContent = '✨ ' + msg;
+        }
+
+        function updateElementCount() {
+            document.getElementById('element-count').textContent = `Elements: ${canvasElements.length}`;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            updateStatus('Ready to create!');
+            updateElementCount();
+
+            // Open first sections by default
+            document.querySelectorAll('.tool-section').forEach((section, i) => {
+                if (i < 3) section.classList.add('open');
+            });
+
+            // Init asset browser
+            browseAssets('gifs');
+        }
+
+        init();
+    </script>
+</body>
+</html>
