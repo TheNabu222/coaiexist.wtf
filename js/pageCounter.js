@@ -1,131 +1,116 @@
 // Page View Counter for coaiexist.wtf
-// Uses GitHub repo as backend storage
+// Uses Supabase as real backend storage
 
-class PageCounter {
-  constructor() {
-    this.dataUrl = '/data/pageviews.json';
-    this.currentPage = window.location.pathname || '/';
-    this.storageKey = 'coaiexist_viewed_pages';
-  }
+(function() {
+  const SUPABASE_URL = 'https://aqxrogaltuwtlparwdkq.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFxeHJvZ2FsdHV3dGxwYXJ3ZGtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY0NzAsImV4cCI6MjA3NzY4MjQ3MH0.qvkQaoQa7MaN7drGHKGxU3c1KnTQOdTH022MynR6fzI';
 
-  // Load and display page view count
-  async display(elementId = 'page-counter') {
+  async function initCounter() {
+    const pagePath = location.pathname || '/';
+
+    // Wait a bit for nav to load (if it's being fetched)
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    const counterEl = document.getElementById('page-counter');
+    if (!counterEl) {
+      console.log('Counter element not found');
+      return;
+    }
+
     try {
-      // Fetch current counts
-      const response = await fetch(this.dataUrl + '?t=' + Date.now());
-      const data = await response.json();
+      // Get current count from Supabase
+      const getRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/page_views?page_path=eq.${encodeURIComponent(pagePath)}`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        }
+      );
 
-      // Get count for current page
-      let count = data[this.currentPage] || 0;
+      if (!getRes.ok) {
+        throw new Error('Failed to fetch count');
+      }
 
-      // Check if this page has been viewed in this session
-      const hasViewed = this.hasViewedThisSession();
+      const data = await getRes.json();
+      let count = 0;
 
-      if (!hasViewed) {
-        // Increment locally for immediate feedback
-        count++;
-        this.markAsViewed();
+      // Check if this is a new visit (per session)
+      const sessionKey = 'viewed_' + pagePath;
+      const shouldIncrement = !sessionStorage.getItem(sessionKey);
 
-        // Send view event (will be processed by GitHub Action)
-        this.recordView();
+      if (data.length === 0) {
+        // No entry exists yet - create it
+        count = 1;
+
+        const createRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/page_views`,
+          {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              page_path: pagePath,
+              view_count: count
+            })
+          }
+        );
+
+        if (!createRes.ok) {
+          throw new Error('Failed to create count');
+        }
+
+        sessionStorage.setItem(sessionKey, 'true');
+
+      } else {
+        // Entry exists
+        count = data[0].view_count;
+
+        if (shouldIncrement) {
+          // Increment the count
+          count++;
+
+          const updateRes = await fetch(
+            `${SUPABASE_URL}/rest/v1/page_views?page_path=eq.${encodeURIComponent(pagePath)}`,
+            {
+              method: 'PATCH',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                view_count: count,
+                last_updated: new Date().toISOString()
+              })
+            }
+          );
+
+          if (!updateRes.ok) {
+            throw new Error('Failed to update count');
+          }
+
+          sessionStorage.setItem(sessionKey, 'true');
+        }
       }
 
       // Display the count
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.innerHTML = `
-          <div class="view-counter">
-            <span class="counter-icon">👁️</span>
-            <span class="counter-text">Views: </span>
-            <span class="counter-number">${count.toLocaleString()}</span>
-          </div>
-        `;
-      }
+      counterEl.textContent = '👁️ Views: ' + count;
 
-      return count;
     } catch (error) {
-      console.error('Error loading page views:', error);
-      return 0;
+      console.error('Counter error:', error);
+      counterEl.textContent = '👁️ N/A';
     }
   }
 
-  // Check if user has viewed this page in current session
-  hasViewedThisSession() {
-    try {
-      const viewed = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
-      const lastView = viewed[this.currentPage];
-
-      // Consider it a new view if more than 30 minutes have passed
-      if (!lastView) return false;
-      const thirtyMinutes = 30 * 60 * 1000;
-      return (Date.now() - lastView) < thirtyMinutes;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Mark page as viewed in this session
-  markAsViewed() {
-    try {
-      const viewed = JSON.parse(localStorage.getItem(this.storageKey) || '{}');
-      viewed[this.currentPage] = Date.now();
-      localStorage.setItem(this.storageKey, JSON.stringify(viewed));
-    } catch (e) {
-      console.error('Could not save view to localStorage:', e);
-    }
-  }
-
-  // Record view by storing in localStorage queue
-  recordView() {
-    try {
-      // Store pending views in localStorage
-      const queueKey = 'coaiexist_pending_views';
-      const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
-
-      queue.push({
-        page: this.currentPage,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-      });
-
-      localStorage.setItem(queueKey, JSON.stringify(queue));
-
-      // Note: In a future iteration, this could trigger a GitHub Action
-      // via repository_dispatch webhook or similar mechanism
-    } catch (e) {
-      console.error('Could not record view:', e);
-    }
-  }
-
-  // Get all pending views (for admin/debugging)
-  static getPendingViews() {
-    try {
-      return JSON.parse(localStorage.getItem('coaiexist_pending_views') || '[]');
-    } catch (e) {
-      return [];
-    }
-  }
-
-  // Clear pending views (after they've been synced)
-  static clearPendingViews() {
-    localStorage.removeItem('coaiexist_pending_views');
-  }
-}
-
-// Auto-initialize on page load
-if (typeof window !== 'undefined') {
-  window.pageCounter = new PageCounter();
-
-  // Auto-display if element exists
+  // Auto-run when page loads
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      if (document.getElementById('page-counter')) {
-        window.pageCounter.display();
-      }
-    });
+    document.addEventListener('DOMContentLoaded', initCounter);
   } else {
-    if (document.getElementById('page-counter')) {
-      window.pageCounter.display();
-    }
+    initCounter();
   }
-}
+})();
