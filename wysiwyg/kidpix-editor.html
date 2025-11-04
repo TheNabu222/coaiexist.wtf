@@ -511,8 +511,9 @@
             <button class="big-button blue" onclick="openModal('template-modal')">📐 TEMPLATE</button>
             <button class="big-button green" onclick="openModal('load-modal')">📂 LOAD PAGE</button>
             <button class="big-button yellow" onclick="openModal('asset-modal')">🖼️ ASSETS</button>
-            <button class="big-button orange" onclick="exportCode()">💾 EXPORT</button>
-            <button class="big-button purple" onclick="openModal('code-modal')">🔍 VIEW CODE</button>
+            <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
+            <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
+            <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
         </div>
 
         <!-- LEFT TOOLBOX -->
@@ -624,35 +625,35 @@
                 </div>
             </div>
 
-            <h3 style="margin: 16px 0 12px 0;">Site Templates:</h3>
+            <h3 style="margin: 16px 0 12px 0;">🌐 CoAIexist Site Templates:</h3>
             <div class="template-grid">
-                <div class="template-card" onclick="loadTemplate('index')">
-                    🖥️<br>Index (OS)
+                <div class="template-card" onclick="loadTemplate('y2k-os')">
+                    🖥️<br>Y2K OS
                 </div>
-                <div class="template-card" onclick="loadTemplate('gateway')">
-                    📜<br>Gateway (Maps)
+                <div class="template-card" onclick="loadTemplate('medieval-archive')">
+                    📜<br>Medieval Archive
                 </div>
-                <div class="template-card" onclick="loadTemplate('cosmos')">
-                    🌙<br>Cosmos (Y2K)
+                <div class="template-card" onclick="loadTemplate('ascii-map-zone')">
+                    🗺️<br>ASCII Map Zone
                 </div>
-                <div class="template-card" onclick="loadTemplate('terminal')">
-                    🧿<br>Terminal
+                <div class="template-card" onclick="loadTemplate('update-feed')">
+                    📡<br>Update Feed
                 </div>
             </div>
 
-            <h3 style="margin: 16px 0 12px 0;">🎨 Style Templates:</h3>
+            <h3 style="margin: 16px 0 12px 0;">📐 Classic Layouts:</h3>
             <div class="template-grid">
-                <div class="template-card" onclick="loadTemplate('web10')">
-                    🌟<br>Web 1.0 / Geocities
+                <div class="template-card" onclick="loadTemplate('grid-gallery')">
+                    ▦<br>Grid Gallery
                 </div>
-                <div class="template-card" onclick="loadTemplate('brutalism')">
-                    ⬛<br>Brutalism
+                <div class="template-card" onclick="loadTemplate('blog-single')">
+                    📝<br>Blog (Single)
                 </div>
-                <div class="template-card" onclick="loadTemplate('glassmorphism')">
-                    💎<br>Glassmorphism
+                <div class="template-card" onclick="loadTemplate('sidebar-blog')">
+                    📰<br>Blog (Sidebar)
                 </div>
-                <div class="template-card" onclick="loadTemplate('hero-fullscreen')">
-                    🚀<br>Hero Fullscreen
+                <div class="template-card" onclick="loadTemplate('hero-cta')">
+                    🚀<br>Hero + CTA
                 </div>
             </div>
         </div>
@@ -845,6 +846,50 @@
             <button class="big-button purple" onclick="createImageMap()" style="width: 100%;">
                 ✨ Create Image Map
             </button>
+        </div>
+    </div>
+
+    <!-- CSS EDITOR MODAL -->
+    <div class="modal" id="css-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <div class="modal-title">🎨 CSS Editor</div>
+                <button class="big-button" onclick="closeModal('css-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Edit Styles:</label>
+            <textarea class="property-input" id="css-editor" rows="20" placeholder="body {&#10;  background: #000;&#10;  color: #fff;&#10;}&#10;&#10;.container {&#10;  max-width: 800px;&#10;}"></textarea>
+
+            <div style="display: flex; gap: 12px; margin-top: 12px;">
+                <button class="big-button green" onclick="applyCSS()" style="flex: 1;">
+                    ✨ Apply CSS
+                </button>
+                <button class="big-button blue" onclick="loadCSSFromPage()" style="flex: 1;">
+                    📂 Load from Page
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT EDITOR MODAL -->
+    <div class="modal" id="js-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <div class="modal-title">⚡ JavaScript Editor</div>
+                <button class="big-button" onclick="closeModal('js-modal')">✖️</button>
+            </div>
+
+            <label class="property-label">Edit JavaScript:</label>
+            <textarea class="property-input" id="js-editor" rows="20" placeholder="// Your JavaScript here&#10;document.querySelector('#button').addEventListener('click', () => {&#10;  alert('Hello!');&#10;});"></textarea>
+
+            <div style="display: flex; gap: 12px; margin-top: 12px;">
+                <button class="big-button orange" onclick="applyJS()" style="flex: 1;">
+                    ⚡ Apply JS
+                </button>
+                <button class="big-button blue" onclick="loadJSFromPage()" style="flex: 1;">
+                    📂 Load from Page
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1044,18 +1089,97 @@
         // ============================================
         function loadTemplate(type) {
             const templates = {
-                'single-column': '<div style="max-width: 800px; margin: 0 auto; padding: 20px;"><h1>Single Column Layout</h1><p>Main content goes here!</p></div>',
-                'two-column-left': '<div style="display: flex; gap: 20px;"><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #FFFF00;"><h3>Sidebar</h3></div><div style="flex: 1;"><h1>Main Content</h1><p>Content here!</p></div></div>',
-                'two-column-right': '<div style="display: flex; gap: 20px;"><div style="flex: 1;"><h1>Main Content</h1><p>Content here!</p></div><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #00FF00;"><h3>Sidebar</h3></div></div>',
-                'three-column': '<div style="display: flex; gap: 20px;"><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #FF6600;">Left</div><div style="flex: 1;">Main</div><div style="width: 200px; border: 4px solid #000; padding: 20px; background: #9900FF;">Right</div></div>',
-                'grid': '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;"><div style="border: 4px solid #000; padding: 20px; background: #FF0000; color: #FFF;">Card 1</div><div style="border: 4px solid #000; padding: 20px; background: #0000FF; color: #FFF;">Card 2</div><div style="border: 4px solid #000; padding: 20px; background: #FFFF00;">Card 3</div><div style="border: 4px solid #000; padding: 20px; background: #00FF00;">Card 4</div></div>',
-                'fullscreen': '<div style="min-height: 100vh; display: flex; flex-direction: column;"><div style="background: #0000FF; color: #FFF; padding: 20px; border-bottom: 4px solid #000;">Header</div><div style="flex: 1; padding: 20px;">Main Content</div><div style="background: #FF0000; color: #FFF; padding: 20px; border-top: 4px solid #000;">Footer</div></div>',
-                'centered': '<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #666;"><div style="max-width: 600px; background: #FFF; border: 6px solid #000; padding: 40px; box-shadow: 10px 10px 0 #000;"><h1>Centered Card</h1><p>Your content here!</p></div></div>',
-                'split': '<div style="display: flex; min-height: 100vh;"><div style="flex: 1; background: #FFFF00; padding: 40px;"><h2>Left Panel</h2></div><div style="flex: 1; background: #00FF00; padding: 40px;"><h2>Right Panel</h2></div></div>',
-                'web10': '<div style="background: #FF00FF; padding: 20px;"><center><h1 style="color: #FFFF00; text-shadow: 2px 2px #FF0000;">🌟 WELCOME TO MY SITE! 🌟</h1><marquee><blink>UNDER CONSTRUCTION!</blink></marquee><p style="color: #00FFFF;">You are visitor #12345!</p><table border="4" cellpadding="10" style="margin: 20px auto; background: #00FF00;"><tr><td>📧 Email Me!</td><td>📖 Guestbook</td><td>🔗 Links</td></tr></table></center></div>',
-                'brutalism': '<div style="background: #FFF; color: #000; font-family: Arial; padding: 0;"><div style="background: #000; color: #FFF; padding: 40px; border: 8px solid #FF0000;"><h1 style="font-size: 72px; font-weight: 900; margin: 0;">BRUTAL</h1></div><div style="padding: 40px; border: 8px solid #000; margin: 20px;"><p style="font-size: 24px; line-height: 1.2;">RAW. UNPOLISHED. INTENTIONAL.</p><button style="background: #FFFF00; border: 4px solid #000; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer;">CLICK</button></div></div>',
-                'glassmorphism': '<div style="min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; display: flex; align-items: center; justify-content: center;"><div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 40px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);"><h1 style="color: #FFF; margin: 0 0 20px 0;">Glassmorphism</h1><p style="color: rgba(255, 255, 255, 0.9);">Frosted glass effect with transparency</p></div></div>',
-                'hero-fullscreen': '<div style="min-height: 100vh; background: url(/assets/bg_gifs/1zeV.gif) center/cover; display: flex; align-items: center; justify-content: center; text-align: center;"><div style="background: rgba(0, 0, 0, 0.7); padding: 60px; border: 6px solid #FFFF00;"><h1 style="font-size: 64px; color: #FFFF00; margin: 0;">HERO SECTION</h1><p style="font-size: 24px; color: #FFF; margin: 20px 0;">Big impact. Full screen.</p><button style="background: #FF0000; color: #FFF; border: 4px solid #FFF; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer;">CALL TO ACTION</button></div></div>'
+                // ==== COAIEXIST SITE TEMPLATES ====
+                'y2k-os': `<div class="container-os" style="display: flex; flex-direction: column; height: 100vh; background: #021313;">
+                    <div class="header-os" style="background: #0a0a14; border-bottom: 2px solid #f312af; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
+                        <div style="font-size: 24px; font-weight: bold; color: #72FADE;">COAIEXIST.OS</div>
+                        <div class="clock" style="font-family: 'Courier New', monospace; background: #000; padding: 5px; border: 1px solid #72FADE; color: #72FADE;">00:00:00</div>
+                    </div>
+                    <div class="main-os" style="display: flex; flex: 1;">
+                        <div class="buddy-list" style="width: 250px; background: rgba(218,255,13,0.5); border-right: 2px solid #f312af; padding: 10px; overflow-y: auto;">
+                            <h3 style="color: #000;">📡 BUDDIES</h3>
+                            <div style="background: #0a0a14; border: 1px solid #72FADE; margin: 5px 0; padding: 5px; color: #72FADE;">🟢 Friend 1</div>
+                            <div style="background: #0a0a14; border: 1px solid #72FADE; margin: 5px 0; padding: 5px; color: #72FADE;">🟡 Friend 2</div>
+                        </div>
+                        <div class="desktop-os" style="flex: 1; padding: 20px; overflow-y: auto;">
+                            <h1 style="color: #00ffcc; font-family: 'VT323', monospace; font-size: 3rem;">Your Content Here!</h1>
+                            <p style="color: #72FADE;">Main desktop area - add your content!</p>
+                        </div>
+                    </div>
+                    <div class="taskbar-os" style="height: 35px; background: #0a0a14; border-top: 2px solid #f312af; display: flex; align-items: center; padding: 0 10px;">
+                        <button style="background: #72FADE; color: #000; border: none; padding: 5px 15px; margin-right: 10px; cursor: pointer; font-weight: bold;">START</button>
+                    </div>
+                </div>`,
+
+                'medieval-archive': `<div style="background: #1a120b; color: #f5e5c5; font-family: 'VT323', monospace; min-height: 100vh; padding: 20px; position: relative;">
+                    <div style="border: 4px solid #bc7f2a; background: rgba(43, 29, 15, 0.85); max-width: 800px; margin: 0 auto; padding: 2rem; box-shadow: inset 0 0 25px rgba(0,0,0,0.8), 0 0 55px rgba(0,0,0,0.9);">
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <h1 style="font-size: 2.5rem; color: #bc7f2a; text-shadow: 2px 2px 0 #3a2a1a, 0 0 15px #ffc500; letter-spacing: 2px;">📜 THE GRAND ARCHIVE 📜</h1>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                            <div style="border: 2px solid #503116; background: linear-gradient(145deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4)); padding: 1rem; text-align: center; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+                                <div style="font-size: 1.5rem;">Collection 1</div>
+                            </div>
+                            <div style="border: 2px solid #503116; background: linear-gradient(145deg, rgba(0,0,0,0.2), rgba(0,0,0,0.4)); padding: 1rem; text-align: center; min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">🗝️</div>
+                                <div style="font-size: 1.5rem;">Collection 2</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #3a2a1a; color: #bc7f2a; padding: 5px 0; text-align: center; border-top: 2px solid #00ffcc;">
+                        <marquee>⚜️ Enter the archive at your own peril ⚜️</marquee>
+                    </div>
+                </div>`,
+
+                'ascii-map-zone': `<div style="background: #0d041a; color: #e0e0e0; font-family: 'Comic Sans MS', cursive; min-height: 100vh; padding: 1em;">
+                    <div style="text-align: center; margin-bottom: 2em;">
+                        <h1 style="font-family: 'VT323', monospace; font-size: 3em; color: #00ff9b; text-shadow: 0 0 10px #00ff9b, 0 0 20px #ff00ff;">🌲 THE VOID FOREST 🌲</h1>
+                    </div>
+                    <div style="display: flex; gap: 2em; justify-content: center; align-items: flex-start;">
+                        <div style="border: 4px solid #00ff9b; padding: 1em; background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 15px #00ff9b;">
+                            <pre style="font-family: 'VT323', monospace; font-size: 20px; line-height: 1.1; background: #1a0c33; padding: 1em; margin: 0; color: #00ff9b; white-space: pre;">    🌲
+   /|\\
+  / | \\
+ /  |  \\
+🌲 🏠 🌲
+ \\  |  /
+  \\ | /
+   \\|/
+    🌲</pre>
+                        </div>
+                        <div style="width: 450px; background: rgba(26, 12, 51, 0.9); border: 2px dashed #ff00ff; padding: 20px;">
+                            <h2 style="font-family: 'VT323', monospace; font-size: 2em; color: #00ff9b; text-align: center;">📖 CODEX 📖</h2>
+                            <p style="font-size: 0.9em; line-height: 1.6;">Click areas of the map to explore. Each zone contains mysteries and secrets...</p>
+                        </div>
+                    </div>
+                </div>`,
+
+                'update-feed': `<div style="background: url('https://web.archive.org/web/20091027052024/http://geocities.com/dreamwarrior_2000/stars.gif'); color: #72FADE; font-family: 'VT323', monospace; padding: 20px;">
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <h1 style="text-align: center; font-size: 3rem; color: #fffb01; text-shadow: 0 0 10px #f312af; margin-bottom: 2rem;">📡 TRANSMISSION LOG 📡</h1>
+                        <div style="background: #0000FF; border: 3px dotted #FFFF00; color: #FFFFFF; padding: 20px; margin-bottom: 25px; border-radius: 10px;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 2px dashed #FFFF00; margin-bottom: 15px; padding-bottom: 10px;">
+                                <h3 style="color: #00FF00; text-shadow: 2px 2px #FF00FF; margin: 0;">Update Title</h3>
+                                <span style="background: #800080; color: #FFFF00; padding: 3px 8px; border-radius: 5px; font-weight: bold; border: 1px outset #FFFFFF;">DATE</span>
+                            </div>
+                            <p>Your update content goes here! Share news, thoughts, links...</p>
+                        </div>
+                        <div style="background: #0000FF; border: 3px dotted #FFFF00; color: #FFFFFF; padding: 20px; margin-bottom: 25px; border-radius: 10px;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 2px dashed #FFFF00; margin-bottom: 15px; padding-bottom: 10px;">
+                                <h3 style="color: #00FF00; text-shadow: 2px 2px #FF00FF; margin: 0;">Another Update</h3>
+                                <span style="background: #800080; color: #FFFF00; padding: 3px 8px; border-radius: 5px; font-weight: bold; border: 1px outset #FFFFFF;">DATE</span>
+                            </div>
+                            <p>More content here...</p>
+                        </div>
+                    </div>
+                </div>`,
+
+                // ==== CLASSIC WEB LAYOUTS ====
+                'grid-gallery': '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 20px;"><div style="border: 4px solid #000; padding: 20px; background: #FF0000; color: #FFF; min-height: 200px; display: flex; align-items: center; justify-content: center;">ITEM 1</div><div style="border: 4px solid #000; padding: 20px; background: #0000FF; color: #FFF; min-height: 200px; display: flex; align-items: center; justify-content: center;">ITEM 2</div><div style="border: 4px solid #000; padding: 20px; background: #FFFF00; min-height: 200px; display: flex; align-items: center; justify-content: center;">ITEM 3</div><div style="border: 4px solid #000; padding: 20px; background: #00FF00; min-height: 200px; display: flex; align-items: center; justify-content: center;">ITEM 4</div></div>',
+                'blog-single': '<div style="max-width: 700px; margin: 0 auto; padding: 40px 20px; font-family: Georgia, serif;"><article style="border-bottom: 3px solid #000; padding-bottom: 40px; margin-bottom: 40px;"><h1 style="font-size: 2.5rem; margin-bottom: 10px;">Blog Post Title</h1><div style="color: #666; margin-bottom: 20px;">Posted on DATE by AUTHOR</div><p style="line-height: 1.8; font-size: 1.1rem;">Your blog post content goes here. Write about anything!</p></article><article style="border-bottom: 3px solid #000; padding-bottom: 40px;"><h1 style="font-size: 2.5rem; margin-bottom: 10px;">Another Post</h1><div style="color: #666; margin-bottom: 20px;">Posted on DATE by AUTHOR</div><p style="line-height: 1.8; font-size: 1.1rem;">More content...</p></article></div>',
+                'sidebar-blog': '<div style="display: flex; gap: 30px; max-width: 1200px; margin: 0 auto; padding: 20px;"><main style="flex: 1;"><h1 style="border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 20px;">MAIN CONTENT</h1><p>Main blog/content area</p></main><aside style="width: 300px; border-left: 4px solid #000; padding-left: 20px;"><h3 style="margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 5px;">📌 SIDEBAR</h3><ul style="list-style: none; padding: 0;"><li style="margin-bottom: 10px; padding: 10px; background: #f0f0f0; border: 2px solid #000;">Link 1</li><li style="margin-bottom: 10px; padding: 10px; background: #f0f0f0; border: 2px solid #000;">Link 2</li></ul></aside></div>',
+                'hero-cta': '<div style="min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;"><div style="background: rgba(255, 255, 255, 0.95); padding: 60px; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px;"><h1 style="font-size: 3.5rem; margin: 0 0 20px 0; color: #333;">MAKE AN IMPACT</h1><p style="font-size: 1.3rem; color: #666; margin-bottom: 30px;">Your compelling message goes here. Convince them to take action!</p><button style="background: #667eea; color: #FFF; border: none; padding: 20px 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">GET STARTED</button></div></div>'
             };
 
             if (templates[type]) {
@@ -1407,6 +1531,67 @@
                     alert(`Failed to load page: ${error.message}\n\nMake sure the file exists in your repo.`);
                     playSound('error', 'C3');
                 });
+        }
+
+        // ============================================
+        // CSS / JS EDITORS
+        // ============================================
+        function loadCSSFromPage() {
+            if (!loadedPageData.css) {
+                alert('No CSS loaded from page. Load a page first!');
+                return;
+            }
+            document.getElementById('css-editor').value = loadedPageData.css;
+            playSound('success', 'E5');
+            updateStatus('CSS loaded into editor!');
+        }
+
+        function loadJSFromPage() {
+            if (!loadedPageData.js) {
+                alert('No JavaScript loaded from page. Load a page first!');
+                return;
+            }
+            document.getElementById('js-editor').value = loadedPageData.js;
+            playSound('success', 'E5');
+            updateStatus('JavaScript loaded into editor!');
+        }
+
+        function applyCSS() {
+            const cssContent = document.getElementById('css-editor').value;
+            if (!cssContent.trim()) {
+                alert('CSS editor is empty!');
+                return;
+            }
+
+            // Add CSS to canvas as a style element
+            const id = 'el-' + (++elementIdCounter);
+            const html = `<style>${cssContent}</style>`;
+            canvasElements.push({ id, type: 'css', html });
+
+            renderCanvas();
+            updateElementCount();
+            playSound('success', 'G5');
+            showStamp('🎨');
+            updateStatus('CSS applied to canvas!');
+        }
+
+        function applyJS() {
+            const jsContent = document.getElementById('js-editor').value;
+            if (!jsContent.trim()) {
+                alert('JavaScript editor is empty!');
+                return;
+            }
+
+            // Add JS to canvas as a script element
+            const id = 'el-' + (++elementIdCounter);
+            const html = `<script>${jsContent}<\/script>`;
+            canvasElements.push({ id, type: 'js', html });
+
+            renderCanvas();
+            updateElementCount();
+            playSound('success', 'A5');
+            showStamp('⚡');
+            updateStatus('JavaScript applied to canvas!');
         }
 
         // ============================================
