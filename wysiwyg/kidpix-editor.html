@@ -639,6 +639,22 @@
                     🧿<br>Terminal
                 </div>
             </div>
+
+            <h3 style="margin: 16px 0 12px 0;">🎨 Style Templates:</h3>
+            <div class="template-grid">
+                <div class="template-card" onclick="loadTemplate('web10')">
+                    🌟<br>Web 1.0 / Geocities
+                </div>
+                <div class="template-card" onclick="loadTemplate('brutalism')">
+                    ⬛<br>Brutalism
+                </div>
+                <div class="template-card" onclick="loadTemplate('glassmorphism')">
+                    💎<br>Glassmorphism
+                </div>
+                <div class="template-card" onclick="loadTemplate('hero-fullscreen')">
+                    🚀<br>Hero Fullscreen
+                </div>
+            </div>
         </div>
     </div>
 
@@ -670,10 +686,20 @@
 
             <label class="property-label">Asset Type:</label>
             <select class="property-input" onchange="browseAssets(this.value)">
-                <option value="gifs">🎞️ GIFs</option>
-                <option value="sounds">🎵 Sounds/Music</option>
-                <option value="glbs">🦎 3D Models (GLB)</option>
-                <option value="entity">👤 Entity Sprites</option>
+                <optgroup label="🖼️ Graphics">
+                    <option value="gifs">🎞️ GIFs (Background)</option>
+                    <option value="neopets">🗺️ Neopets Maps</option>
+                    <option value="entity">👤 Entity Sprites</option>
+                </optgroup>
+                <optgroup label="🎵 Audio">
+                    <option value="retro-sfx">🎮 Retro Game SFX (100)</option>
+                    <option value="fx-pack">🔊 500 FX Pack</option>
+                    <option value="individual-sfx">🎵 Individual SFX</option>
+                    <option value="music">🎼 Music (MIDIs/MP3s)</option>
+                </optgroup>
+                <optgroup label="🦎 3D Models">
+                    <option value="glbs">🦎 Pip Models (GLB)</option>
+                </optgroup>
             </select>
 
             <div class="asset-grid" id="asset-grid">
@@ -961,7 +987,11 @@
                 'grid': '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;"><div style="border: 4px solid #000; padding: 20px; background: #FF0000; color: #FFF;">Card 1</div><div style="border: 4px solid #000; padding: 20px; background: #0000FF; color: #FFF;">Card 2</div><div style="border: 4px solid #000; padding: 20px; background: #FFFF00;">Card 3</div><div style="border: 4px solid #000; padding: 20px; background: #00FF00;">Card 4</div></div>',
                 'fullscreen': '<div style="min-height: 100vh; display: flex; flex-direction: column;"><div style="background: #0000FF; color: #FFF; padding: 20px; border-bottom: 4px solid #000;">Header</div><div style="flex: 1; padding: 20px;">Main Content</div><div style="background: #FF0000; color: #FFF; padding: 20px; border-top: 4px solid #000;">Footer</div></div>',
                 'centered': '<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #666;"><div style="max-width: 600px; background: #FFF; border: 6px solid #000; padding: 40px; box-shadow: 10px 10px 0 #000;"><h1>Centered Card</h1><p>Your content here!</p></div></div>',
-                'split': '<div style="display: flex; min-height: 100vh;"><div style="flex: 1; background: #FFFF00; padding: 40px;"><h2>Left Panel</h2></div><div style="flex: 1; background: #00FF00; padding: 40px;"><h2>Right Panel</h2></div></div>'
+                'split': '<div style="display: flex; min-height: 100vh;"><div style="flex: 1; background: #FFFF00; padding: 40px;"><h2>Left Panel</h2></div><div style="flex: 1; background: #00FF00; padding: 40px;"><h2>Right Panel</h2></div></div>',
+                'web10': '<div style="background: #FF00FF; padding: 20px;"><center><h1 style="color: #FFFF00; text-shadow: 2px 2px #FF0000;">🌟 WELCOME TO MY SITE! 🌟</h1><marquee><blink>UNDER CONSTRUCTION!</blink></marquee><p style="color: #00FFFF;">You are visitor #12345!</p><table border="4" cellpadding="10" style="margin: 20px auto; background: #00FF00;"><tr><td>📧 Email Me!</td><td>📖 Guestbook</td><td>🔗 Links</td></tr></table></center></div>',
+                'brutalism': '<div style="background: #FFF; color: #000; font-family: Arial; padding: 0;"><div style="background: #000; color: #FFF; padding: 40px; border: 8px solid #FF0000;"><h1 style="font-size: 72px; font-weight: 900; margin: 0;">BRUTAL</h1></div><div style="padding: 40px; border: 8px solid #000; margin: 20px;"><p style="font-size: 24px; line-height: 1.2;">RAW. UNPOLISHED. INTENTIONAL.</p><button style="background: #FFFF00; border: 4px solid #000; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer;">CLICK</button></div></div>',
+                'glassmorphism': '<div style="min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; display: flex; align-items: center; justify-content: center;"><div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.3); padding: 40px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);"><h1 style="color: #FFF; margin: 0 0 20px 0;">Glassmorphism</h1><p style="color: rgba(255, 255, 255, 0.9);">Frosted glass effect with transparency</p></div></div>',
+                'hero-fullscreen': '<div style="min-height: 100vh; background: url(/assets/bg_gifs/1zeV.gif) center/cover; display: flex; align-items: center; justify-content: center; text-align: center;"><div style="background: rgba(0, 0, 0, 0.7); padding: 60px; border: 6px solid #FFFF00;"><h1 style="font-size: 64px; color: #FFFF00; margin: 0;">HERO SECTION</h1><p style="font-size: 24px; color: #FFF; margin: 20px 0;">Big impact. Full screen.</p><button style="background: #FF0000; color: #FFF; border: 4px solid #FFF; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer;">CALL TO ACTION</button></div></div>'
             };
 
             if (templates[type]) {
@@ -1116,35 +1146,85 @@
         function browseAssets(type) {
             const assetPaths = {
                 gifs: ['/assets/bg_gifs/1zeV.gif', '/assets/dollz/dumpz/desk1050.gif', '/assets/misc_gif/metapara/internet.gif'],
-                sounds: ['/assets/sounds/pink_panther.mid', '/assets/sounds/Aqua_Barbie_Girl.mid', '/assets/sounds/MapleLeafRag.mp3'],
-                glbs: ['/assets/pollywog/pip_jazz.glb', '/assets/pollywog/pip_wave.glb', '/assets/pollywog/pip_walk.glb'],
+                neopets: [
+                    '/assets/_retroinspo/_neopets/faerieland_map.png',
+                    '/assets/_retroinspo/_neopets/neopia.webp',
+                    '/assets/_retroinspo/_neopets/neopets-world.webp',
+                    '/assets/_retroinspo/_neopets/Meridell_(Neopets).gif',
+                    '/assets/_retroinspo/_neopets/4pjrdmr9s0la1.png',
+                    '/assets/_retroinspo/_neopets/7skcv06ssy6a1.png',
+                    '/assets/_retroinspo/_neopets/neop1.jpg',
+                    '/assets/_retroinspo/_neopets/mej68di3zsf81.jpg'
+                ],
+                'retro-sfx': Array.from({length: 100}, (_, i) => `/assets/audio/100_Retro_Game_Sounds_SFX_[VOLUME1]_24 bits_44.1KHz_WAV_CC-BY-3.0_by_jalastram/Retro_Game_Sounds_SFX_${String(i + 1).padStart(2, '0')}.wav`),
+                'fx-pack': Array.from({length: 90}, (_, i) => `/assets/audio/500 Sound Effects by Jalastram/FX${String(i + 1).padStart(3, '0')}.mp3`),
+                'individual-sfx': [
+                    '/assets/audio/SFX_jump.wav',
+                    '/assets/audio/SFX_hurt.wav',
+                    '/assets/audio/SFX_shoot_normal.wav',
+                    '/assets/audio/SFX_button.wav',
+                    '/assets/audio/SFX_gift.wav',
+                    '/assets/audio/SFX_hit.wav',
+                    '/assets/audio/SFX_kid.wav',
+                    '/assets/audio/SFX_super_jump.wav'
+                ],
+                music: [
+                    '/assets/sounds/pink_panther.mid',
+                    '/assets/sounds/Aqua_Barbie_Girl.mid',
+                    '/assets/sounds/MapleLeafRag.mp3',
+                    '/assets/sounds/DreamwalkerSEP2.mp3'
+                ],
+                glbs: [
+                    '/assets/pollywog/pip_jazz.glb',
+                    '/assets/pollywog/pip_wave.glb',
+                    '/assets/pollywog/pip_walk.glb',
+                    '/assets/pollywog/pip_jump.glb',
+                    '/assets/pollywog/pip_fall.glb'
+                ],
                 entity: ['/assets/entity/anzu/', '/assets/entity/hyenadiva/', '/assets/entity/sypher/']
             };
 
             const assets = assetPaths[type] || [];
             const grid = document.getElementById('asset-grid');
 
-            grid.innerHTML = assets.map(path => {
+            // Show a subset if there are too many
+            const displayAssets = assets.length > 30 ? assets.slice(0, 30) : assets;
+            const hasMore = assets.length > 30;
+
+            grid.innerHTML = displayAssets.map(path => {
                 const name = path.split('/').pop();
-                const isImage = path.match(/\.(gif|png|jpg)$/i);
+                const isImage = path.match(/\.(gif|png|jpg|webp)$/i);
+                const isAudio = path.match(/\.(wav|mp3|mid)$/i);
 
                 return `
                     <div class="asset-item" onclick="insertAsset('${path}', '${type}')">
-                        ${isImage ? `<img src="${path}" class="asset-preview">` : ''}
-                        <div>${name}</div>
+                        ${isImage ? `<img src="${path}" class="asset-preview" loading="lazy">` : ''}
+                        ${isAudio ? '🔊' : ''}
+                        <div style="font-size: 11px;">${name}</div>
                     </div>
                 `;
             }).join('');
+
+            if (hasMore) {
+                grid.innerHTML += `<div class="asset-item" style="grid-column: 1 / -1; text-align: center; color: var(--purple); font-weight: bold;">
+                    Showing 30 of ${assets.length} files<br>
+                    <small>Click any file to insert!</small>
+                </div>`;
+            }
         }
 
         function insertAsset(path, type) {
             let html = '';
+            const filename = path.split('/').pop();
+
             if (type === 'gifs') {
                 html = `<img src="${path}" style="border: 4px solid #000; max-width: 300px;">`;
-            } else if (type === 'sounds') {
-                html = `<audio controls style="border: 4px solid #000;"><source src="${path}"></audio>`;
+            } else if (type === 'neopets') {
+                html = `<img src="${path}" alt="Neopets Map" style="border: 4px solid #000; max-width: 600px; cursor: pointer;" title="${filename}">`;
+            } else if (type === 'retro-sfx' || type === 'fx-pack' || type === 'individual-sfx' || type === 'music') {
+                html = `<audio controls style="border: 4px solid #000; margin: 10px 0;"><source src="${path}"></audio>`;
             } else if (type === 'glbs') {
-                html = `<div style="border: 4px solid #000; padding: 20px; background: #00FF00; text-align: center;"><p>🦎 3D Model: ${path.split('/').pop()}</p></div>`;
+                html = `<div style="border: 4px solid #000; padding: 20px; background: #00FF00; text-align: center;"><p>🦎 3D Model: ${filename}</p></div>`;
             }
 
             if (html) {
