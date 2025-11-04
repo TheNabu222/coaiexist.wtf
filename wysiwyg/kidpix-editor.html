@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎨 KidPix Web Builder</title>
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
     <style>
         /* ============================================
            PRIMARY COLORS & KIDPIX AESTHETIC
@@ -1422,7 +1430,23 @@
             } else if (type === 'retro-sfx' || type === 'fx-pack' || type === 'individual-sfx' || type === 'music') {
                 html = `<audio controls style="border: 4px solid #000; margin: 10px 0;"><source src="${path}"></audio>`;
             } else if (type === 'glbs') {
-                html = `<div style="border: 4px solid #000; padding: 20px; background: #00FF00; text-align: center;"><p>🦎 3D Model: ${filename}</p></div>`;
+                // Create unique ID for this 3D viewer
+                const viewerId = 'glb-viewer-' + Date.now();
+                html = `<div style="border: 4px solid #000; background: #000; width: 400px; height: 400px; position: relative;">
+                    <canvas id="${viewerId}" style="width: 100%; height: 100%; display: block;"></canvas>
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #0F0; padding: 5px 10px; font-family: 'VT323', monospace; border: 2px solid #0F0;">🦎 ${filename}</div>
+                </div>`;
+
+                // Add element first
+                addElementDirect(type, html);
+
+                // Initialize Three.js viewer after a brief delay to ensure DOM is ready
+                setTimeout(() => initGLBViewer(viewerId, path), 100);
+
+                closeModal('asset-modal');
+                playSound('success', 'G5');
+                showStamp('🦎');
+                return; // Exit early since we already added the element
             }
 
             if (html) {
@@ -1430,6 +1454,98 @@
                 closeModal('asset-modal');
                 playSound('success', 'G5');
                 showStamp('✨');
+            }
+        }
+
+        // ============================================
+        // THREE.JS GLB VIEWER
+        // ============================================
+        async function initGLBViewer(canvasId, glbPath) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error('Canvas not found:', canvasId);
+                return;
+            }
+
+            try {
+                // Dynamically import Three.js modules
+                const THREE = await import('three');
+                const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+                const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
+
+                // Setup scene
+                const scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x000000);
+
+                // Setup camera
+                const camera = new THREE.PerspectiveCamera(
+                    50,
+                    canvas.clientWidth / canvas.clientHeight,
+                    0.1,
+                    1000
+                );
+                camera.position.set(0, 1, 3);
+
+                // Setup renderer
+                const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                scene.add(ambientLight);
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 10, 7.5);
+                scene.add(directionalLight);
+
+                // Add orbit controls
+                const controls = new OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.minDistance = 1;
+                controls.maxDistance = 10;
+
+                // Load GLB model
+                const loader = new GLTFLoader();
+                loader.load(
+                    glbPath,
+                    (gltf) => {
+                        const model = gltf.scene;
+
+                        // Center and scale model
+                        const box = new THREE.Box3().setFromObject(model);
+                        const center = box.getCenter(new THREE.Vector3());
+                        model.position.sub(center);
+
+                        const size = box.getSize(new THREE.Vector3());
+                        const maxDim = Math.max(size.x, size.y, size.z);
+                        const scale = 2 / maxDim;
+                        model.scale.setScalar(scale);
+
+                        scene.add(model);
+
+                        // Animation loop
+                        function animate() {
+                            requestAnimationFrame(animate);
+                            controls.update();
+
+                            // Auto-rotate
+                            model.rotation.y += 0.005;
+
+                            renderer.render(scene, camera);
+                        }
+                        animate();
+                    },
+                    (progress) => {
+                        console.log('Loading:', (progress.loaded / progress.total * 100) + '%');
+                    },
+                    (error) => {
+                        console.error('Error loading GLB:', error);
+                    }
+                );
+
+            } catch (error) {
+                console.error('Error initializing Three.js:', error);
             }
         }
 
