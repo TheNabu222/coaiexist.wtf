@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ CoAIexist Pro Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --magenta: #f312af;
+            --cyan: #00ffcc;
+            --yellow: #fffb01;
+            --purple: #bf5fff;
+            --green: #00ff00;
+            --pink: #ff69b4;
+            --red: #ff4444;
+            --blue: #4444ff;
+            --orange: #ff9944;
+
+            --dark-bg: #021313;
+            --darker-bg: #000000;
+            --panel-bg: #0a1a1a;
+            --card-bg: #0f2020;
+
+            --border-color: var(--cyan);
+            --border-radius: 8px;
+            --glow-sm: 0 0 5px;
+            --glow-md: 0 0 10px;
+            --glow-lg: 0 0 20px;
+
+            --font-main: 'VT323', monospace;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--dark-bg);
+            color: var(--cyan);
+            overflow: hidden;
+            height: 100vh;
+            font-size: 18px;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 360px;
+            grid-template-rows: 60px 1fr 40px;
+            grid-template-areas:
+                "toolbar toolbar toolbar"
+                "library canvas sidebar"
+                "statusbar statusbar statusbar";
+            height: 100vh;
+            gap: 2px;
+            background: var(--darker-bg);
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            grid-area: toolbar;
+            background: var(--panel-bg);
+            border-bottom: 2px solid var(--cyan);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            gap: var(--spacing-md);
+            box-shadow: var(--glow-sm) var(--cyan);
+            overflow-x: auto;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--border-radius);
+            border: 2px solid;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .toolbar-section::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -10px;
+            left: var(--spacing-sm);
+            background: var(--panel-bg);
+            padding: 0 var(--spacing-xs);
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .toolbar-section.file { border-color: var(--magenta); color: var(--magenta); }
+        .toolbar-section.edit { border-color: var(--cyan); color: var(--cyan); }
+        .toolbar-section.insert { border-color: var(--yellow); color: var(--yellow); }
+        .toolbar-section.style { border-color: var(--purple); color: var(--purple); }
+        .toolbar-section.export { border-color: var(--green); color: var(--green); }
+        .toolbar-section.view { border-color: var(--orange); color: var(--orange); }
+
+        .toolbar-btn {
+            background: transparent;
+            border: 2px solid currentColor;
+            color: inherit;
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 16px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .toolbar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-sm) currentColor;
+        }
+
+        .toolbar-btn.active {
+            background: currentColor;
+            color: var(--dark-bg);
+            box-shadow: var(--glow-md) currentColor;
+        }
+
+        /* LEFT SIDEBAR */
+        .component-library {
+            grid-area: library;
+            background: var(--panel-bg);
+            border-right: 2px solid var(--magenta);
+            overflow-y: auto;
+            padding: var(--spacing-md);
+            box-shadow: var(--glow-sm) var(--magenta);
+        }
+
+        .library-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .library-section-title {
+            font-size: 20px;
+            color: var(--magenta);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--card-bg);
+            border: 2px solid var(--magenta);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .library-section-title:hover {
+            background: var(--magenta);
+            color: var(--dark-bg);
+        }
+
+        .library-items {
+            display: grid;
+            gap: var(--spacing-sm);
+        }
+
+        .library-item {
+            background: var(--card-bg);
+            border: 2px solid var(--cyan);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            cursor: grab;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .library-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-md) var(--cyan);
+            border-color: var(--magenta);
+        }
+
+        .library-item:active {
+            cursor: grabbing;
+        }
+
+        /* CENTER CANVAS */
+        .canvas-container {
+            grid-area: canvas;
+            background: var(--darker-bg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-toolbar {
+            background: var(--panel-bg);
+            border-bottom: 2px solid var(--purple);
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .canvas-workspace {
+            flex: 1;
+            overflow: auto;
+            padding: var(--spacing-lg);
+        }
+
+        #canvas {
+            min-height: 100%;
+            background: white;
+            color: #000;
+            border: 2px solid var(--cyan);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            position: relative;
+        }
+
+        #canvas:empty::before {
+            content: '✨ Drag components here or use ADD ELEMENT to start! ✨';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(0, 255, 204, 0.4);
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .canvas-element {
+            position: relative;
+            margin: var(--spacing-md) 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .canvas-element:hover {
+            outline: 2px solid var(--yellow);
+            outline-offset: 4px;
+        }
+
+        .canvas-element.selected {
+            outline: 3px solid var(--magenta);
+            outline-offset: 4px;
+            box-shadow: var(--glow-md) var(--magenta);
+        }
+
+        .element-controls {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            display: none;
+            gap: var(--spacing-xs);
+            background: var(--panel-bg);
+            padding: var(--spacing-xs);
+            border: 2px solid var(--magenta);
+            border-radius: var(--border-radius);
+            z-index: 100;
+        }
+
+        .canvas-element.selected .element-controls {
+            display: flex;
+        }
+
+        .control-btn {
+            background: var(--dark-bg);
+            border: 1px solid currentColor;
+            color: var(--cyan);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: currentColor;
+            color: var(--dark-bg);
+        }
+
+        /* RIGHT SIDEBAR */
+        .sidebar-container {
+            grid-area: sidebar;
+            background: var(--panel-bg);
+            border-left: 2px solid var(--purple);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--purple);
+            background: var(--card-bg);
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: var(--spacing-sm);
+            background: var(--card-bg);
+            border: none;
+            color: var(--purple);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-tab:hover {
+            background: var(--panel-bg);
+        }
+
+        .sidebar-tab.active {
+            background: var(--purple);
+            color: var(--dark-bg);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-md);
+        }
+
+        .sidebar-panel {
+            display: none;
+        }
+
+        .sidebar-panel.active {
+            display: block;
+        }
+
+        /* PROPERTIES */
+        .properties-section {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background: var(--card-bg);
+            border: 2px solid var(--purple);
+            border-radius: var(--border-radius);
+        }
+
+        .properties-section-title {
+            font-size: 18px;
+            color: var(--purple);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .property-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .property-label {
+            display: block;
+            color: var(--cyan);
+            margin-bottom: var(--spacing-xs);
+            font-size: 14px;
+        }
+
+        .property-input,
+        .property-select,
+        .property-textarea {
+            width: 100%;
+            background: var(--dark-bg);
+            border: 2px solid var(--cyan);
+            color: var(--cyan);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            font-family: var(--font-main);
+            font-size: 14px;
+        }
+
+        .property-input:focus,
+        .property-select:focus,
+        .property-textarea:focus {
+            outline: none;
+            border-color: var(--magenta);
+            box-shadow: var(--glow-sm) var(--magenta);
+        }
+
+        .property-textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* ELEMENT TREE */
+        .tree-item {
+            padding: var(--spacing-sm);
+            margin: var(--spacing-xs) 0;
+            background: var(--card-bg);
+            border: 1px solid var(--cyan);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tree-item:hover {
+            background: var(--panel-bg);
+            border-color: var(--magenta);
+        }
+
+        .tree-item.selected {
+            background: var(--magenta);
+            color: var(--dark-bg);
+        }
+
+        /* CSS PROPERTY EDITOR */
+        .css-category {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .css-category-title {
+            background: var(--card-bg);
+            border: 2px solid var(--cyan);
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .css-category-title:hover {
+            background: var(--cyan);
+            color: var(--dark-bg);
+        }
+
+        .css-properties {
+            padding-left: var(--spacing-md);
+            display: none;
+        }
+
+        .css-category.expanded .css-properties {
+            display: block;
+        }
+
+        /* MODALS */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            border: 3px solid var(--cyan);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            box-shadow: var(--glow-lg) var(--cyan);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--cyan);
+        }
+
+        .modal-title {
+            font-size: 28px;
+            color: var(--cyan);
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            grid-area: statusbar;
+            background: var(--panel-bg);
+            border-top: 2px solid var(--green);
+            padding: var(--spacing-sm) var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-message {
+            color: var(--green);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+            border: 1px solid var(--cyan);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: var(--border-radius);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--magenta);
+        }
+
+        /* RESPONSIVE PREVIEW */
+        #canvas.mobile-view {
+            max-width: 375px;
+            margin: 0 auto;
+        }
+
+        #canvas.tablet-view {
+            max-width: 768px;
+            margin: 0 auto;
+        }
+
+        #canvas.desktop-view {
+            max-width: 100%;
+        }
+
+        /* UTILITY */
+        .btn-primary {
+            background: var(--cyan);
+            color: var(--dark-bg);
+            border: 2px solid var(--cyan);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--glow-md) var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--red);
+            color: white;
+            border: 2px solid var(--red);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="toolbar-section file" data-label="📁 File">
+                <button class="toolbar-btn" id="btn-new">New</button>
+                <button class="toolbar-btn" id="btn-save">Save</button>
+                <button class="toolbar-btn" id="btn-load">Load</button>
+                <button class="toolbar-btn" id="btn-load-page">Load Page</button>
+            </div>
+
+            <div class="toolbar-section edit" data-label="✏️ Edit">
+                <button class="toolbar-btn" id="btn-undo">Undo</button>
+                <button class="toolbar-btn" id="btn-redo">Redo</button>
+                <button class="toolbar-btn" id="btn-copy">Copy</button>
+                <button class="toolbar-btn" id="btn-paste">Paste</button>
+            </div>
+
+            <div class="toolbar-section insert" data-label="➕ Insert">
+                <button class="toolbar-btn" id="btn-add-element">Add Element</button>
+                <button class="toolbar-btn" id="btn-add-navbar">Navbar</button>
+                <button class="toolbar-btn" id="btn-templates">Templates</button>
+                <button class="toolbar-btn" id="btn-assets">Assets</button>
+            </div>
+
+            <div class="toolbar-section style" data-label="🎨 Style">
+                <button class="toolbar-btn" id="btn-page-css">Page CSS</button>
+                <button class="toolbar-btn" id="btn-page-js">Page JS</button>
+            </div>
+
+            <div class="toolbar-section view" data-label="👁️ View">
+                <button class="toolbar-btn" id="btn-view-desktop" class="active">Desktop</button>
+                <button class="toolbar-btn" id="btn-view-tablet">Tablet</button>
+                <button class="toolbar-btn" id="btn-view-mobile">Mobile</button>
+            </div>
+
+            <div class="toolbar-section export" data-label="📤 Export">
+                <button class="toolbar-btn" id="btn-export">Export HTML</button>
+            </div>
+        </div>
+
+        <!-- LEFT SIDEBAR - Component Library -->
+        <div class="component-library">
+            <h2 style="color: var(--magenta); text-align: center; margin-bottom: var(--spacing-lg);">
+                ⭐ Components ⭐
+            </h2>
+
+            <div class="library-section">
+                <div class="library-section-title">Basic Elements</div>
+                <div class="library-items">
+                    <div class="library-item" draggable="true" data-component="heading">Heading</div>
+                    <div class="library-item" draggable="true" data-component="paragraph">Paragraph</div>
+                    <div class="library-item" draggable="true" data-component="button">Button</div>
+                    <div class="library-item" draggable="true" data-component="link">Link</div>
+                    <div class="library-item" draggable="true" data-component="image">Image</div>
+                    <div class="library-item" draggable="true" data-component="div">Container</div>
+                </div>
+            </div>
+
+            <div class="library-section">
+                <div class="library-section-title">Layout</div>
+                <div class="library-items">
+                    <div class="library-item" draggable="true" data-component="flexbox">Flexbox</div>
+                    <div class="library-item" draggable="true" data-component="grid">Grid</div>
+                    <div class="library-item" draggable="true" data-component="section">Section</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER CANVAS -->
+        <div class="canvas-container">
+            <div class="canvas-toolbar">
+                <span style="color: var(--purple); font-size: 20px;">
+                    🎨 <strong>Canvas</strong>
+                </span>
+            </div>
+            <div class="canvas-workspace">
+                <div id="canvas"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="sidebar-container">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="properties">Properties</button>
+                <button class="sidebar-tab" data-tab="tree">Tree</button>
+                <button class="sidebar-tab" data-tab="css">CSS</button>
+            </div>
+            <div class="sidebar-content">
+                <!-- PROPERTIES PANEL -->
+                <div id="properties-panel" class="sidebar-panel active">
+                    <div style="text-align: center; color: var(--purple); margin-top: 40px;">
+                        Select an element to edit
+                    </div>
+                </div>
+
+                <!-- TREE PANEL -->
+                <div id="tree-panel" class="sidebar-panel">
+                    <h3 style="color: var(--purple); margin-bottom: var(--spacing-md);">Element Tree</h3>
+                    <div id="element-tree"></div>
+                </div>
+
+                <!-- CSS PANEL -->
+                <div id="css-panel" class="sidebar-panel">
+                    <h3 style="color: var(--purple); margin-bottom: var(--spacing-md);">Complete CSS Editor</h3>
+                    <div id="css-editor"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="status-bar">
+            <div class="status-message" id="status-message">Ready!</div>
+            <div style="display: flex; gap: var(--spacing-md);">
+                <span id="element-count">Elements: 0</span>
+                <span id="last-action">Last: None</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD ELEMENT MODAL -->
+    <div class="modal" id="add-element-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Custom HTML Element</h2>
+                <button class="btn-danger" id="close-add-element">Close</button>
+            </div>
+            <div class="property-group">
+                <label class="property-label">Element Tag:</label>
+                <input type="text" class="property-input" id="custom-tag" placeholder="e.g., div, span, article">
+            </div>
+            <div class="property-group">
+                <label class="property-label">Content:</label>
+                <textarea class="property-textarea" id="custom-content" placeholder="Enter content or HTML"></textarea>
+            </div>
+            <div class="property-group">
+                <label class="property-label">Classes (space-separated):</label>
+                <input type="text" class="property-input" id="custom-classes" placeholder="e.g., container my-class">
+            </div>
+            <div class="property-group">
+                <label class="property-label">Inline Styles:</label>
+                <textarea class="property-textarea" id="custom-styles" placeholder="e.g., color: red; padding: 20px;"></textarea>
+            </div>
+            <button class="btn-primary" id="add-custom-element">Add Element</button>
+        </div>
+    </div>
+
+    <!-- NAVBAR MODAL -->
+    <div class="modal" id="navbar-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Navbar Builder</h2>
+                <button class="btn-danger" id="close-navbar">Close</button>
+            </div>
+            <div class="property-group">
+                <label class="property-label">Navbar Style:</label>
+                <select class="property-select" id="navbar-style">
+                    <option value="top-simple">Top Simple</option>
+                    <option value="top-dropdown">Top with Dropdown</option>
+                    <option value="sidebar-left">Sidebar Left</option>
+                    <option value="sidebar-right">Sidebar Right</option>
+                    <option value="footer-nav">Footer Nav</option>
+                    <option value="y2k-style">Y2K Style</option>
+                    <option value="retro-tabs">Retro Tabs</option>
+                    <option value="floating-menu">Floating Menu</option>
+                </select>
+            </div>
+            <div class="property-group">
+                <label class="property-label">Links (one per line: Label | URL):</label>
+                <textarea class="property-textarea" id="navbar-links">Home | /index.html
+About | /about.html
+Contact | /contact.html</textarea>
+            </div>
+            <button class="btn-primary" id="create-navbar">Create Navbar</button>
+        </div>
+    </div>
+
+    <!-- TEMPLATES MODAL -->
+    <div class="modal" id="templates-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Enhanced Templates</h2>
+                <button class="btn-danger" id="close-templates">Close</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-md);">
+                <button class="btn-primary" onclick="insertTemplate('contact-form')">Contact Form</button>
+                <button class="btn-primary" onclick="insertTemplate('survey-form')">Survey Form</button>
+                <button class="btn-primary" onclick="insertTemplate('quiz')">Quiz</button>
+                <button class="btn-primary" onclick="insertTemplate('pdf-viewer')">PDF Viewer</button>
+                <button class="btn-primary" onclick="insertTemplate('gallery')">Image Gallery</button>
+                <button class="btn-primary" onclick="insertTemplate('slideshow')">Slideshow</button>
+                <button class="btn-primary" onclick="insertTemplate('accordion')">Accordion</button>
+                <button class="btn-primary" onclick="insertTemplate('tabs')">Tabs</button>
+                <button class="btn-primary" onclick="insertTemplate('modal')">Modal</button>
+                <button class="btn-primary" onclick="insertTemplate('clicker-game')">Clicker Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE CSS MODAL -->
+    <div class="modal" id="page-css-modal">
+        <div class="modal-content" style="min-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Page-Level CSS</h2>
+                <button class="btn-danger" id="close-page-css">Close</button>
+            </div>
+            <textarea id="page-css-editor" class="property-textarea" style="min-height: 400px; font-family: 'Courier New', monospace;"></textarea>
+            <button class="btn-primary" id="apply-page-css">Apply CSS</button>
+        </div>
+    </div>
+
+    <!-- PAGE JS MODAL -->
+    <div class="modal" id="page-js-modal">
+        <div class="modal-content" style="min-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Page-Level JavaScript</h2>
+                <button class="btn-danger" id="close-page-js">Close</button>
+            </div>
+            <div style="margin-bottom: var(--spacing-md);">
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Quick Snippets:</h3>
+                <button class="btn-primary" onclick="insertJSSnippet('click-event')">Click Event</button>
+                <button class="btn-primary" onclick="insertJSSnippet('animation')">Animation</button>
+                <button class="btn-primary" onclick="insertJSSnippet('api-call')">API Call</button>
+            </div>
+            <textarea id="page-js-editor" class="property-textarea" style="min-height: 400px; font-family: 'Courier New', monospace;"></textarea>
+            <button class="btn-primary" id="apply-page-js">Apply JavaScript</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // SOUND SYSTEM
+        // ============================================
+        const sounds = {
+            boop: new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination(),
+            pop: new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination(),
+            success: new Tone.Synth({ oscillator: { type: 'square' } }).toDestination()
+        };
+
+        function playSound(type, note = 'C5') {
+            if (sounds[type]) {
+                sounds[type].triggerAttackRelease(note, '16n');
+            }
+        }
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        let state = {
+            elements: [],
+            selectedElement: null,
+            clipboard: null,
+            history: [],
+            historyIndex: -1,
+            pageCSS: '',
+            pageJS: '',
+            viewMode: 'desktop'
+        };
+
+        let elementIdCounter = 0;
+        function generateId() {
+            return 'element-' + (++elementIdCounter);
+        }
+
+        // ============================================
+        // COMPONENT TEMPLATES
+        // ============================================
+        const componentTemplates = {
+            'heading': '<h2 style="color: #000;">Your Heading</h2>',
+            'paragraph': '<p style="color: #000;">Your paragraph text here.</p>',
+            'button': '<button style="padding: 10px 20px; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer;">Click Me</button>',
+            'link': '<a href="#" style="color: #0066cc; text-decoration: underline;">Link Text</a>',
+            'image': '<img src="https://via.placeholder.com/400x200" alt="Placeholder" style="max-width: 100%; border: 1px solid #ccc;">',
+            'div': '<div style="padding: 20px; border: 1px solid #ccc; background: #f5f5f5;">Container</div>',
+            'flexbox': '<div style="display: flex; gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="flex: 1; padding: 10px; background: #e0e0e0;">Item 1</div><div style="flex: 1; padding: 10px; background: #e0e0e0;">Item 2</div></div>',
+            'grid': '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="padding: 10px; background: #e0e0e0;">Item 1</div><div style="padding: 10px; background: #e0e0e0;">Item 2</div><div style="padding: 10px; background: #e0e0e0;">Item 3</div></div>',
+            'section': '<section style="padding: 40px; background: #f9f9f9; border: 1px solid #ddd;"><h2>Section Title</h2><p>Section content goes here.</p></section>'
+        };
+
+        // ============================================
+        // DRAG AND DROP
+        // ============================================
+        const canvas = document.getElementById('canvas');
+
+        document.querySelectorAll('.library-item').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                const component = e.target.getAttribute('data-component');
+                e.dataTransfer.setData('component', component);
+                playSound('boop', 'E5');
+            });
+        });
+
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const component = e.dataTransfer.getData('component');
+            if (component && componentTemplates[component]) {
+                addElement(componentTemplates[component], component);
+                playSound('success', 'C6');
+                updateStatus('Component added!');
+            }
+        });
+
+        // ============================================
+        // ELEMENT MANAGEMENT
+        // ============================================
+        function addElement(html, type = 'custom') {
+            const element = {
+                id: generateId(),
+                type: type,
+                html: html
+            };
+            state.elements.push(element);
+            saveHistory();
+            renderCanvas();
+            updateElementCount();
+        }
+
+        function renderCanvas() {
+            canvas.innerHTML = '';
+            state.elements.forEach(element => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'canvas-element';
+                wrapper.setAttribute('data-id', element.id);
+                wrapper.innerHTML = `
+                    <div class="element-controls">
+                        <button class="control-btn" onclick="editElement('${element.id}')">Edit</button>
+                        <button class="control-btn" onclick="duplicateElement('${element.id}')">Duplicate</button>
+                        <button class="control-btn" onclick="deleteElement('${element.id}')">Delete</button>
+                    </div>
+                    ${element.html}
+                `;
+                wrapper.addEventListener('click', (e) => {
+                    if (!e.target.closest('.element-controls')) {
+                        selectElement(element.id);
+                        playSound('pop', 'G5');
+                    }
+                });
+                canvas.appendChild(wrapper);
+            });
+            renderTree();
+        }
+
+        function selectElement(id) {
+            document.querySelectorAll('.canvas-element').forEach(el => {
+                el.classList.remove('selected');
+            });
+            const wrapper = document.querySelector(`[data-id="${id}"]`);
+            if (wrapper) {
+                wrapper.classList.add('selected');
+                state.selectedElement = id;
+                renderProperties(id);
+            }
+        }
+
+        function editElement(id) {
+            const element = state.elements.find(el => el.id === id);
+            if (!element) return;
+            const newHtml = prompt('Edit HTML:', element.html);
+            if (newHtml !== null) {
+                element.html = newHtml;
+                saveHistory();
+                renderCanvas();
+                selectElement(id);
+                updateStatus('Element updated!');
+            }
+        }
+
+        function duplicateElement(id) {
+            const element = state.elements.find(el => el.id === id);
+            if (!element) return;
+            const duplicate = {
+                id: generateId(),
+                type: element.type,
+                html: element.html
+            };
+            state.elements.push(duplicate);
+            saveHistory();
+            renderCanvas();
+            updateElementCount();
+            playSound('pop', 'C6');
+        }
+
+        function deleteElement(id) {
+            state.elements = state.elements.filter(el => el.id !== id);
+            saveHistory();
+            renderCanvas();
+            updateElementCount();
+            playSound('boop', 'C4');
+        }
+
+        // ============================================
+        // PROPERTIES PANEL
+        // ============================================
+        function renderProperties(id) {
+            const element = state.elements.find(el => el.id === id);
+            if (!element) return;
+
+            const panel = document.getElementById('properties-panel');
+            panel.innerHTML = `
+                <div class="properties-section">
+                    <div class="properties-section-title">Element Info</div>
+                    <div class="property-group">
+                        <label class="property-label">Type:</label>
+                        <div style="color: var(--magenta);">${element.type}</div>
+                    </div>
+                    <div class="property-group">
+                        <label class="property-label">ID:</label>
+                        <div style="color: var(--cyan); font-size: 12px;">${element.id}</div>
+                    </div>
+                </div>
+
+                <div class="properties-section">
+                    <div class="properties-section-title">Edit HTML</div>
+                    <div class="property-group">
+                        <label class="property-label">HTML Source:</label>
+                        <textarea class="property-textarea" id="element-html">${element.html}</textarea>
+                    </div>
+                    <button class="btn-primary" onclick="updateElementHTML('${element.id}')">Update HTML</button>
+                </div>
+
+                <div class="properties-section">
+                    <div class="properties-section-title">Quick Actions</div>
+                    <button class="btn-primary" onclick="duplicateElement('${element.id}')">Duplicate</button>
+                    <button class="btn-danger" onclick="deleteElement('${element.id}')">Delete</button>
+                </div>
+            `;
+        }
+
+        function updateElementHTML(id) {
+            const element = state.elements.find(el => el.id === id);
+            if (!element) return;
+            const newHtml = document.getElementById('element-html').value;
+            element.html = newHtml;
+            saveHistory();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'A5');
+            updateStatus('HTML updated!');
+        }
+
+        // ============================================
+        // ELEMENT TREE
+        // ============================================
+        function renderTree() {
+            const treePanel = document.getElementById('element-tree');
+            if (state.elements.length === 0) {
+                treePanel.innerHTML = '<div style="color: var(--cyan); text-align: center;">No elements</div>';
+                return;
+            }
+            treePanel.innerHTML = state.elements.map((el, idx) => `
+                <div class="tree-item ${el.id === state.selectedElement ? 'selected' : ''}" onclick="selectElement('${el.id}')">
+                    <div style="font-weight: bold;">${el.type}</div>
+                    <div style="font-size: 12px; opacity: 0.7;">${el.id}</div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // CSS EDITOR
+        // ============================================
+        function renderCSSEditor() {
+            const cssPanel = document.getElementById('css-editor');
+            const element = state.elements.find(el => el.id === state.selectedElement);
+
+            if (!element) {
+                cssPanel.innerHTML = '<div style="text-align: center; color: var(--cyan);">Select an element to edit CSS</div>';
+                return;
+            }
+
+            // Extract inline styles
+            const temp = document.createElement('div');
+            temp.innerHTML = element.html;
+            const firstChild = temp.firstElementChild;
+            const styles = firstChild ? firstChild.style.cssText : '';
+
+            cssPanel.innerHTML = `
+                <div class="properties-section">
+                    <div class="properties-section-title">Inline Styles</div>
+                    <textarea class="property-textarea" id="inline-styles" style="min-height: 200px;">${styles}</textarea>
+                    <button class="btn-primary" onclick="applyInlineStyles()">Apply Styles</button>
+                </div>
+
+                <div class="css-category">
+                    <div class="css-category-title" onclick="toggleCSSCategory(this)">Layout</div>
+                    <div class="css-properties">
+                        <div class="property-group">
+                            <label class="property-label">Display:</label>
+                            <select class="property-select" onchange="applyCSSProperty('display', this.value)">
+                                <option value="">Choose...</option>
+                                <option value="block">Block</option>
+                                <option value="inline">Inline</option>
+                                <option value="inline-block">Inline Block</option>
+                                <option value="flex">Flex</option>
+                                <option value="grid">Grid</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="property-group">
+                            <label class="property-label">Position:</label>
+                            <select class="property-select" onchange="applyCSSProperty('position', this.value)">
+                                <option value="">Choose...</option>
+                                <option value="static">Static</option>
+                                <option value="relative">Relative</option>
+                                <option value="absolute">Absolute</option>
+                                <option value="fixed">Fixed</option>
+                                <option value="sticky">Sticky</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="css-category">
+                    <div class="css-category-title" onclick="toggleCSSCategory(this)">Colors & Background</div>
+                    <div class="css-properties">
+                        <div class="property-group">
+                            <label class="property-label">Color:</label>
+                            <input type="color" class="property-input" onchange="applyCSSProperty('color', this.value)">
+                        </div>
+                        <div class="property-group">
+                            <label class="property-label">Background:</label>
+                            <input type="color" class="property-input" onchange="applyCSSProperty('background', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="css-category">
+                    <div class="css-category-title" onclick="toggleCSSCategory(this)">Spacing</div>
+                    <div class="css-properties">
+                        <div class="property-group">
+                            <label class="property-label">Padding:</label>
+                            <input type="text" class="property-input" placeholder="e.g., 10px 20px" onchange="applyCSSProperty('padding', this.value)">
+                        </div>
+                        <div class="property-group">
+                            <label class="property-label">Margin:</label>
+                            <input type="text" class="property-input" placeholder="e.g., 10px 20px" onchange="applyCSSProperty('margin', this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="css-category">
+                    <div class="css-category-title" onclick="toggleCSSCategory(this)">Typography</div>
+                    <div class="css-properties">
+                        <div class="property-group">
+                            <label class="property-label">Font Size:</label>
+                            <input type="text" class="property-input" placeholder="e.g., 16px" onchange="applyCSSProperty('font-size', this.value)">
+                        </div>
+                        <div class="property-group">
+                            <label class="property-label">Font Weight:</label>
+                            <select class="property-select" onchange="applyCSSProperty('font-weight', this.value)">
+                                <option value="">Choose...</option>
+                                <option value="normal">Normal</option>
+                                <option value="bold">Bold</option>
+                                <option value="lighter">Lighter</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="css-category">
+                    <div class="css-category-title" onclick="toggleCSSCategory(this)">Border</div>
+                    <div class="css-properties">
+                        <div class="property-group">
+                            <label class="property-label">Border:</label>
+                            <input type="text" class="property-input" placeholder="e.g., 1px solid #000" onchange="applyCSSProperty('border', this.value)">
+                        </div>
+                        <div class="property-group">
+                            <label class="property-label">Border Radius:</label>
+                            <input type="text" class="property-input" placeholder="e.g., 5px" onchange="applyCSSProperty('border-radius', this.value)">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleCSSCategory(el) {
+            el.parentElement.classList.toggle('expanded');
+        }
+
+        function applyCSSProperty(property, value) {
+            if (!state.selectedElement || !value) return;
+            const element = state.elements.find(el => el.id === state.selectedElement);
+            if (!element) return;
+
+            const temp = document.createElement('div');
+            temp.innerHTML = element.html;
+            const firstChild = temp.firstElementChild;
+            if (firstChild) {
+                firstChild.style[property] = value;
+                element.html = temp.innerHTML;
+                saveHistory();
+                renderCanvas();
+                selectElement(state.selectedElement);
+                updateStatus(`Applied ${property}: ${value}`);
+                playSound('pop', 'E5');
+            }
+        }
+
+        function applyInlineStyles() {
+            if (!state.selectedElement) return;
+            const element = state.elements.find(el => el.id === state.selectedElement);
+            if (!element) return;
+
+            const styles = document.getElementById('inline-styles').value;
+            const temp = document.createElement('div');
+            temp.innerHTML = element.html;
+            const firstChild = temp.firstElementChild;
+            if (firstChild) {
+                firstChild.style.cssText = styles;
+                element.html = temp.innerHTML;
+                saveHistory();
+                renderCanvas();
+                selectElement(state.selectedElement);
+                updateStatus('Styles applied!');
+                playSound('success', 'A5');
+            }
+        }
+
+        // ============================================
+        // HISTORY
+        // ============================================
+        function saveHistory() {
+            state.history = state.history.slice(0, state.historyIndex + 1);
+            state.history.push(JSON.stringify(state.elements));
+            state.historyIndex++;
+            if (state.history.length > 50) {
+                state.history.shift();
+                state.historyIndex--;
+            }
+        }
+
+        function undo() {
+            if (state.historyIndex > 0) {
+                state.historyIndex--;
+                state.elements = JSON.parse(state.history[state.historyIndex]);
+                renderCanvas();
+                playSound('boop', 'D5');
+                updateStatus('Undone!');
+            }
+        }
+
+        function redo() {
+            if (state.historyIndex < state.history.length - 1) {
+                state.historyIndex++;
+                state.elements = JSON.parse(state.history[state.historyIndex]);
+                renderCanvas();
+                playSound('boop', 'F5');
+                updateStatus('Redone!');
+            }
+        }
+
+        // ============================================
+        // TOOLBAR ACTIONS
+        // ============================================
+        document.getElementById('btn-new').addEventListener('click', () => {
+            if (confirm('Start new project?')) {
+                state.elements = [];
+                state.history = [];
+                state.historyIndex = -1;
+                saveHistory();
+                renderCanvas();
+                updateElementCount();
+                playSound('success', 'C5');
+            }
+        });
+
+        document.getElementById('btn-undo').addEventListener('click', undo);
+        document.getElementById('btn-redo').addEventListener('click', redo);
+
+        document.getElementById('btn-copy').addEventListener('click', () => {
+            if (state.selectedElement) {
+                const element = state.elements.find(el => el.id === state.selectedElement);
+                if (element) {
+                    state.clipboard = { ...element };
+                    updateStatus('Copied!');
+                    playSound('pop', 'E5');
+                }
+            }
+        });
+
+        document.getElementById('btn-paste').addEventListener('click', () => {
+            if (state.clipboard) {
+                const element = {
+                    id: generateId(),
+                    type: state.clipboard.type,
+                    html: state.clipboard.html
+                };
+                state.elements.push(element);
+                saveHistory();
+                renderCanvas();
+                updateElementCount();
+                updateStatus('Pasted!');
+                playSound('success', 'G5');
+            }
+        });
+
+        // ============================================
+        // ADD ELEMENT MODAL
+        // ============================================
+        document.getElementById('btn-add-element').addEventListener('click', () => {
+            document.getElementById('add-element-modal').classList.add('active');
+        });
+
+        document.getElementById('close-add-element').addEventListener('click', () => {
+            document.getElementById('add-element-modal').classList.remove('active');
+        });
+
+        document.getElementById('add-custom-element').addEventListener('click', () => {
+            const tag = document.getElementById('custom-tag').value || 'div';
+            const content = document.getElementById('custom-content').value;
+            const classes = document.getElementById('custom-classes').value;
+            const styles = document.getElementById('custom-styles').value;
+
+            let html = `<${tag}`;
+            if (classes) html += ` class="${classes}"`;
+            if (styles) html += ` style="${styles}"`;
+            html += `>${content}</${tag}>`;
+
+            addElement(html, 'custom');
+            document.getElementById('add-element-modal').classList.remove('active');
+            updateStatus('Custom element added!');
+            playSound('success', 'C6');
+        });
+
+        // ============================================
+        // RESPONSIVE PREVIEW
+        // ============================================
+        document.getElementById('btn-view-desktop').addEventListener('click', () => {
+            canvas.className = 'desktop-view';
+            state.viewMode = 'desktop';
+            document.querySelectorAll('[id^="btn-view-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-view-desktop').classList.add('active');
+        });
+
+        document.getElementById('btn-view-tablet').addEventListener('click', () => {
+            canvas.className = 'tablet-view';
+            state.viewMode = 'tablet';
+            document.querySelectorAll('[id^="btn-view-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-view-tablet').classList.add('active');
+        });
+
+        document.getElementById('btn-view-mobile').addEventListener('click', () => {
+            canvas.className = 'mobile-view';
+            state.viewMode = 'mobile';
+            document.querySelectorAll('[id^="btn-view-"]').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-view-mobile').classList.add('active');
+        });
+
+        // ============================================
+        // PAGE CSS/JS
+        // ============================================
+        document.getElementById('btn-page-css').addEventListener('click', () => {
+            document.getElementById('page-css-editor').value = state.pageCSS;
+            document.getElementById('page-css-modal').classList.add('active');
+        });
+
+        document.getElementById('close-page-css').addEventListener('click', () => {
+            document.getElementById('page-css-modal').classList.remove('active');
+        });
+
+        document.getElementById('apply-page-css').addEventListener('click', () => {
+            state.pageCSS = document.getElementById('page-css-editor').value;
+            updateStatus('CSS saved!');
+            playSound('success', 'A5');
+        });
+
+        document.getElementById('btn-page-js').addEventListener('click', () => {
+            document.getElementById('page-js-editor').value = state.pageJS;
+            document.getElementById('page-js-modal').classList.add('active');
+        });
+
+        document.getElementById('close-page-js').addEventListener('click', () => {
+            document.getElementById('page-js-modal').classList.remove('active');
+        });
+
+        document.getElementById('apply-page-js').addEventListener('click', () => {
+            state.pageJS = document.getElementById('page-js-editor').value;
+            updateStatus('JavaScript saved!');
+            playSound('success', 'A5');
+        });
+
+        function insertJSSnippet(type) {
+            const snippets = {
+                'click-event': `document.getElementById('myElement').addEventListener('click', function() {\n    // Your code here\n    alert('Clicked!');\n});`,
+                'animation': `element.style.animation = 'bounce 1s ease';\n\n// Add CSS keyframes:\n// @keyframes bounce {\n//     0%, 100% { transform: translateY(0); }\n//     50% { transform: translateY(-20px); }\n// }`,
+                'api-call': `fetch('https://api.example.com/data')\n    .then(response => response.json())\n    .then(data => {\n        console.log(data);\n    })\n    .catch(error => console.error('Error:', error));`
+            };
+            const editor = document.getElementById('page-js-editor');
+            editor.value += '\n\n' + snippets[type];
+        }
+
+        // ============================================
+        // EXPORT
+        // ============================================
+        document.getElementById('btn-export').addEventListener('click', () => {
+            const html = exportHTML();
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'page.html';
+            a.click();
+            updateStatus('Exported!');
+            playSound('success', 'C6');
+        });
+
+        function exportHTML() {
+            const content = state.elements.map(el => el.html).join('\n\n');
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page</title>
+    <style>
+${state.pageCSS}
+    </style>
+</head>
+<body>
+${content}
+    <script>
+${state.pageJS}
+    </script>
+</body>
+</html>`;
+        }
+
+        // ============================================
+        // NAVBAR & TEMPLATES
+        // ============================================
+        document.getElementById('btn-add-navbar').addEventListener('click', () => {
+            document.getElementById('navbar-modal').classList.add('active');
+        });
+
+        document.getElementById('close-navbar').addEventListener('click', () => {
+            document.getElementById('navbar-modal').classList.remove('active');
+        });
+
+        document.getElementById('create-navbar').addEventListener('click', () => {
+            const style = document.getElementById('navbar-style').value;
+            const linksText = document.getElementById('navbar-links').value;
+            const links = linksText.split('\n').map(line => {
+                const [label, url] = line.split('|').map(s => s.trim());
+                return { label, url };
+            }).filter(link => link.label && link.url);
+
+            let html = '';
+            if (style === 'top-simple') {
+                html = `<nav style="background: #333; padding: 15px; display: flex; gap: 20px;">
+                    ${links.map(link => `<a href="${link.url}" style="color: white; text-decoration: none;">${link.label}</a>`).join('')}
+                </nav>`;
+            } else if (style === 'y2k-style') {
+                html = `<nav style="background: linear-gradient(90deg, #f312af, #00ffcc); padding: 15px; display: flex; gap: 20px; border: 3px solid #fff;">
+                    ${links.map(link => `<a href="${link.url}" style="color: #fff; text-decoration: none; font-weight: bold; text-shadow: 2px 2px #000;">${link.label}</a>`).join('')}
+                </nav>`;
+            }
+
+            addElement(html, 'navbar');
+            document.getElementById('navbar-modal').classList.remove('active');
+            updateStatus('Navbar created!');
+            playSound('success', 'G5');
+        });
+
+        document.getElementById('btn-templates').addEventListener('click', () => {
+            document.getElementById('templates-modal').classList.add('active');
+        });
+
+        document.getElementById('close-templates').addEventListener('click', () => {
+            document.getElementById('templates-modal').classList.remove('active');
+        });
+
+        function insertTemplate(type) {
+            const templates = {
+                'contact-form': `<form style="max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
+                    <h2>Contact Us</h2>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Name:</label>
+                        <input type="text" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Email:</label>
+                        <input type="email" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px;">Message:</label>
+                        <textarea style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px;"></textarea>
+                    </div>
+                    <button type="submit" style="background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Send</button>
+                </form>`,
+                'gallery': `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px;">
+                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
+                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
+                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
+                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
+                </div>`,
+                'accordion': `<div style="max-width: 600px; margin: 20px auto;">
+                    <details style="margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                        <summary style="cursor: pointer; font-weight: bold;">Section 1</summary>
+                        <p>Content for section 1</p>
+                    </details>
+                    <details style="margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                        <summary style="cursor: pointer; font-weight: bold;">Section 2</summary>
+                        <p>Content for section 2</p>
+                    </details>
+                </div>`
+            };
+
+            if (templates[type]) {
+                addElement(templates[type], type);
+                document.getElementById('templates-modal').classList.remove('active');
+                updateStatus('Template added!');
+                playSound('success', 'A5');
+            }
+        }
+
+        // ============================================
+        // SIDEBAR TABS
+        // ============================================
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+
+                // Update tabs
+                document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update panels
+                document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(tabName + '-panel').classList.add('active');
+
+                // Render CSS editor if CSS tab
+                if (tabName === 'css') {
+                    renderCSSEditor();
+                }
+
+                playSound('pop', 'D5');
+            });
+        });
+
+        // ============================================
+        // UTILITIES
+        // ============================================
+        function updateStatus(message) {
+            document.getElementById('status-message').textContent = message;
+            document.getElementById('last-action').textContent = 'Last: ' + message;
+        }
+
+        function updateElementCount() {
+            document.getElementById('element-count').textContent = 'Elements: ' + state.elements.length;
+        }
+
+        // ============================================
+        // KEYBOARD SHORTCUTS
+        // ============================================
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+                e.preventDefault();
+                redo();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'c' && state.selectedElement) {
+                e.preventDefault();
+                document.getElementById('btn-copy').click();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v' && state.clipboard) {
+                e.preventDefault();
+                document.getElementById('btn-paste').click();
+            }
+            if (e.key === 'Delete' && state.selectedElement) {
+                e.preventDefault();
+                deleteElement(state.selectedElement);
+            }
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+            }
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        function init() {
+            saveHistory();
+            updateElementCount();
+            updateStatus('✨ CoAIexist Pro Editor Ready!');
+            setTimeout(() => playSound('success', 'C5'), 500);
+        }
+
+        init();
+    </script>
+</body>
+</html>
