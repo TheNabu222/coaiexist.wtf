@@ -519,7 +519,6 @@
             <button class="big-button blue" onclick="openModal('template-modal')">📐 TEMPLATE</button>
             <button class="big-button green" onclick="openModal('load-modal')">📂 LOAD PAGE</button>
             <button class="big-button yellow" onclick="openModal('asset-modal')">🖼️ ASSETS</button>
-            <button class="big-button green" onclick="loadComponentLibrary()" style="background: #00FF00;">📦 COMPONENTS</button>
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
@@ -1024,133 +1023,12 @@
             const el = canvasElements.find(e => e.id === id);
             if (!el) return;
 
-            // Parse the element to extract properties
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(el.html, 'text/html');
-            const firstElement = doc.body.firstElementChild;
-
-            let extractedProps = {
-                tag: 'div',
-                classes: [],
-                id: '',
-                styles: {}
-            };
-
-            if (firstElement) {
-                extractedProps.tag = firstElement.tagName.toLowerCase();
-                extractedProps.classes = Array.from(firstElement.classList);
-                extractedProps.id = firstElement.id || '';
-
-                // Extract inline styles
-                if (firstElement.style.cssText) {
-                    const styleProps = firstElement.style.cssText.split(';').filter(s => s.trim());
-                    styleProps.forEach(prop => {
-                        const [key, value] = prop.split(':').map(s => s.trim());
-                        if (key && value) extractedProps.styles[key] = value;
-                    });
-                }
-            }
-
             document.getElementById('properties-container').innerHTML = `
                 <div class="property-box">
-                    <div class="property-header">🔍 Element Inspector</div>
+                    <div class="property-header">Element Info</div>
                     <div class="property-content">
                         <label class="property-label">Type:</label>
-                        <div style="font-weight: bold; color: var(--blue); margin-bottom: 8px;">${el.type} (${extractedProps.tag})</div>
-
-                        <label class="property-label">ID:</label>
-                        <input type="text" class="property-input" value="${extractedProps.id}"
-                               onchange="updateElementProperty('${id}', 'id', this.value)"
-                               placeholder="element-id">
-
-                        <label class="property-label">Classes:</label>
-                        <input type="text" class="property-input" value="${extractedProps.classes.join(' ')}"
-                               onchange="updateElementProperty('${id}', 'class', this.value)"
-                               placeholder="class-one class-two">
-                    </div>
-                </div>
-
-                <div class="property-box">
-                    <div class="property-header">🎨 Style Properties</div>
-                    <div class="property-content">
-                        <label class="property-label">Background Color:</label>
-                        <div style="display: flex; gap: 4px; margin-bottom: 8px;">
-                            <input type="color" value="${extractedProps.styles['background-color'] || extractedProps.styles['background'] || '#FFFFFF'}"
-                                   onchange="updateElementStyle('${id}', 'background-color', this.value)"
-                                   style="width: 50px; height: 40px; border: 3px solid #000;">
-                            <input type="text" class="property-input" value="${extractedProps.styles['background-color'] || extractedProps.styles['background'] || ''}"
-                                   onchange="updateElementStyle('${id}', 'background-color', this.value)"
-                                   placeholder="#FFFFFF or transparent" style="flex: 1; margin: 0;">
-                        </div>
-
-                        <label class="property-label">Text Color:</label>
-                        <div style="display: flex; gap: 4px; margin-bottom: 8px;">
-                            <input type="color" value="${extractedProps.styles['color'] || '#000000'}"
-                                   onchange="updateElementStyle('${id}', 'color', this.value)"
-                                   style="width: 50px; height: 40px; border: 3px solid #000;">
-                            <input type="text" class="property-input" value="${extractedProps.styles['color'] || ''}"
-                                   onchange="updateElementStyle('${id}', 'color', this.value)"
-                                   placeholder="#000000" style="flex: 1; margin: 0;">
-                        </div>
-
-                        <label class="property-label">Font Size:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['font-size'] || ''}"
-                               onchange="updateElementStyle('${id}', 'font-size', this.value)"
-                               placeholder="16px, 1.5em, 120%">
-
-                        <label class="property-label">Font Family:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'font-family', this.value)">
-                            <option value="">Default</option>
-                            <option value="'Comic Sans MS', sans-serif" ${extractedProps.styles['font-family']?.includes('Comic Sans') ? 'selected' : ''}>Comic Sans MS</option>
-                            <option value="'VT323', monospace" ${extractedProps.styles['font-family']?.includes('VT323') ? 'selected' : ''}>VT323 (Retro)</option>
-                            <option value="'Courier New', monospace" ${extractedProps.styles['font-family']?.includes('Courier') ? 'selected' : ''}>Courier New</option>
-                            <option value="Arial, sans-serif">Arial</option>
-                            <option value="'Times New Roman', serif">Times New Roman</option>
-                        </select>
-
-                        <label class="property-label">Padding:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['padding'] || ''}"
-                               onchange="updateElementStyle('${id}', 'padding', this.value)"
-                               placeholder="10px or 10px 20px">
-
-                        <label class="property-label">Margin:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['margin'] || ''}"
-                               onchange="updateElementStyle('${id}', 'margin', this.value)"
-                               placeholder="10px or 10px auto">
-
-                        <label class="property-label">Border:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['border'] || ''}"
-                               onchange="updateElementStyle('${id}', 'border', this.value)"
-                               placeholder="4px solid #000">
-
-                        <label class="property-label">Width:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['width'] || ''}"
-                               onchange="updateElementStyle('${id}', 'width', this.value)"
-                               placeholder="auto, 100%, 500px">
-
-                        <label class="property-label">Height:</label>
-                        <input type="text" class="property-input" value="${extractedProps.styles['height'] || ''}"
-                               onchange="updateElementStyle('${id}', 'height', this.value)"
-                               placeholder="auto, 100px">
-
-                        <label class="property-label">Display:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'display', this.value)">
-                            <option value="">Default</option>
-                            <option value="block" ${extractedProps.styles['display'] === 'block' ? 'selected' : ''}>Block</option>
-                            <option value="inline-block" ${extractedProps.styles['display'] === 'inline-block' ? 'selected' : ''}>Inline-Block</option>
-                            <option value="flex" ${extractedProps.styles['display'] === 'flex' ? 'selected' : ''}>Flex</option>
-                            <option value="grid" ${extractedProps.styles['display'] === 'grid' ? 'selected' : ''}>Grid</option>
-                            <option value="none" ${extractedProps.styles['display'] === 'none' ? 'selected' : ''}>None (Hidden)</option>
-                        </select>
-
-                        <label class="property-label">Text Align:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
-                            <option value="">Default</option>
-                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
-                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
-                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
-                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
-                        </select>
+                        <div style="font-weight: bold; color: var(--blue);">${el.type}</div>
                     </div>
                 </div>
 
@@ -1158,43 +1036,25 @@
                     <div class="property-header">Quick Colors</div>
                     <div class="property-content">
                         <div class="color-grid">
-                            <div class="color-box" style="background: #FF0000;" onclick="updateElementStyle('${id}', 'color', '#FF0000')"></div>
-                            <div class="color-box" style="background: #0000FF;" onclick="updateElementStyle('${id}', 'color', '#0000FF')"></div>
-                            <div class="color-box" style="background: #FFFF00;" onclick="updateElementStyle('${id}', 'color', '#FFFF00')"></div>
-                            <div class="color-box" style="background: #00FF00;" onclick="updateElementStyle('${id}', 'color', '#00FF00')"></div>
-                            <div class="color-box" style="background: #FF6600;" onclick="updateElementStyle('${id}', 'color', '#FF6600')"></div>
-                            <div class="color-box" style="background: #9900FF;" onclick="updateElementStyle('${id}', 'color', '#9900FF')"></div>
-                            <div class="color-box" style="background: #FF69B4;" onclick="updateElementStyle('${id}', 'color', '#FF69B4')"></div>
-                            <div class="color-box" style="background: #000000;" onclick="updateElementStyle('${id}', 'color', '#000000')"></div>
+                            <div class="color-box" style="background: #FF0000;" onclick="applyColor('${id}', '#FF0000')"></div>
+                            <div class="color-box" style="background: #0000FF;" onclick="applyColor('${id}', '#0000FF')"></div>
+                            <div class="color-box" style="background: #FFFF00;" onclick="applyColor('${id}', '#FFFF00')"></div>
+                            <div class="color-box" style="background: #00FF00;" onclick="applyColor('${id}', '#00FF00')"></div>
+                            <div class="color-box" style="background: #FF6600;" onclick="applyColor('${id}', '#FF6600')"></div>
+                            <div class="color-box" style="background: #9900FF;" onclick="applyColor('${id}', '#9900FF')"></div>
+                            <div class="color-box" style="background: #FF69B4;" onclick="applyColor('${id}', '#FF69B4')"></div>
+                            <div class="color-box" style="background: #000000;" onclick="applyColor('${id}', '#000000')"></div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="property-box">
-                    <div class="property-header">⚡ JavaScript Interactions</div>
-                    <div class="property-content">
-                        <button class="big-button purple" onclick="addInteraction('${id}', 'onclick')" style="width: 100%; margin-bottom: 8px;">
-                            🖱️ Add Click Event
-                        </button>
-                        <button class="big-button blue" onclick="addInteraction('${id}', 'onhover')" style="width: 100%; margin-bottom: 8px;">
-                            👆 Add Hover Effect
-                        </button>
-                        <button class="big-button orange" onclick="addAnimation('${id}')" style="width: 100%; margin-bottom: 8px;">
-                            🎬 Add Animation
-                        </button>
                     </div>
                 </div>
 
                 <div class="property-box">
                     <div class="property-header">Actions</div>
                     <div class="property-content">
-                        <button class="big-button green" onclick="saveAsComponent('${id}')" style="width: 100%; margin-bottom: 8px;">
-                            💾 Save as Component
-                        </button>
                         <button class="big-button yellow" onclick="editElement('${id}')" style="width: 100%; margin-bottom: 8px;">
                             ✏️ Edit HTML
                         </button>
-                        <button class="big-button blue" onclick="duplicateElement('${id}')" style="width: 100%; margin-bottom: 8px;">
+                        <button class="big-button green" onclick="duplicateElement('${id}')" style="width: 100%; margin-bottom: 8px;">
                             📋 Duplicate
                         </button>
                         <button class="big-button red" onclick="deleteElement('${id}')" style="width: 100%;">
@@ -1226,246 +1086,6 @@
                 renderCanvas();
                 selectElement(id);
                 playSound('pop', 'E5');
-            }
-        }
-
-        // ============================================
-        // ENHANCED ELEMENT EDITING FUNCTIONS
-        // ============================================
-
-        function updateElementProperty(id, property, value) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            const temp = document.createElement('div');
-            temp.innerHTML = el.html;
-            const firstChild = temp.firstElementChild;
-
-            if (firstChild) {
-                if (property === 'id') {
-                    firstChild.id = value;
-                } else if (property === 'class') {
-                    firstChild.className = value;
-                }
-
-                el.html = temp.innerHTML;
-                renderCanvas();
-                selectElement(id);
-                playSound('success', 'D5');
-                showStamp('✅');
-            }
-        }
-
-        function updateElementStyle(id, styleProp, value) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            const temp = document.createElement('div');
-            temp.innerHTML = el.html;
-            const firstChild = temp.firstElementChild;
-
-            if (firstChild) {
-                firstChild.style[styleProp] = value;
-                el.html = temp.innerHTML;
-                renderCanvas();
-                selectElement(id);
-                playSound('pop', 'F5');
-            }
-        }
-
-        function addInteraction(id, eventType) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            let interactions = {
-                'onclick': [
-                    { label: 'Alert message', code: `alert('Hello!')` },
-                    { label: 'Change background color', code: `this.style.backgroundColor = '#FF00FF'` },
-                    { label: 'Toggle visibility', code: `this.style.display = this.style.display === 'none' ? 'block' : 'none'` },
-                    { label: 'Play sound effect', code: `new Audio('/assets/audio/SFX_button.wav').play()` },
-                    { label: 'Rotate element', code: `this.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)'` },
-                    { label: 'Make bigger', code: `this.style.transform = 'scale(1.2)'; setTimeout(() => this.style.transform = 'scale(1)', 200)` },
-                    { label: 'Bounce animation', code: `this.style.animation = 'bounce 0.5s ease'` }
-                ],
-                'onhover': [
-                    { label: 'Glow on hover', code: `this.style.boxShadow = '0 0 20px #FF00FF'` },
-                    { label: 'Scale up on hover', code: `this.style.transform = 'scale(1.1)'` },
-                    { label: 'Change color on hover', code: `this.style.backgroundColor = '#00FFFF'` },
-                    { label: 'Rotate on hover', code: `this.style.transform = 'rotate(5deg)'` }
-                ]
-            };
-
-            let options = interactions[eventType] || [];
-            let optionsHTML = options.map((opt, i) =>
-                `<div class="property-label" style="cursor: pointer; padding: 8px; border: 2px solid #000; margin-bottom: 4px; background: #FFFF00;"
-                      onclick="applyInteraction('${id}', '${eventType}', '${opt.code.replace(/'/g, "\\'")}')">
-                    ${i + 1}. ${opt.label}
-                </div>`
-            ).join('');
-
-            document.getElementById('properties-container').innerHTML = `
-                <div class="property-box">
-                    <div class="property-header">⚡ Add ${eventType === 'onclick' ? 'Click' : 'Hover'} Event</div>
-                    <div class="property-content">
-                        <p style="margin-bottom: 12px;">Choose an interaction:</p>
-                        ${optionsHTML}
-                        <button class="big-button red" onclick="renderProperties('${id}')" style="width: 100%; margin-top: 12px;">
-                            ← Back to Inspector
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function applyInteraction(id, eventType, code) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            const temp = document.createElement('div');
-            temp.innerHTML = el.html;
-            const firstChild = temp.firstElementChild;
-
-            if (firstChild) {
-                if (eventType === 'onclick') {
-                    firstChild.setAttribute('onclick', code);
-                } else if (eventType === 'onhover') {
-                    firstChild.setAttribute('onmouseover', code);
-                    firstChild.setAttribute('onmouseout', `this.style = ''`);
-                }
-
-                el.html = temp.innerHTML;
-                renderCanvas();
-                selectElement(id);
-                playSound('success', 'A5');
-                showStamp('⚡');
-            }
-        }
-
-        function addAnimation(id) {
-            const animations = [
-                { label: 'Bounce', keyframes: 'bounce', css: `@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }` },
-                { label: 'Shake', keyframes: 'shake', css: `@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }` },
-                { label: 'Spin', keyframes: 'spin', css: `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }` },
-                { label: 'Pulse', keyframes: 'pulse', css: `@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }` },
-                { label: 'Fade In', keyframes: 'fadeIn', css: `@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }` },
-                { label: 'Slide In', keyframes: 'slideIn', css: `@keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }` },
-                { label: 'Rainbow', keyframes: 'rainbow', css: `@keyframes rainbow { 0% { color: red; } 25% { color: yellow; } 50% { color: lime; } 75% { color: cyan; } 100% { color: magenta; } }` }
-            ];
-
-            let optionsHTML = animations.map((anim, i) =>
-                `<div class="property-label" style="cursor: pointer; padding: 8px; border: 2px solid #000; margin-bottom: 4px; background: #FF6600;"
-                      onclick="applyAnimation('${id}', '${anim.keyframes}', '${anim.css.replace(/'/g, "\\'")}')">
-                    ${i + 1}. ${anim.label}
-                </div>`
-            ).join('');
-
-            document.getElementById('properties-container').innerHTML = `
-                <div class="property-box">
-                    <div class="property-header">🎬 Add Animation</div>
-                    <div class="property-content">
-                        <p style="margin-bottom: 12px;">Choose an animation:</p>
-                        ${optionsHTML}
-                        <button class="big-button red" onclick="renderProperties('${id}')" style="width: 100%; margin-top: 12px;">
-                            ← Back to Inspector
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function applyAnimation(id, animName, animCSS) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            const temp = document.createElement('div');
-            temp.innerHTML = el.html;
-            const firstChild = temp.firstElementChild;
-
-            if (firstChild) {
-                // Add keyframe animation
-                const styleTag = `<style>${animCSS}</style>`;
-                firstChild.style.animation = `${animName} 1s ease-in-out infinite`;
-
-                el.html = styleTag + temp.innerHTML;
-                renderCanvas();
-                selectElement(id);
-                playSound('success', 'C6');
-                showStamp('🎬');
-            }
-        }
-
-        // Component Library Storage
-        let savedComponents = JSON.parse(localStorage.getItem('wysiwyg-components') || '[]');
-
-        function saveAsComponent(id) {
-            const el = canvasElements.find(e => e.id === id);
-            if (!el) return;
-
-            const componentName = prompt('Name your component:', `${el.type}-component`);
-            if (!componentName) return;
-
-            savedComponents.push({
-                name: componentName,
-                type: el.type,
-                html: el.html,
-                savedAt: new Date().toISOString()
-            });
-
-            localStorage.setItem('wysiwyg-components', JSON.stringify(savedComponents));
-
-            playSound('success', 'G6');
-            showStamp('💾');
-            updateStatus(`Component "${componentName}" saved!`);
-
-            alert(`✅ Component "${componentName}" saved!\n\nYou can now load it from the COMPONENTS section.`);
-        }
-
-        function loadComponentLibrary() {
-            savedComponents = JSON.parse(localStorage.getItem('wysiwyg-components') || '[]');
-
-            if (savedComponents.length === 0) {
-                alert('No saved components yet! Save elements as components using the Element Inspector.');
-                return;
-            }
-
-            const componentList = savedComponents.map((comp, i) =>
-                `<div class="property-label" style="cursor: pointer; padding: 8px; border: 2px solid #000; margin-bottom: 4px; background: #00FF00;"
-                      onclick="insertComponent(${i})">
-                    📦 ${comp.name}
-                    <div style="font-size: 11px; color: #666;">Type: ${comp.type} | Saved: ${new Date(comp.savedAt).toLocaleDateString()}</div>
-                </div>`
-            ).join('');
-
-            document.getElementById('properties-container').innerHTML = `
-                <div class="property-box">
-                    <div class="property-header">📦 Component Library</div>
-                    <div class="property-content">
-                        ${componentList}
-                        <button class="big-button red" onclick="deleteAllComponents()" style="width: 100%; margin-top: 12px;">
-                            🗑️ Clear Library
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function insertComponent(index) {
-            const comp = savedComponents[index];
-            if (!comp) return;
-
-            addElementDirect(comp.type, comp.html);
-            playSound('success', 'E6');
-            showStamp('📦');
-            updateStatus(`Inserted component: ${comp.name}`);
-        }
-
-        function deleteAllComponents() {
-            if (confirm('Delete ALL saved components? This cannot be undone!')) {
-                savedComponents = [];
-                localStorage.removeItem('wysiwyg-components');
-                clearProperties();
-                playSound('boop', 'C4');
-                alert('All components deleted!');
             }
         }
 
