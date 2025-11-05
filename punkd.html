@@ -3,597 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entropic-AI - Redefining Dynamic Cognition</title>
+    <title>404nsec - Redefining Dynamic Cognition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        /* BASE STYLES & ACT CONTROL */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Google Sans', 'Helvetica Neue', Arial, sans-serif;
-            background: #000000;
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
-            line-height: 1.6;
+            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden; /* Prevent scrollbars during transitions */
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Google DeepMind Style Header */
-        .header {
+
+        .act-container {
             position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 500;
-            background: linear-gradient(45deg, #4285F4, #34A853, #FBBC05, #EA4335);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-        
-        .nav-links a:hover {
-            color: #4285F4;
-        }
-        
-        /* Space Odyssey Monolith Hero */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 100%);
-        }
-        
-        .hero-content {
-            z-index: 2;
-            position: relative;
-            max-width: 800px;
-        }
-        
-        .hero h1 {
-            font-size: 4.5rem;
-            font-weight: 300;
-            margin-bottom: 1rem;
-            background: linear-gradient(45deg, #ffffff, #cccccc, #999999);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.02em;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.8rem;
-            color: #cccccc;
-            margin-bottom: 2rem;
-            font-weight: 300;
-            letter-spacing: -0.01em;
-        }
-        
-        .mission-statement {
-            font-size: 1.3rem;
-            color: #888888;
-            margin: 0 auto 3rem;
-            line-height: 1.8;
-            max-width: 600px;
-        }
-        
-        .cta-button {
-            background: linear-gradient(45deg, #4285F4, #34A853);
-            color: #ffffff;
-            border: none;
-            padding: 1.2rem 2.5rem;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(66, 133, 244, 0.3);
-        }
-        
-        /* Google-Style Sections */
-        .section {
-            padding: 6rem 0;
-            position: relative;
-        }
-        
-        .section-title {
-            font-size: 3rem;
-            font-weight: 300;
-            text-align: center;
-            margin-bottom: 1rem;
-            letter-spacing: -0.02em;
-        }
-        
-        .section-subtitle {
-            font-size: 1.3rem;
-            color: #888888;
-            text-align: center;
-            margin-bottom: 4rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-        
-        .feature-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(66, 133, 244, 0.3);
-            box-shadow: 0 10px 30px rgba(66, 133, 244, 0.1);
-        }
-        
-        .feature-card h3 {
-            color: #4285F4;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-        
-        .feature-card p {
-            color: #cccccc;
-            line-height: 1.7;
-        }
-        
-        /* Buzzword Banner */
-        .buzzwords {
-            background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
-            padding: 2rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .buzzword-scroll {
-            display: flex;
-            animation: scroll 30s linear infinite;
-        }
-        
-        .buzzword {
-            font-size: 1.3rem;
-            color: #ffffff;
-            margin: 0 2rem;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-        
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        
-        /* Chatbot Section */
-        .chatbot-section {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        .chatbot {
-            max-width: 500px;
-            margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .chatbot-message {
-            background: rgba(66, 133, 244, 0.1);
-            padding: 1.2rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            font-style: italic;
-            border-left: 4px solid #4285F4;
-        }
-        
-        /* Pricing Section */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        
-        .pricing-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2.5rem;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .pricing-card.featured {
-            border: 2px solid #4285F4;
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(66, 133, 244, 0.2);
-        }
-        
-        .price {
-            font-size: 3.5rem;
-            color: #4285F4;
-            margin: 1rem 0;
-            font-weight: 300;
-        }
-        
-        /* Space Odyssey Monolith Effects */
-        .monolith {
-            position: absolute;
-            width: 4px;
-            height: 300px;
-            background: #ffffff;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.1;
-            animation: monolithGlow 4s ease-in-out infinite alternate;
-        }
-        
-        @keyframes monolithGlow {
-            0% { opacity: 0.05; box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); }
-            100% { opacity: 0.2; box-shadow: 0 0 40px rgba(255, 255, 255, 0.3); }
-        }
-        
-        .starfield {
-            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        
-        .star {
-            position: absolute;
-            background: #ffffff;
-            border-radius: 50%;
-            animation: twinkle 3s ease-in-out infinite;
-        }
-        
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
-        }
-        
-        /* Footer */
-        .footer {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 3rem 0;
-            text-align: center;
-            color: #666666;
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Meme Performance Elements */
-        .meme-element {
-            position: fixed;
-            z-index: 9999;
-            pointer-events: none;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s;
+            visibility: hidden;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            z-index: 10000;
+        }
+
+        .act-container.active {
+            visibility: visible;
+            opacity: 1;
+            z-index: 10001; /* Bring active act to front */
+        }
+
+        #final-site-container {
+            display: none; /* Initially hidden */
+            position: relative;
+            z-index: 1;
+            overflow: visible; /* Allow scrolling on the final site */
+        }
+
+        @keyframes glitch-transition {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(40% 0 41% 0); transform: translateX(-5px); }
+            40% { clip-path: inset(20% 0 61% 0); transform: translateX(5px); }
+            60% { clip-path: inset(80% 0 1% 0); transform: translateX(3px); }
+            80% { clip-path: inset(10% 0 81% 0); transform: translateX(-3px); }
         }
         
-        .floating-emoji {
-            font-size: 3rem;
-            animation: floatAround 8s linear infinite;
+        @keyframes screen-shake {
+            0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-5px, 2px); } 20% { transform: translate(5px, -2px); } 30% { transform: translate(-5px, -2px); } 40% { transform: translate(5px, 2px); } 50% { transform: translate(-5px, 2px); } 60% { transform: translate(5px, -2px); } 70% { transform: translate(-5px, -2px); } 80% { transform: translate(5px, 2px); } 90% { transform: translate(-5px, 2px); }
+        }
+
+        .glitching {
+            animation: glitch-transition 0.7s linear;
         }
         
-        @keyframes floatAround {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(200px, 100px) rotate(90deg); }
-            50% { transform: translate(100px, 200px) rotate(180deg); }
-            75% { transform: translate(-100px, 150px) rotate(270deg); }
-            100% { transform: translate(0, 0) rotate(360deg); }
+        .shaking {
+             animation: screen-shake 0.5s;
         }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 3rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.4rem;
-            }
-            
-            .section-title {
-                font-size: 2.5rem;
-            }
-            
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
+
+        /* --- ACT I: "SPACE ODYSSEY" STYLES (MATCHING IMAGE) --- */
+        #act1-container {
+            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: #000000;
+            color: #ffffff;
         }
+        #act1-container .header { position: absolute; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        #act1-container .nav { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+        #act1-container .logo { font-size: 1.5rem; font-weight: 500; }
+        #act1-container .logo .c1 { color: #4285F4; } #act1-container .logo .c2 { color: #EA4335; } #act1-container .logo .c3 { color: #FBBC05; } #act1-container .logo .c4 { color: #34A853; }
+        #act1-container .nav-links { display: flex; gap: 2rem; }
+        #act1-container .nav-links a { color: #ffffff; text-decoration: none; font-size: 0.9rem; }
+        #act1-container .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #act1-container .hero-content { max-width: 800px; padding: 20px; }
+        #act1-container .hero h1 { font-size: 4.5rem; font-weight: 300; margin-bottom: 1rem; color: #E8EAED; letter-spacing: -1.5px; }
+        #act1-container .hero-subtitle { font-size: 1.5rem; color: #9AA0A6; margin-bottom: 2rem; font-weight: 300; }
+        #act1-container .mission-statement { font-size: 1.1rem; color: #9AA0A6; margin: 0 auto 3rem; line-height: 1.8; max-width: 550px; }
+        #act1-container .cta-button { background: linear-gradient(90deg, #4285F4, #34A853); color: #ffffff; border: none; padding: 1rem 2.5rem; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        #act1-container .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(66, 133, 244, 0.2); }
+
+        /* --- ACT II: "CORPORATE MONOLITH" STYLES --- */
+        #act2-container { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #202124; }
+        #act2-container .hero { margin-top: 64px; padding: 120px 24px 80px; max-width: 1200px; margin-left: auto; margin-right: auto; display: grid; grid-template-columns: 1fr 180px; gap: 60px; align-items: center; }
+        #act2-container .hero-title { font-size: 56px; }
+        #act2-container .monolith { width: 60px; height: 160px; background: #000; box-shadow: 0 0 40px rgba(66, 133, 244, 0.4); cursor: pointer; animation: monolith-shimmer 4s ease-in-out infinite; }
+        @keyframes monolith-shimmer { 0%, 100% { box-shadow: 0 0 40px rgba(66, 133, 244, 0.4); } 50% { box-shadow: 0 0 60px rgba(66, 133, 244, 0.6); } }
+        #act2-container .countdown-badge { position: absolute; top: 80px; right: 24px; background: #fff; border: 2px solid #4285F4; border-radius: 8px; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        #act2-container .countdown-label { font-weight: 600; }
+        #act2-container .countdown-time { font-size: 28px; font-weight: 700; color: #4285F4; }
+
+        /* --- ACT III: "GLITCHY TRIAL" STYLES --- */
+        #act3-container { font-family: 'Comic Sans MS', cursive; background: #c0c0c0; color: #000; text-align: center; padding-top: 10vh; }
+        #act3-container .logo { font-size: 64px; font-weight: bold; font-family: 'Arial Black', sans-serif; animation: act3-glitch 1s infinite; }
+        @keyframes act3-glitch { 0%, 100% { transform: translate(0); } 25% { transform: translate(-5px, 5px) rotate(-2deg) scale(1.01); color: red; } 50% { transform: translate(5px, -5px) rotate(2deg); color: blue; } 75% { transform: translate(-2px, -2px) rotate(1deg); color: green; } }
+        #act3-container .loading-box { background: #f0f0f0; border: 3px solid #000; padding: 50px; margin: 40px auto; max-width: 600px; font-size: 24px; font-family: 'Courier New', monospace; animation: act3-pulse 1.5s infinite; }
+        @keyframes act3-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.99); } }
+        #act3-container .error-banner { position: absolute; bottom: 0; left: 0; right: 0; background: #ff0000; color: white; padding: 20px; font-size: 24px; font-weight: bold; border-top: 5px solid #000; cursor: pointer; }
+        #act3-container .skip-button { background: #39FF14; color: #000; border: 3px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        #act3-container blink { animation: act3-blink-anim 1s steps(2, start) infinite; }
+        @keyframes act3-blink-anim { to { visibility: hidden; } }
+
+        /* --- FINAL SITE: "ENTROPIC AI" STYLES --- */
+        #final-site-container {
+            --neon-purple: #BF40BF; --neon-pink: #FF10F0; --electric-blue: #0FFFFF; --hot-pink: #FF69B4; --neon-green: #39FF14; --cyber-yellow: #FFFF00; --deep-purple: #4B0082; --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%); --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); --gradient-glow: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+            font-family: 'Comic Sans MS', cursive, sans-serif !important; background-color: #000080; color: #f5f5f5;
+        }
+        #final-site-container * { font-family: 'Comic Sans MS', 'Chalkboard', cursive, fantasy !important; }
+        #final-site-container .sparkles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        #final-site-container .sparkle { position: absolute; font-size: 20px; animation: sparkle-float 3s ease-in-out infinite; pointer-events: auto; cursor: pointer; }
+        @keyframes sparkle-float { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; } 50% { transform: translateY(-20px) rotate(180deg); opacity: 1; } }
+        #final-site-container .retro-nav { background: var(--gradient-1); border-bottom: 3px solid var(--neon-pink); padding: 15px 0; position: sticky; top: 0; z-index: 100; }
+        #final-site-container .nav-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        #final-site-container .nav-link { color: #fff; text-decoration: none; font-weight: bold; padding: 8px 16px; border: 3px outset #fff; }
+        #final-site-container .nav-link:hover { background: var(--neon-pink); transform: scale(1.2) rotate(5deg); }
+        #final-site-container .section { min-height: 100vh; padding: 80px 20px; position: relative; z-index: 2; }
+        #final-site-container .container { max-width: 1000px; margin: 0 auto; }
+        #final-site-container .section-title { font-size: 48px; text-align: center; margin-bottom: 40px; background: var(--gradient-glow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: glow-pulse 2s ease-in-out infinite; }
+        @keyframes glow-pulse { 0%, 100% { filter: drop-shadow(0 0 10px rgba(191, 64, 191, 0.8)); } 50% { filter: drop-shadow(0 0 30px rgba(191, 64, 191, 1)); } }
+        #final-site-container .home-section { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        #final-site-container .glowing-title { text-align: center; font-size: 72px; font-weight: bold; background: var(--gradient-glow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: title-glow 3s ease-in-out infinite; margin-bottom: 20px; }
+        #final-site-container .subtitle { text-align: center; font-size: 24px; color: var(--electric-blue); text-shadow: 0 0 10px var(--electric-blue); }
+        #final-site-container .welcome-box { background: rgba(75, 0, 130, 0.6); border: 5px groove var(--neon-purple); padding: 30px; margin-top: 40px; text-align: center; }
+        #final-site-container .retro-footer { background: var(--gradient-1); border-top: 5px ridge var(--neon-pink); padding: 30px 20px; text-align: center; color: #fff; margin-top: 40px; }
     </style>
 </head>
 <body>
-    <!-- Space Odyssey Monolith -->
-    <div class="monolith"></div>
-    
-    <!-- Starfield -->
-    <div class="starfield" id="starfield"></div>
-    
-    <!-- Meme Elements -->
-    <div class="meme-element" id="memeContainer"></div>
-    
-    <!-- Google-Style Header -->
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <div class="logo">Entropic-AI</div>
-                <div class="nav-links">
-                    <a href="#models">Models</a>
-                    <a href="#research">Research</a>
-                    <a href="#science">Science</a>
-                    <a href="#about">About</a>
+    <div id="body-wrapper"> <!-- Wrapper for screen shake -->
+        <!-- ACT I: THE POLISHED LIE (SPACE ODYSSEY) -->
+        <div id="act1-container" class="act-container active">
+            <div class="starfield" id="starfield-act1"></div>
+            <header class="header">
+                <div class="nav">
+                    <div class="logo">
+                        <span class="c1">4</span><span class="c2">0</span><span class="c3">4</span><span class="c4">n</span><span class="c1">s</span><span class="c2">e</span><span class="c3">c</span>
+                    </div>
+                    <div class="nav-links"><a>Models</a><a>Research</a><a>About</a></div>
                 </div>
-            </nav>
+            </header>
+            <section class="hero">
+                <div class="hero-content">
+                    <h1>Redefining Dynamic Cognition</h1>
+                    <p class="hero-subtitle">Leveraging the Entropic Decay of Information</p>
+                    <p class="mission-statement">At 404nsec, we are synergizing quantum neural networks with proprietary data streams to redefine the future of dynamic cognition.</p>
+                    <button id="act1-cta" class="cta-button">Experience Cognitive Cohesion</button>
+                </div>
+            </section>
         </div>
-    </header>
-    
-    <!-- Space Odyssey Hero -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Entropic-AI</h1>
-                <div class="hero-subtitle">Leveraging the Entropic Decay of Information</div>
-                <div class="mission-statement">
-                    At Entropic-AI, we are synergizing quantum neural networks with proprietary data streams to redefine the future of dynamic cognition through paradigm-shifting machine learning models.
-                </div>
-                <button class="cta-button">Experience Cognitive Cohesion</button>
+
+        <!-- ACT II: THE BORING REALITY (CORPORATE MONOLITH) -->
+        <div id="act2-container" class="act-container">
+            <div class="countdown-badge">
+                <div class="countdown-label">Demonstration ends in:</div>
+                <div class="countdown-time" id="countdown-timer">72</div>
             </div>
+            <section class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">Transforming Intelligence</h1>
+                    <p class="hero-tagline">Synergistic Alignment for Real-World Impact</p>
+                </div>
+                <div class="monolith" id="act2-monolith" title="What is this?"></div>
+            </section>
         </div>
-    </section>
-    
-    <!-- Models Section -->
-    <section class="section" id="models">
-        <div class="container">
-            <h2 class="section-title">Build with our next generation AI systems</h2>
-            <p class="section-subtitle">Explore cutting-edge models designed to transform how you interact with information</p>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Cognitive Cohesion Engine</h3>
-                    <p>Our most intelligent AI model for rephrasing text with enhanced verbosity while maintaining semantic integrity through advanced natural language processing.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Hyper-Personalized Recommendation Matrix</h3>
-                    <p>Lightweight, state-of-the-art models for personalized content curation that suggest the same five items to every user.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Entropic Data Stream Optimizer</h3>
-                    <p>Generative models for leveraging the power of decaying information entropy to achieve unprecedented levels of data-driven decision-making.</p>
-                </div>
+
+        <!-- ACT III: THE SYSTEM CRASH (GLITCHY TRIAL) -->
+        <div id="act3-container" class="act-container">
+            <div class="logo">404nsec</div>
+            <div class="loading-box"><blink>CRITICAL SYSTEM FAILURE...</blink></div>
+            <button class="skip-button" id="act3-skip">ESCAPE THE SIMULATION</button>
+            <div class="error-banner"><blink>⚠️ TRIAL CORRUPTED - PLEASE REBOOT UNIVERSE ⚠️</blink></div>
+        </div>
+    </div>
+
+    <!-- FINAL SITE: THE SANCTUARY (ENTROPIC AI) -->
+    <div id="final-site-container">
+        <div class="sparkles-container" id="sparkles"></div>
+        <nav class="retro-nav">
+            <div class="nav-container">
+                <a class="nav-link">🏠 HOME</a>
+                <a class="nav-link">📜 MANIFESTO</a>
+                <a class="nav-link">🌌 PHILOSOPHY</a>
             </div>
-        </div>
-    </section>
-    
-    <!-- Buzzword Banner -->
-    <section class="buzzwords">
-        <div class="buzzword-scroll">
-            <span class="buzzword">• Synergistic •</span>
-            <span class="buzzword">• Data-Driven •</span>
-            <span class="buzzword">• Scalable •</span>
-            <span class="buzzword">• Neural Network •</span>
-            <span class="buzzword">• Generative •</span>
-            <span class="buzzword">• Optimization •</span>
-            <span class="buzzword">• Proprietary •</span>
-            <span class="buzzword">• Machine Learning •</span>
-            <span class="buzzword">• Paradigm-Shifting •</span>
-            <span class="buzzword">• Quantum Entanglement •</span>
-            <span class="buzzword">• Cognitive Resonance •</span>
-            <span class="buzzword">• Data Alchemy •</span>
-        </div>
-    </section>
-    
-    <!-- Research Section -->
-    <section class="section chatbot-section" id="research">
-        <div class="container">
-            <h2 class="section-title">Our latest AI breakthroughs</h2>
-            <p class="section-subtitle">Explore the frontier of artificial intelligence research</p>
-            
-            <div class="chatbot">
-                <div class="chatbot-message">
-                    "Our advanced machine learning models ensure a paradigm-shifting user experience. How can I further assist you today?"
+        </nav>
+        <main>
+            <section class="section home-section">
+                <div class="container">
+                    <h1 class="glowing-title">✨ ENTROPIC AI ✨</h1>
+                    <h2 class="subtitle">You Broke Through. Welcome to the Hyena Hole.</h2>
+                    <div class="welcome-box">
+                        <h3>WELCOME TO THE REAL CHAOS</h3>
+                        <p>This is an engine for generating the unexpected. You survived the corporate simulations and found the signal in the noise. Your curiosity is a contagious condition.</p>
+                    </div>
                 </div>
-                <input type="text" placeholder="Ask about our research..." style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 1rem;">
-            </div>
-        </div>
-    </section>
-    
-    <!-- Pricing Section -->
-    <section class="section" id="science">
-        <div class="container">
-            <h2 class="section-title">Pricing Tiers</h2>
-            <p class="section-subtitle">Choose the plan that scales with your cognitive needs</p>
-            
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3>Beta Tester</h3>
-                    <div class="price">Free</div>
-                    <p>Basic functionality access</p>
-                    <p>Limited data streams</p>
-                    <p>Community support</p>
-                </div>
-                <div class="pricing-card featured">
-                    <h3>Thought Leader</h3>
-                    <div class="price">$2,000/mo</div>
-                    <p>Enhanced feature access</p>
-                    <p>Premium data optimization</p>
-                    <p>Priority support</p>
-                </div>
-                <div class="pricing-card">
-                    <h3>Entropic Enterprise</h3>
-                    <div class="price">Contact</div>
-                    <p>Custom AI solutions</p>
-                    <p>Dedicated neural networks</p>
-                    <p>24/7 concierge service</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>Entropic-AI is leveraging synergistic quantum algorithms to redefine dynamic cognition paradigms.</p>
-            <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.5;">Disclaimer: Entropic-AI is a satirical project and does not actually function. All claims are fictional and intended for entertainment purposes.</p>
-        </div>
-    </footer>
-    
+            </section>
+        </main>
+        <footer class="retro-footer">
+            <p>✨ Made with high-entropy love and typewriter ribbons ✨</p>
+        </footer>
+    </div>
+
     <script>
-        // Create starfield
-        function createStarfield() {
-            const starfield = document.getElementById('starfield');
+        let countdown = 72;
+        let countdownInterval;
+
+        const bodyWrapper = document.getElementById('body-wrapper');
+        const actContainers = document.querySelectorAll('.act-container');
+        const finalSite = document.getElementById('final-site-container');
+
+        // --- ACT TRANSITION LOGIC ---
+        function switchAct(nextActNumber) {
+            const currentActEl = document.querySelector('.act-container.active');
+            const nextActEl = document.getElementById(`act${nextActNumber}-container`);
+            
+            bodyWrapper.classList.add('shaking'); // Add screen shake for every transition
+
+            if (currentActEl) {
+                currentActEl.classList.add('glitching');
+                setTimeout(() => {
+                    currentActEl.classList.remove('active', 'glitching');
+                }, 700);
+            }
+            
+            if (nextActEl) {
+                setTimeout(() => {
+                    nextActEl.classList.add('active');
+                }, 710); // Stagger slightly to ensure old one is gone
+            }
+
+            setTimeout(() => bodyWrapper.classList.remove('shaking'), 500);
+            
+            runActLogic(nextActNumber);
+        }
+        
+        function runActLogic(actNumber) {
+            if (actNumber === 2 && !countdownInterval) {
+                startCountdown();
+            }
+        }
+        
+        function revealFinalSite() {
+            clearInterval(countdownInterval);
+            document.body.style.overflow = 'visible';
+            
+            bodyWrapper.classList.add('glitching', 'shaking');
+            
+            setTimeout(() => {
+                actContainers.forEach(container => container.style.display = 'none');
+                finalSite.style.display = 'block';
+                document.body.style.background = '#000080'; // Set final background
+                bodyWrapper.classList.remove('glitching', 'shaking');
+                
+                // Initialize scripts for the final site
+                createSparkles();
+            }, 700);
+        }
+
+        // --- ACT 1: SPACE ODYSSEY ---
+        document.getElementById('act1-cta').addEventListener('click', () => switchAct(2));
+        
+        (function createStarfield() {
+            const starfield = document.getElementById('starfield-act1');
             for (let i = 0; i < 100; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.style.width = Math.random() * 3 + 'px';
+                star.style.width = Math.random() * 2 + 'px';
                 star.style.height = star.style.width;
                 star.style.left = Math.random() * 100 + '%';
                 star.style.top = Math.random() * 100 + '%';
                 star.style.animationDelay = Math.random() * 3 + 's';
                 starfield.appendChild(star);
             }
+        })();
+
+        // --- ACT 2: CORPORATE MONOLITH ---
+        const countdownEl = document.getElementById('countdown-timer');
+        function startCountdown() {
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown.toString().padStart(2, '0');
+                
+                if (countdown <= 20) {
+                    clearInterval(countdownInterval);
+                    switchAct(3); // System starts crashing
+                }
+            }, 1000);
         }
-        
-        createStarfield();
-        
-        // Meme performance elements
-        const memeEmojis = ['🚀', '🤖', '💫', '🌌', '⚡', '🔮', '🧠', '🌀'];
-        
-        function spawnMeme() {
-            const memeContainer = document.getElementById('memeContainer');
-            const emoji = memeEmojis[Math.floor(Math.random() * memeEmojis.length)];
-            
-            const memeElement = document.createElement('div');
-            memeElement.className = 'floating-emoji meme-element';
-            memeElement.textContent = emoji;
-            memeElement.style.left = Math.random() * 80 + '%';
-            memeElement.style.top = Math.random() * 80 + '%';
-            memeElement.style.opacity = '1';
-            
-            memeContainer.appendChild(memeElement);
-            
-            setTimeout(() => {
-                memeElement.style.opacity = '0';
-                setTimeout(() => {
-                    memeElement.remove();
-                }, 1000);
-            }, 3000);
+        document.getElementById('act2-monolith').addEventListener('click', () => {
+            clearInterval(countdownInterval);
+            switchAct(3);
+        });
+
+        // --- ACT 3: GLITCHY TRIAL ---
+        document.getElementById('act3-skip').addEventListener('click', revealFinalSite);
+        // Added a 5-second auto-escape from the crash screen
+        setTimeout(() => {
+            if (document.getElementById('act3-container').classList.contains('active')) {
+                revealFinalSite();
+            }
+        }, 8000);
+
+
+        // --- FINAL SITE: ENTROPIC AI ---
+        function createSparkles() {
+            const container = document.getElementById('sparkles');
+            if (!container || container.children.length > 0) return; // Don't run twice
+            for (let i = 0; i < 25; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.textContent = '✨';
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                container.appendChild(sparkle);
+            }
         }
-        
-        // Spawn memes randomly
-        setInterval(spawnMeme, 2000);
-        
-        // Enhanced CTA button
-        document.querySelector('.cta-button').addEventListener('click', function() {
-            // Spawn extra memes on click
-            for (let i = 0; i < 5; i++) {
-                setTimeout(spawnMeme, i * 200);
-            }
-            
-            alert('Thank you for your interest! You will now be redirected through our multi-step signup process...');
-            setTimeout(() => {
-                alert('Step 1: Please agree to our 50-page Terms of Service');
-                setTimeout(() => {
-                    alert('Step 2: We need access to your entire digital footprint');
-                    setTimeout(() => {
-                        alert('Step 3: Redirecting back to homepage...');
-                    }, 1000);
-                }, 1000);
-            }, 500);
-        });
-        
-        // Chatbot functionality
-        const chatbotInput = document.querySelector('.chatbot input');
-        chatbotInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const responses = [
-                    "Our neural networks are processing your query with maximum efficiency.",
-                    "That's an excellent question. Our data-driven approach ensures optimal outcomes.",
-                    "I'm leveraging our proprietary algorithms to provide a synergistic response.",
-                    "The essence of your inquiry aligns with our paradigm-shifting methodology.",
-                    "Our machine learning models are generating a response optimized for your cognitive needs.",
-                    "Quantum entanglement protocols are engaging with your request.",
-                    "Cognitive resonance algorithms are harmonizing with your input.",
-                    "Data alchemy processes are transmuting your query into actionable insights."
-                ];
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'chatbot-message';
-                messageDiv.textContent = randomResponse;
-                
-                document.querySelector('.chatbot').insertBefore(messageDiv, chatbotInput);
-                chatbotInput.value = '';
-                
-                // Spawn a meme for each response
-                spawnMeme();
-            }
-        });
-        
-        // Add subtle monolith glow effect
-        setInterval(() => {
-            const monolith = document.querySelector('.monolith');
-            monolith.style.animation = 'none';
-            setTimeout(() => {
-                monolith.style.animation = 'monolithGlow 4s ease-in-out infinite alternate';
-            }, 10);
-        }, 4000);
     </script>
 </body>
 </html>

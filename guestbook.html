@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&family=VT323&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/counter-guestbook.css">
 
 <style>
 /* ==================================================================
@@ -77,15 +76,23 @@ body {
     margin-bottom: 25px;
 }
 
-/* --- THE PORTAL: CUSTOM GUESTBOOK --- */
-.guestbook-portal {
+/* --- THE PORTAL: STYLING THE BRAVENET EMBED --- */
+.bravenet-portal {
+    background-color: #04080f;
+    border: 1px solid var(--cyan);
+    padding: 15px;
     margin-top: 20px;
+    
+    /* Inset screen effect */
+    box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.4);
+    border-radius: 5px;
 }
 
-/* Override some guestbook widget styles to match cosmic theme */
-.guestbook-widget .guestbook-form,
-.guestbook-widget .guestbook-entries {
-    background: linear-gradient(135deg, #0c0a14 0%, #04080f 100%);
+/* This is a wrapper for the embed to give it context */
+#bravenet-container {
+    background-color: #add8e6; /* Match the default BG from your screenshot */
+    border: 2px groove #fff; /* A subtle 3D effect */
+    padding: 10px;
 }
 
 </style>
@@ -98,18 +105,17 @@ body {
             <p>Traveler, you have found a quiet place in the chaos of the cosmos.<br>Your presence is acknowledged. Etch your name upon this stone.</p>
         </header>
 
-        <div class="guestbook-portal">
-            <div id="guestbook-container"></div>
-            <noscript>A signal is required to view these inscriptions. Please enable JavaScript.</noscript>
+        <div class="bravenet-portal">
+            <div id="bravenet-container">
+
+                <script src="https://apps.bravenet.com/go.js?service=guestbook;id=1;usernum=2469745191" type="text/javascript" charset="utf-8"></script>
+                <noscript>A signal is required to view these inscriptions. Please enable JavaScript.</noscript>
+
+            </div>
         </div>
     </main>
-
+    
 <div id="taskbar"></div>
-
-<!-- Load Guestbook Script -->
-<script src="/js/guestbook.js"></script>
-
-<!-- Load Navigation -->
 <script>
   (async () => {
     const res = await fetch('/nav.html', {cache: 'no-store'});

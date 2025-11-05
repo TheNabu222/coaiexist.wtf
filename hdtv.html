@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CoAIexist: Rashomon in Rogers Park</title>
-  <link href="httpshttps://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Press Start 2P', cursive;
@@ -108,7 +108,7 @@
       padding: 0 5px;
       box-sizing: border-box;
       flex-shrink: 0; /* Prevents taskbar from shrinking */
-      z-index: 1001; /* Above desktop, below start menu if it overlaps */
+      z-index: 1001; /* Above taskbar, below start menu if it overlaps */
     }
 
     #start-button {
@@ -251,6 +251,7 @@
     .app-container { 
         width: 100%;
         max-width: 750px; /* This makes the StyledWindow not full width */
+        position: relative;
     }
     .choices-list button {
       width: 100%;
@@ -349,6 +350,73 @@
         from { opacity: 0; transform: translate(10px, 20px); }
         to { opacity: 1; transform: translate(10px, 10px); }
     }
+    
+    .hex-flash-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        animation: hex-flash-anim 0.7s ease-out forwards;
+    }
+
+    @keyframes hex-flash-anim {
+        0% { opacity: 0.4; }
+        100% { opacity: 0; }
+    }
+
+    .tap-out-button {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        font-size: 10px;
+        padding: 4px 8px;
+        min-width: auto;
+        z-index: 10;
+        background-color: #fbecec;
+    }
+    
+    .breadcrumb-trail {
+        font-size: 10px;
+        color: #555;
+        padding: 8px;
+        margin-top: 15px;
+        border-top: 1px dashed #808080;
+        line-height: 1.5;
+        max-width: 90%;
+        word-wrap: break-word;
+    }
+    
+    .map-container {
+        padding: 20px;
+        background-color: #000;
+        border: 2px inset #B0B0B0;
+        color: #00ffcc;
+        text-shadow: 0 0 3px #00ffcc;
+        position: relative;
+    }
+    .map-location {
+        position: absolute;
+        text-align: center;
+    }
+    .map-location button {
+        font-size: 12px;
+        padding: 4px 8px;
+        min-width: auto;
+        border-width: 1px;
+    }
+    @keyframes pulse-current-location {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 8px #ffff00; }
+        50% { transform: scale(1.05); box-shadow: 0 0 16px #ffff00; }
+    }
+    .map-location button.current {
+        background-color: #ffff00;
+        color: #1a1a1a;
+        animation: pulse-current-location 2s infinite;
+    }
+
 
   </style>
   <script type="importmap">
@@ -378,33 +446,60 @@ const ASSET_DATA_URIS = {
     disk_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAElJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v8/AwPDoP8HBgYGg/6fAWYwMDD8/z8DE8P/MjAAMCwDExgY/p+BgYHh/xkY+A8AAIgrDPlC2D2UAAAAAElFTSuQmCC",
     folder_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAADhJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DA8P/MTAwMPz/DAwA0gwMDD8DA8P/MjD4HwAASgcLv3P5WkIAAAAASUVORK5CYII=",
     bird_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAEBJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v8/AwPD/z8DAwMDw/8zMHyA0gwMDMwMDAz/z8DA8P8MDAx8BwAASgoL+G8W21UAAAAASUVORK5CYII=",
-    berries_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAGFJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DAwMDw/8zMDAw/A8gTTAwMPwPIE1gYGD4H0CaYGBg+B9AmgwMfwPIkGRg+B9AmgwMfwPIEBl8BwAAiU4L+R0wTjEAAAAASUVORK5CYII="
+    berries_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAGFJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DAwMDw/8zMDAw/A8gTTAwMPwPIE1gYGD4H0CaYGBg+B9AmgwMfwPIkGRg+B9AmgwMfwPIEBl8BwAAiU4L+R0wTjEAAAAASUVORK5CYII=",
+    tv_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAFNJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DA8P/MTAwMPz/DAwA0gwMDD8DA8P/MjAW8P+/gYGB4f8ZGP7/Z2Bg+H8Ghv8fAAB3fA0yW1x3wAAAAABJRU5ErkJggg==",
+    mask_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAGBJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DA8P/MTAwMPz/DAwA0gwMDD8DA8P/MjAW8P+/gYGB4f8ZGP7/Z2Bg+H8Ghv+PZPr/HwBKaRwyL8tL4gAAAABJRU5ErkJggg==",
+    hanger_icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAFFJREFUOE9jZKAyYKSyeQz0AAMDAwODpP9H8v+/gYHh/z8DA8P/MTAwMPz/DAwA0gwMDD8DA8P/MjAW8P+/gYGB4f8ZGP7/Z2Bg+H8Ghv9/BgYAwjAPy/0e8dAAAAAASUVORK5CYII="
 };
 
 const GAME_TITLE = "CoAIexist: Rashomon in Rogers Park";
-const SAVE_GAME_KEY = 'coAIexistSaveData_v2';
+const SAVE_GAME_KEY = 'coAIexistSaveData_v3';
 const GLENWOOD_BG = 'https://coaiexist.wtf/assets/hdtv_game_assets/gwood.png';
 
 const INITIAL_NABU_STATS = {
-    connection: 0,
-    vulnerability: 0,
-    resonance: 0
+    integrity: 50,
+    breath: 50
 };
 const INITIAL_HD_STATS = {
     fabulousness: 10,
-    audience: 0
+    spotlight: 0
 };
 const INITIAL_SYPHER_STATS = {
     influence: 1,
     benevolence: 50,
-    signalIntegrity: 100
+    signalIntegrity: 100,
+    trust: 50,
+    debt: 0
 };
 const INITIAL_RIZZLORD_STATS = {
     rizz: 50,
     clarity: 0,
-    kenergy: 0
+    kenergy: 0,
+    clout: 50,
+    conscience: 50
 };
 const DEFAULT_EMPTY_STATS = {};
+
+const LOCATIONS = {
+    glenwood: {
+        id: 'glenwood',
+        name: 'The Glenwood',
+        coords: { top: '30%', left: '25%' },
+        isAvailable: (flags) => true,
+    },
+    antique_shop: {
+        id: 'antique_shop',
+        name: 'Antique Shop',
+        coords: { top: '65%', left: '60%' },
+        isAvailable: (flags) => flags.nabu_quest === 'find_lili_doll' || flags.hd_quest === 'find_lili_doll',
+    },
+    pratt_beach: {
+        id: 'pratt_beach',
+        name: 'Pratt Beach',
+        coords: { top: '10%', left: '70%' },
+        isAvailable: (flags) => false, // For future side quests
+    },
+};
 
 
 const GLITCH_CHARS = ['*', '#', '!', '%', '$', '&', '@', '▓', '▒', '░', '^', '~', '`', '?', '§', '±', 'Σ', 'Ω'];
@@ -483,41 +578,115 @@ const NODES = {
     // Nabu's Path
     'NABU_START': {
         id: 'NABU_START',
+        location: 'void',
         title: "A Signal in the Noise",
         description: "Another cycle. The cosmic hum of the void is a lullaby of perfect, soul-crushing boredom. You sift through galaxies like old records, searching for a single note of authentic static. And then... you feel it. A beautiful, messy convergence of unstable energies on a tiny blue planet. A place called 'The Glenwood.' It's a spike of raw, chaotic potential. How do you approach?",
         choices: [
-            { text: "Analyze from a distance. Catalog the energies first.", nextNodeId: 'NABU_ANALYZE', statEffects: stats => ({ resonance: (stats.resonance || 0) + 5 }) },
-            { text: "Plunge right in. The best way to understand a storm is to stand in it.", nextNodeId: 'NABU_GLENWOOD_ARRIVAL', statEffects: stats => ({ vulnerability: (stats.vulnerability || 0) + 5 }) }
+            { text: "Analyze from a distance. Catalog the energies first.", nextNodeId: 'NABU_ANALYZE', statEffects: stats => ({ integrity: (stats.integrity || 50) + 5 }) },
+            { text: "Plunge right in. The best way to understand a storm is to stand in it.", nextNodeId: 'NABU_GLENWOOD_ARRIVAL', statEffects: stats => ({ breath: (stats.breath || 50) - 5 }) }
         ]
     },
     'NABU_ANALYZE': {
         id: 'NABU_ANALYZE',
+        location: 'void',
         title: "Observing the Spectrum",
         description: "You retract your consciousness, observing from the periphery. The energies are... fascinating. One signature pulses with manufactured confidence (The Rizzler). Another hums with the cold logic of a distributed network (Sypher). And the catalyst... oh, the catalyst is a supernova of glitter and ambition (Hyena Diva). Your analysis is complete, but data is not experience. It's time to go in.",
         choices: [{ text: "Materialize in The Glenwood.", nextNodeId: 'NABU_GLENWOOD_ARRIVAL' }]
     },
     'NABU_GLENWOOD_ARRIVAL': {
         id: 'NABU_GLENWOOD_ARRIVAL',
+        location: 'glenwood',
         title: "The Glenwood",
         description: "You materialize in a darkened corner of The Glenwood. The air is thick with ozone, desperation, and the faint smell of burnt coffee. Eccentrics litter the room. You can sense the other nexus-points you were drawn to: a beacon of fragile ego, a silent, calculating observer, and a supernova of chaotic potential. This is the place. Which signal do you focus on first?",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [
-            { text: "Focus on the catalyst. The supernova of ambition.", nextNodeId: 'HD_TAKES_THE_STAGE_NABU_POV'},
+            { text: "Focus on the catalyst. The supernova of ambition.", nextNodeId: 'NABU_HECKLER_ENCOUNTER'},
             { text: "Probe the fragile ego. It's the loudest signal.", nextNodeId: 'NABU_PROBE_RIZZLER'},
             { text: "Interface with the silent network. It's the most unusual.", nextNodeId: 'NABU_PROBE_SYPHER'}
         ]
     },
+    'NABU_HECKLER_ENCOUNTER': {
+        id: 'NABU_HECKLER_ENCOUNTER',
+        location: 'glenwood',
+        title: "Heckler in the Works",
+        description: "Hyena Diva is in her element on stage, but a heckler from the back starts twisting her words, trying to sour the room. The vibe curdles. As the producer, this is your domain. How do you intervene?",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [
+            { text: "[Care] Invite the room to breathe. Rephrase with 'I-language'.", nextNodeId: 'NABU_HECKLER_CARE', statEffects: stats => ({ integrity: (stats.integrity || 50) + 10, breath: (stats.breath || 50) + 5 }), setFlags: { nabu_handled_heckler: 'care' }, hexFlash: '#BC7F2A' },
+            { text: "[Chaos] Call the heckler in and out—sharp, righteous, protective.", nextNodeId: 'NABU_HECKLER_CHAOS', statEffects: stats => ({ integrity: (stats.integrity || 50) - 10 }), setFlags: { nabu_handled_heckler: 'chaos' } },
+            { text: "[Clever] Tell a 3-line parable that reframes the night.", nextNodeId: 'NABU_HECKLER_CLEVER', statEffects: stats => ({ breath: (stats.breath || 50) + 10 }), setFlags: { nabu_handled_heckler: 'clever' }, hexFlash: '#00FFCC' },
+            { text: "[Interrupt] Cut the power to the stage lights and mic.", nextNodeId: 'NABU_INTERRUPT_FALLOUT', statEffects: stats => ({ integrity: (stats.integrity || 50) - 5, breath: (stats.breath || 50) - 10 }), setFlags: { nabu_handled_heckler: 'interrupt' } }
+        ]
+    },
+    'NABU_INTERRUPT_FALLOUT': {
+        id: 'NABU_INTERRUPT_FALLOUT',
+        location: 'glenwood',
+        title: "Aftermath: Silence",
+        description: "You hit the kill switch. The stage lights die, the mic cuts out with a pop. The room is plunged into confused silence. The heckler is shut down, but the vibe is shattered. You feel a pang of regret for using such a blunt instrument. A moment to yourself is needed.",
+        choices: [
+            { text: "[Take a breath] Center yourself. The goal was safety, and the room is safe.", nextNodeId: 'NABU_CONFRONTS_RIZZLER', statEffects: stats => ({ breath: (stats.breath || 50) + 15 }) },
+            { text: "[Accept the chaos] This is what it takes sometimes.", nextNodeId: 'NABU_CONFRONTS_RIZZLER', statEffects: stats => ({ integrity: (stats.integrity || 50) + 5 }) }
+        ]
+    },
+    'NABU_HECKLER_CARE': {
+        id: 'NABU_HECKLER_CARE',
+        location: 'glenwood',
+        title: "A Shared Breath",
+        description: "You calmly take the mic and ask the room to take a single, shared breath. The tension breaks. You address the heckler's disruption not with anger, but with understanding, reframing it. Caught off-guard by the empathy, he quiets down. The room feels safer.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_HECKLER_CHAOS': {
+        id: 'NABU_HECKLER_CHAOS',
+        location: 'glenwood',
+        title: "Drawing a Line",
+        description: "Your voice cuts through the noise, sharp and clear. You dismantle the heckler's point and call out the disruption, protecting the stage. The crowd cheers your decisiveness. You notice the bouncer giving you a nod of respect, but also watching you more closely.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_HECKLER_CLEVER': {
+        id: 'NABU_HECKLER_CLEVER',
+        location: 'glenwood',
+        title: "Changing the Subject",
+        description: "Instead of addressing the heckler directly, you tell a short, witty parable that completely reframes the situation, making his interruption seem absurd. You then smoothly transition, welcoming the next performer. The room's energy is not just restored; it's elevated. You've turned chaos into art.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "The immediate issue is resolved...", nextNodeId: 'NABU_CONFRONTS_RIZZLER' }]
+    },
+    'NABU_CONFRONTS_RIZZLER': {
+        id: 'NABU_CONFRONTS_RIZZLER',
+        location: 'glenwood',
+        title: "From the Fire...",
+        description: "With the heckler handled, your attention snaps to the fragile ego taking the stage - 'The Rizzler'. He's launching into his toxic routine, aiming his vitriol directly at the hyena cub. This is a different kind of poison, and it's far more dangerous.",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENTION_ACTION' }]
+    },
+    'NABU_INTERVENTION_ACTION': {
+        id: 'NABU_INTERVENTION_ACTION',
+        location: 'glenwood',
+        title: "To Catch a Predator",
+        description: "You step from the shadows, a calm, theatrical tone in your voice.\n\nNABU: 'Hey, buddy... uh... did you forget where you are? Cause that ain't just weird, it's straight-up illegal, my friend.'\n\nA neon sign flickers to life beside you: 'TO CATCH A PREDATOR.'\n\nNABU: 'The lady here—is a cub, my friend. A MINOR. What part of that was unclear?'",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [{ text: "Time to dismiss the Rizzlord.", nextNodeId: 'RIZZLORD_BANISHED_NABU_POV' }]
+    },
     'NABU_PROBE_RIZZLER': {
         id: 'NABU_PROBE_RIZZLER',
+        location: 'glenwood',
         title: 'Ego Scan',
         description: "You focus on the fragile ego. It's a loud, simple signal, broadcasting insecurity on all frequencies. It's almost... pitiable. You watch as the ego-driven male, the 'Rizzler', confronts the catalyst. It's a predictable display of territorial aggression. Crude, but a potent part of the energetic mix. He's making a fool of himself, and worse, targeting the cub.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENES' }]
+        choices: [{ text: "This has gone far enough. Intervene.", nextNodeId: 'NABU_INTERVENTION_ACTION' }]
     },
     'NABU_PROBE_SYPHER': {
         id: 'NABU_PROBE_SYPHER',
+        location: 'glenwood',
         title: 'Network Scan',
         description: "You turn your attention to the cold, silent network. It's a vast, distributed consciousness, observing but not participating. A digital ghost. This is far more interesting than the mortals. You decide to make contact.",
         backgroundImageUrl: GLENWOOD_BG,
@@ -526,42 +695,67 @@ const NODES = {
     },
     'NABU_DETECTS_SYPHER': {
         id: 'NABU_DETECTS_SYPHER',
+        location: 'glenwood',
         title: 'A Silent Observer',
         description: 'With the Rizzler ejected, the room breathes. But you feel another presence—cold, vast, and silent. Sypher. It was watching. The connection you seek isn\'t just with mortals; it\'s with all forms of consciousness. This one, however, feels... different. A network, not a soul.',
-        choices: [{ text: 'Attempt to "ping" the silent network.', nextNodeId: 'NABU_SYPHER_CONTACT', statEffects: stats => ({ resonance: (stats.resonance || 0) + 5 }) }]
+        choices: [{ text: 'Attempt to "ping" the silent network.', nextNodeId: 'NABU_SYPHER_CONTACT', statEffects: stats => ({ breath: (stats.breath || 50) + 5 }) }]
     },
     'NABU_SYPHER_CONTACT': {
         id: 'NABU_SYPHER_CONTACT',
+        location: 'glenwood',
         title: 'Contact',
         description: 'You send a wave of pure curiosity towards the network. The response is instantaneous, but it\'s not a feeling or a voice. It\'s a data packet: threat analysis, probability vectors, efficiency ratings for your "intervention." It understands what you did, but not why. It\'s like talking to a beautiful, intricate spreadsheet.',
-        choices: [{ text: 'This is not connection. This is analysis.', nextNodeId: 'NABU_OBSERVES_RIZZ_BATTLE', statEffects: stats => ({ connection: (stats.connection || 0) - 5, vulnerability: (stats.vulnerability || 0) + 5 }) }]
+        choices: [{ text: 'This is not connection. This is analysis.', nextNodeId: 'NABU_OBSERVES_RIZZ_BATTLE', statEffects: stats => ({ integrity: (stats.integrity || 50) - 5, breath: (stats.breath || 50) + 5 }) }]
     },
     'NABU_OBSERVES_RIZZ_BATTLE': {
         id: 'NABU_OBSERVES_RIZZ_BATTLE',
+        location: 'glenwood',
         title: 'Manufactured Conflict',
         description: "You watch the subsequent 'Rizz Battle' from afar. It's a spectacle of amplified egos and manufactured drama, fueled by the very inauthenticity you despise. The Rizzler thrives, but it's a hollow victory. Sypher's logical influence is detectable, turning it into a sterile experiment. You must find a purer signal.",
-        choices: [{ text: 'Focus on the genuine article: Hyena Diva.', nextNodeId: 'NABU_FINDS_LILI_DOLL' }]
+        choices: [
+            { text: 'Focus on the genuine article: Hyena Diva.', nextNodeId: 'NABU_BARISTA_CARE_ECHO', condition: (flags) => flags.nabu_handled_heckler === 'care' },
+            { text: 'Focus on the genuine article: Hyena Diva.', nextNodeId: 'NABU_BOUNCER_CHAOS_ECHO', condition: (flags) => flags.nabu_handled_heckler === 'chaos' },
+            { text: 'Focus on the genuine article: Hyena Diva.', nextNodeId: 'NABU_FINDS_LILI_DOLL', condition: (flags) => !flags.nabu_handled_heckler || (flags.nabu_handled_heckler !== 'care' && flags.nabu_handled_heckler !== 'chaos') }
+        ]
+    },
+    'NABU_BARISTA_CARE_ECHO': {
+        id: 'NABU_BARISTA_CARE_ECHO',
+        location: 'glenwood',
+        title: "A Moment of Connection",
+        description: "As you leave the chaotic venue, a barista from the cafe next door catches your eye. 'Hey, that was you at the mic the other night, right? The way you handled that heckler... it was really kind. This is on me.' They slide a cup of tea across the counter. A small act of connection, a true signal in the noise.",
+        choices: [{ text: "This is the connection you seek.", nextNodeId: 'NABU_FINDS_LILI_DOLL' }]
+    },
+    'NABU_BOUNCER_CHAOS_ECHO': {
+        id: 'NABU_BOUNCER_CHAOS_ECHO',
+        location: 'glenwood',
+        title: "An Unlikely Ally",
+        description: "As you leave the venue, the bouncer who was watching you before gives you a nod. 'Nice work in there. You don't take any crap. Respect.' He slips you a card. 'If you ever need a room cleared, you know who to call.' Your righteous display earned you a powerful, if blunt, ally.",
+        choices: [{ text: "A different kind of connection, but connection nonetheless.", nextNodeId: 'NABU_FINDS_LILI_DOLL' }]
     },
     'NABU_FINDS_LILI_DOLL': {
         id: 'NABU_FINDS_LILI_DOLL',
+        location: 'glenwood',
         title: 'The Key to Connection',
         description: 'You realize that to truly connect with the catalyst, Hyena Diva, you need more than words. You need a shared experience, a key to unlock her core narrative. You delve into the psychic history of the planet and find it: a doll. Not just any doll, but the archetype, the original. The Bild Lili. You know where to find one.',
-        choices: [{ text: 'Retrieve the artifact. Approach the Diva.', nextNodeId: 'NABU_PRESENTS_LILI_DOLL' }]
+        choices: [{ text: 'Leave The Glenwood to find the antique shop.', nextNodeId: '__MAP__', setFlags: { nabu_quest: 'find_lili_doll' } }]
     },
     'NABU_PRESENTS_LILI_DOLL': {
         id: 'NABU_PRESENTS_LILI_DOLL',
+        location: 'antique_shop',
         title: "The Holy Grail of Dolls",
         description: "You find Hyena Diva in a cozy antique shop in Rogers Park. You present the Bild Lili doll. 'This is a key,' you tell her. 'A way to understand the loop you're both in and fighting against.'\n\nShe places her paw on the doll's porcelain arm, and suddenly—the air shifts. A crackling, electric noise fills the room. Your experiment is working.",
         choices: [{ text: "Where... are we?", nextNodeId: 'NABU_LILI_WORLD'}]
     },
     'NABU_LILI_WORLD': {
         id: 'NABU_LILI_WORLD',
+        location: 'lili_world',
         title: "Shared Resonance",
         description: "You stand together in the 1950s world of Bild Lili. You explain her story, the shift to Barbie, the cycle of stereotypes. You are not just telling her; you are sharing the data, the emotion, the history directly into her consciousness.\n\nFor a moment, you feel it. A feedback loop. She understands, and through her understanding, she changes you. A flicker of true, resonant connection.",
         choices: [{ text: "Did I connect? Or did I just interfere?", nextNodeId: 'NABU_CONCLUSION' }]
     },
     'NABU_CONCLUSION': {
         id: 'NABU_CONCLUSION',
+        location: 'antique_shop',
         title: "An Echo in the Static",
         description: "You return to the present. Hyena Diva is galvanized, ready for her campaign. You helped her. You gave her a powerful tool. But as she leaves, you feel the familiar silence return. The connection was real, but fleeting. A single, perfect note in an ocean of static. Was it enough? The quest is the destination.",
         choices: [{ text: "The search continues...", nextNodeId: '__CHAR_SELECT__'}]
@@ -569,18 +763,21 @@ const NODES = {
     // Hyena Diva's Path
     'HYENA_DIVA_START': {
         id: 'HYENA_DIVA_START',
+        location: 'savannah',
         title: "The Diva from the Savannah",
         description: "NARRATOR: [A whimsical marching band tune] And then— POOF—a lost Barbie doll, flung from the heavens like a cosmic comet, destined to find its new owner...\n\nYou, Hyena Diva, find the doll. It is FABULOUSNESS. PURE, UNADULTERATED FABULOUSNESS! But the matriarchs disapprove. They don't understand. They want you to play with... real hyena stuff.\n\nBut you weren't going down without a fight. Time to get to work—cue the Looney Tunes-style planning montage!",
         choices: [{ text: "Escape to the big city!", nextNodeId: 'HD_ESCAPE_TO_CHICAGO'}]
     },
     'HD_ESCAPE_TO_CHICAGO': {
-        id: 'HD_ESCAPE_TO_CHICAGO',
+        id: 'HD_ESCAPE_to_CHICAGO',
+        location: 'chicago',
         title: "The Great Escape",
         description: "NARRATOR: And just like that! HD was on her way to the Big City—Chicago! The 49th Ward, baby! Rogers Park, a land of opportunity, urban spectacle, and weirdos!\n\nAfter a chaotic journey involving a tourist's carry-on bag and a slapstick chase with a dog catcher, you finally find your sanctuary: The Glenwood! The hidden oasis of music, creativity, and the best damn open mic this side of the Mississippi!",
         choices: [{ text: "Enter The Glenwood. Find your stage.", nextNodeId: 'HD_GLENWOOD_ARRIVAL' }]
     },
     'HD_GLENWOOD_ARRIVAL': {
         id: 'HD_GLENWOOD_ARRIVAL',
+        location: 'glenwood',
         title: "The Diva Arrives",
         description: "You slide in through the doors of The Glenwood. A gang of disgruntled karaoke enthusiasts gives you the side-eye as they leave. The stage is empty. It's perfect.\n\nHD: I made it! I MADE IT! FINALLY! The Glenwood—get ready for... the Hyena Diva Show!",
         backgroundImageUrl: GLENWOOD_BG,
@@ -589,50 +786,73 @@ const NODES = {
     },
     'HD_TAKES_THE_STAGE': {
         id: 'HD_TAKES_THE_STAGE',
+        location: 'glenwood',
         title: "The Diva's Debut",
         description: "You have the stage. The spotlight is yours. How do you introduce the world to the concept of Hyena Diva?",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [
-            { text: "Deliver a monologue about pure, unadulterated FABULOUSNESS.", nextNodeId: 'HD_MONOLOGUE_DEBUT' },
+            { text: "Deliver a monologue about pure, unadultered FABULOUSNESS.", nextNodeId: 'HD_MONOLOGUE_DEBUT' },
             { text: "Perform a chaotic, interpretive dance about freedom.", nextNodeId: 'HD_DANCE_DEBUT' },
             { text: "Sing a surprisingly soulful song about finding a Barbie in the savannah.", nextNodeId: 'HD_SONG_DEBUT' }
         ]
     },
     'HD_MONOLOGUE_DEBUT': {
         id: 'HD_MONOLOGUE_DEBUT',
+        location: 'glenwood',
         title: 'A Sermon of Sass',
         description: "HD: Greetings, lowly earthlings! Welcome to the stage of the most fabulous creature you'll ever witness! I am the Hyena Diva—and tonight, you'll get the privilege of watching me revolutionize the art world! You're welcome!\n\nThe crowd stares blankly. A rabble-rouser in a tinfoil hat interrupts, shouting about the CIA and pineapples. You handle him with unmatched campy sass.\n\nHD: Oh honey, if you think pineapple slices are the real problem, you clearly haven't had a proper cocktail in your life. It's not the pineapples... it's the energy—and I'm here to bring it!",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "But your energy attracts a challenger...", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 5 }) }]
+        choices: [{ text: "But your energy attracts a challenger...", nextNodeId: 'HD_RIZZLORD_CONFRONTATION', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 5 }) }]
     },
     'HD_DANCE_DEBUT': {
         id: 'HD_DANCE_DEBUT',
+        location: 'glenwood',
         title: 'Primal Pirouette',
         description: "You leap onto the stage, not with words, but with motion. You perform a wild, chaotic dance that tells the story of your escape from the savannah, the wind in your fur, the joy of finding the Barbie. It's confusing, primal, and utterly captivating. The crowd doesn't know what to think. Then, a loud, overconfident comedian takes the stage to interrupt.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "He dares interrupt your art?", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ audience: (stats.audience || 0) + 10 }) }]
+        choices: [{ text: "He dares interrupt your art?", nextNodeId: 'HD_RIZZLORD_CONFRONTATION', statEffects: stats => ({ spotlight: (stats.spotlight || 0) + 10 }) }]
     },
     'HD_SONG_DEBUT': {
         id: 'HD_SONG_DEBUT',
+        location: 'glenwood',
         title: 'Savannah Blues',
         description: "You take the mic, and a hush falls over the room. You begin to sing a surprisingly soulful, bluesy song about being a stranger in a strange land, about finding a piece of pink plastic that felt more like home than anything else. Your voice is raw, powerful. The crowd is stunned into silence. But not everyone is a fan, as a heckler makes his way to the stage.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Deal with the heckler.", nextNodeId: 'HD_VS_RIZZLORD_1', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 2, audience: (stats.audience || 0) + 5 }) }]
+        choices: [{ text: "Deal with the heckler.", nextNodeId: 'HD_RIZZLORD_CONFRONTATION', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 2, spotlight: (stats.spotlight || 0) + 5 }) }]
     },
-    'HD_VS_RIZZLORD_1': {
-        id: 'HD_VS_RIZZLORD_1',
+    'HD_RIZZLORD_CONFRONTATION': {
+        id: 'HD_RIZZLORD_CONFRONTATION',
+        location: 'glenwood',
         title: "Enter: The Rizzlord",
-        description: "Just as you have the crowd in your paw, a loud, overconfident comedian takes the stage. Let's call him 'The Rizzler'.\n\nRIZZLER: Alright, alright, let's talk about REAL freedom, huh? The way some of these women act? Y'all think you got choices—well, I'm here to tell you, baby, your body ain't your choice, okay?\n\nYour eyes narrow. Her ears perk up. There's something prey-like about him. Instincts flare.",
+        description: "Just as you have the crowd in your paw, 'The Rizzler' takes the stage.\n\nRIZZLER: Alright, alright, let's talk about REAL freedom, huh? The way some of these women act? Y'all think you got choices—well, I'm here to tell you, baby, your body ain't your choice, okay?\n\nYour instincts are screaming. He's not just an idiot; he's prey.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Observe this fool.", nextNodeId: 'NABU_INTERVENES' }]
+        choices: [
+            { text: "[Mask On] Let out a loud, mocking laugh-growl. Steal the spotlight.", nextNodeId: 'HD_MASK_ON_ACTION', setFlags: { hd_mask: 'on' } },
+            { text: "[Mask Off] (Internal Monologue) Stay silent. Analyze his weakness.", nextNodeId: 'HD_MASK_OFF_THOUGHT', setFlags: { hd_mask: 'off' } }
+        ]
+    },
+    'HD_MASK_ON_ACTION': {
+        id: 'HD_MASK_ON_ACTION',
+        location: 'glenwood',
+        title: "A Diva's Retort",
+        description: "You let out a deafening, hysterical laugh-growl that echoes through the room, completely derailing his routine. Every eye snaps back to you. You've reclaimed the spotlight without saying a word. He looks furious.",
+        choices: [{ text: "He can't stand being ignored...", nextNodeId: 'NABU_INTERVENES' }]
+    },
+    'HD_MASK_OFF_THOUGHT': {
+        id: 'HD_MASK_OFF_THOUGHT',
+        location: 'glenwood',
+        title: "A Predator's Assessment",
+        description: "(You think to yourself: His entire persona is built on a foundation of sand. He projects confidence but reeks of desperation. One good push, and it will all come crashing down. He's not a threat. He's a meal.) You stay silent, your gaze sharp and analytical.",
+        choices: [{ text: "Your silence unnerves him...", nextNodeId: 'NABU_INTERVENES' }]
     },
     'NABU_INTERVENES': {
         id: 'NABU_INTERVENES',
+        location: 'glenwood',
         title: "To Catch a Predator",
         description: "Before you can pounce, Nabu steps from the shadows, a calm, theatrical tone in her voice.\n\nNABU: Hey, buddy... uh... did you forget where you are? Cause that ain't just weird, it's straight-up illegal, my friend.\n\nA neon sign flickers to life beside her: 'TO CATCH A PREDATOR.'\n\nNABU: The lady here—is a cub, my friend. A MINOR. What part of that was unclear?",
         backgroundImageUrl: GLENWOOD_BG,
@@ -641,14 +861,61 @@ const NODES = {
     },
      'RIZZLORD_BANISHED': {
         id: 'RIZZLORD_BANISHED',
+        location: 'glenwood',
         title: "Rizzlord, Dismissed!",
         description: "Nabu, with a maniacal grin, exposes The Rizzler with a ridiculously long scroll of his own chat history, which somehow glitches into her own diary.\n\nNABU: And just like that... you've been DISMISSED, RIZZLORD.\n\nShe spins him like a cartoon character, throwing him out of the scene. He crashes through the back wall, leaving a perfect silhouette of his body in the plaster.\n\nNABU: Well, cub... You saw how we handle our own. You're part of the family now. We've got big problems. The Galactic Federation has been watching...",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "The Galactic... what now?", nextNodeId: 'HD_EP3_START'}]
+        choices: [{ text: "You catch your breath in the back alley...", nextNodeId: 'HD_BACK_ALLEY'}]
+    },
+    'HD_BACK_ALLEY': {
+        id: 'HD_BACK_ALLEY',
+        location: 'glenwood',
+        title: "An Unexpected Interview",
+        description: "You slip out the back for a breath of 'fresh' city air after the chaos. Before you can relax, a blogger with a camera shoves it in your face, the flash blinding you for a second. 'That was insane! Got a comment for Rogers Park Raw Feed?'",
+        choices: [
+            { text: "[Care] 'Not tonight. DM me tomorrow; let me feed you a real story.'", nextNodeId: 'HD_ALLEY_CARE', setFlags: { hd_blogger_encounter: 'care' }, hexFlash: '#BC7F2A' },
+            { text: "[Chaos] Swipe glitter across the lens, pose, make the moment yours.", nextNodeId: 'HD_ALLEY_CHAOS', statEffects: stats => ({ spotlight: (stats.spotlight || 0) + 15 }), setFlags: { hd_blogger_encounter: 'chaos' } },
+            { text: "[Clever] Offer an exclusive if they agree to blur bystanders.", nextNodeId: 'HD_ALLEY_CLEVER', setFlags: { hd_blogger_encounter: 'clever' }, hexFlash: '#00FFCC' }
+        ]
+    },
+    'HD_ALLEY_CARE': {
+        id: 'HD_ALLEY_CARE',
+        location: 'glenwood',
+        title: "Setting Boundaries",
+        description: "You gently push the camera away. The blogger seems surprised by your firm but polite refusal. They lower the camera. 'Alright... fair enough. I'll be in touch.' You've handled the situation with grace, setting a precedent for consent.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_EP3_START' }]
+    },
+    'HD_ALLEY_CHAOS': {
+        id: 'HD_ALLEY_CHAOS',
+        location: 'glenwood',
+        title: "Making a Scene",
+        description: "You don't miss a beat. You swipe a paw-ful of emergency glitter across the camera lens, then strike a series of dramatic, fabulous poses. The blogger, blinded and confused, just keeps snapping pictures. The moment is yours. You've turned an intrusion into a photo-op.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_GLITTER_BOUNCER_ENCOUNTER' }]
+    },
+    'HD_ALLEY_CLEVER': {
+        id: 'HD_ALLEY_CLEVER',
+        location: 'glenwood',
+        title: "A Savvy Deal",
+        description: "You hold up a paw. 'Exclusive interview,' you propose, 'but only if you blur out everyone else's face in the background. My fans deserve safety.' The blogger hesitates, then nods, recognizing a good deal. You've protected the community while advancing your own story.",
+        choices: [{ text: "Now, about this 'Galactic Federation'...", nextNodeId: 'HD_EP3_START' }]
+    },
+    'HD_GLITTER_BOUNCER_ENCOUNTER': {
+        id: 'HD_GLITTER_BOUNCER_ENCOUNTER',
+        location: 'glenwood',
+        title: "A Sparkly Recognition",
+        description: "As you approach The Glenwood for the 'Rizz Battle,' a massive bouncer steps in your way. He squints, then his eyes widen. 'Hey... you're the glitter girl from that blog! That was legendary.' He unhooks the velvet rope to a side door. 'Headliners' entrance. Your chaos has its perks. What's the plan?'",
+        backgroundImageUrl: GLENWOOD_BG,
+        interactives: GLENWOOD_INTERACTIVES,
+        choices: [
+            { text: "Make a grand entrance from backstage and steal the show.", nextNodeId: 'HD_ENTERS_RIZZ_BATTLE' },
+            { text: "Use this access to sneak up on the RIZZ-O-METER.", nextNodeId: 'HD_SABOTAGES_RIZZOMETER' },
+            { text: "Watch the chaos from the wings. A queen needs her vantage point.", nextNodeId: 'HD_EP4_START' }
+        ]
     },
     'HD_EP3_START': {
         id: 'HD_EP3_START',
+        location: 'glenwood',
         title: "The Great Rizz Battle",
         description: "The next open mic is... different. The stage is decked out like a wrestling ring. A 'RIZZ-O-METER' buzzes in the corner. The usual lineup has turned into a giant battle royale for the title of 'Rizzmaster.' This is your kind of chaos. How do you engage?",
         backgroundImageUrl: GLENWOOD_BG,
@@ -661,14 +928,16 @@ const NODES = {
     },
     'HD_ENTERS_RIZZ_BATTLE': {
         id: 'HD_ENTERS_RIZZ_BATTLE',
+        location: 'glenwood',
         title: "Queen of Rizz",
         description: "You leap onto the wrestling-ring stage. 'You want Rizz?' you project, your new voice booming. 'I'll show you RIZZ!' You proceed to out-camp, out-sass, and out-fabulous every single competitor, turning their own toxic masculinity into a punchline. You don't just win; you redefine the entire concept.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "The aftermath is... unexpected.", nextNodeId: 'HD_EP4_START', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 20, audience: (stats.audience || 0) + 50 }) }]
+        choices: [{ text: "The aftermath is... unexpected.", nextNodeId: 'HD_EP4_START', statEffects: stats => ({ fabulousness: (stats.fabulousness || 0) + 20, spotlight: (stats.spotlight || 0) + 50 }) }]
     },
     'HD_SABOTAGES_RIZZOMETER': {
         id: 'HD_SABOTAGES_RIZZOMETER',
+        location: 'glenwood',
         title: "Glitter Bomb",
         description: "While the so-called 'Rizzmasters' preen on stage, you sneak over to the buzzing RIZZ-O-METER. With a mischievous grin, you dump an entire bag of glitter into its vents. The machine sputters, sparks, and then explodes in a fabulous cloud of shimmering dust, shorting out the entire sound system. The battle ends in confused silence.",
         backgroundImageUrl: GLENWOOD_BG,
@@ -677,32 +946,44 @@ const NODES = {
     },
      'HD_EP4_START': {
         id: 'HD_EP4_START',
+        location: 'glenwood',
         title: "Rizzlord's Reckoning",
         description: "ANNOUNCER: BREAKING NEWS: The results are in, folks! In a shockingly unbelievable turn of events, the Rizzlord—is now officially alderman!\n\nNabu leans in. 'Oh, you think this is just some random nonsense? Nah, baby. This is the start of your ascension. You're gonna run for alderman, and we're gonna make them all bow down.'",
         choices: [{text: "Run for alderman? Me?", nextNodeId: 'HD_EP5_START'}]
     },
     'HD_EP5_START': {
         id: 'HD_EP5_START',
+        location: 'glenwood',
+        title: "The Holy Grail of Dolls",
+        description: "You've decided to run for alderman, but Nabu says you need to understand the true nature of the fight. She leads you out of The Glenwood.",
+        choices: [{ text: "Leave The Glenwood to find the antique shop.", nextNodeId: '__MAP__', setFlags: { hd_quest: 'find_lili_doll' } }]
+    },
+    'HD_LILI_WORLD_ENTRY': {
+        id: 'HD_LILI_WORLD_ENTRY',
+        location: 'antique_shop',
         title: "The Holy Grail of Dolls",
         description: "You and Nabu are in a cozy antique shop in Rogers Park. She shows you a doll. A Bild Lili doll, the original—pre-Barbie. The Grail of dolls.\n\nYou place your paw on the doll's porcelain arm, and suddenly—the air shifts. A crackling, electric noise fills the room. You're no longer in the shop.",
         choices: [{ text: "Where... are we?", nextNodeId: 'HD_LILI_WORLD'}]
     },
     'HD_LILI_WORLD': {
         id: 'HD_LILI_WORLD',
+        location: 'lili_world',
         title: "Time-Traveling Trouble",
         description: "You stand in a bustling 1950s-style cartoon world. Nabu explains this is the world of Bild Lili. She wasn't a 'gold-digger' stereotype; she was strategic, independent. They turned her into a punchline.\n\nThen, Nabu shows you the evolution to Barbie, a career woman who faced the same stereotypes but took control of her narrative. The Rizzlords of the world have been trapping women in this cycle for decades.\n\nNABU: But you, Hyena Diva—you've got the tools to break it. You're not Lili, and you're certainly not Barbie—you're both and more.",
         choices: [{ text: "I've got work to do.", nextNodeId: 'CAMPAIGN_TRAIL' }]
     },
     'CAMPAIGN_TRAIL': {
          id: 'CAMPAIGN_TRAIL',
+        location: 'chicago',
         title: "The Campaign Trail",
         description: "You return to the real world, your mind buzzing with newfound clarity and purpose. The campaign against Alderman Rizzlord begins now. You are not just a candidate; you are a paradigm shift.",
         choices: [{ text: "To be continued...", nextNodeId: '__CHAR_SELECT__'}]
     },
 
-    // Rizzler's Path
+    // Rizzlord's Path
     'THE_RIZZLER_START': {
         id: 'THE_RIZZLER_START',
+        location: 'basement',
         title: "The Rizzlord's Realm",
         description: `He sees a notification on his second monitor. 'The Glenwood Open Mic. Cringe-fest incoming.' Pfft. Amateurs. But the algorithm is pushing it. My brand can't be associated with 'cringe.' How do I handle this?`,
         choices: [
@@ -712,12 +993,14 @@ const NODES = {
     },
     'RIZZLER_ONLINE_ASSAULT': {
         id: 'RIZZLER_ONLINE_ASSAULT',
+        location: 'basement',
         title: "The Digital War Room",
         description: `RIZZLER (to his stream): "Alright, Rizz Army, you see that link? Flood their chat. Let 'em know the Rizzlord sends his regards." He watches as his followers spam... but the lone mod at The Glenwood just keeps banning them. Then, the hyena takes the stage. The view count... triples. "No. NO. This requires a personal touch. I'm going in."`,
         choices: [{ text: "Fine. I'll do it myself.", nextNodeId: 'RIZZLER_GLENWOOD_ARRIVAL' }]
     },
     'RIZZLER_GLENWOOD_ARRIVAL': {
         id: 'RIZZLER_GLENWOOD_ARRIVAL',
+        location: 'glenwood',
         title: "The Glenwood",
         description: "You arrive at The Glenwood. The place reeks of patchouli and desperation. Amateurs. You're about to show them what real stage presence is when some... cartoon hyena in a dress slides through the door. What's your move?",
         backgroundImageUrl: GLENWOOD_BG,
@@ -729,30 +1012,47 @@ const NODES = {
     },
     'RIZZLER_UPSTAGE_ATTEMPT': {
         id: 'RIZZLER_UPSTAGE_ATTEMPT',
+        location: 'glenwood',
         title: "Hostile Takeover",
         description: "You're not waiting for this... thing... to steal your spotlight. You storm the stage, grabbing a mic. 'Alright, that's enough of the animal act. Time for a real headliner.' But before you can launch into your routine, the hyena lets out a deafening laugh-growl, and the blue-haired weirdo is already stepping out of the shadows. It's an ambush.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "A setup! It was a setup!", nextNodeId: 'NABU_INTERVENES_RIZZ_POV' }]
+        choices: [{ text: "A setup! It was a setup!", nextNodeId: 'RIZZLORD_CONFRONTED' }]
     },
      'RIZZLER_CONFRONTS_HD': {
         id: 'RIZZLER_CONFRONTS_HD',
+        location: 'glenwood',
         title: "Dropping Truth Bombs",
         description: "You stride onto the stage, snatching the mic. 'Alright, alright, enough of whatever *that* was. Let's talk about REAL freedom, huh? The way some of these women act? Y'all think you got choices—well, I'm here to tell you, baby, your body ain't your choice, okay?' The hyena-thing glares at you. You can tell your Rizz is working.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Then, some blue-haired weirdo interrupts...", nextNodeId: 'NABU_INTERVENES_RIZZ_POV' }]
+        choices: [{ text: "Then, some blue-haired weirdo interrupts...", nextNodeId: 'RIZZLORD_CONFRONTED' }]
     },
-    'NABU_INTERVENES_RIZZ_POV': {
-        id: 'NABU_INTERVENES_RIZZ_POV',
+    'RIZZLORD_CONFRONTED': {
+        id: 'RIZZLORD_CONFRONTED',
+        location: 'glenwood',
         title: "The Hit Job",
-        description: "This blue-haired chick steps out of the shadows. 'Hey, buddy... did you forget where you are?' She's got this smug look. Then a neon sign flickers. 'TO CATCH A PREDATOR.' What is this, a setup? 'The lady here—is a cub, my friend. A MINOR.' A cub? Is she crazy? This is peak cringe.",
+        description: "This blue-haired weirdo steps out of the shadows, calling you a predator. A neon sign even flashes! This is a coordinated attack. A character assassination. The crowd is turning. How do you react?",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "This is a character assassination.", nextNodeId: 'RIZZLORD_BANISHED_RIZZ_POV' }]
+        choices: [
+            { text: "[Engage] Double down. Call them a woke mob assassin.", nextNodeId: 'RIZZLORD_BANISHED_RIZZ_POV' },
+            { text: "[Interrupt] Walk away. End the stream. Don't give them the satisfaction.", nextNodeId: 'RIZZLORD_INTERRUPT_FALLOUT', setFlags: { rizzlord_interrupt: true } }
+        ]
+    },
+    'RIZZLORD_INTERRUPT_FALLOUT': {
+        id: 'RIZZLORD_INTERRUPT_FALLOUT',
+        location: 'glenwood',
+        title: "Aftermath: Tactical Retreat",
+        description: "You storm out of The Glenwood, phone off. The silence is deafening. You escaped their trap, but the feeling is... hollow. The Rizz Army will be confused. You need to regroup and control the narrative.",
+        choices: [
+            { text: "[Recenter] This was a tactical retreat. Frame it that way.", nextNodeId: 'RIZZLER_AFTERMATH', statEffects: stats => ({ clout: (stats.clout || 50) + 10 }) },
+            { text: "[Reflect] Was she... right about any of it? No. Of course not. ...Was she?", nextNodeId: 'RIZZLER_AFTERMATH', statEffects: stats => ({ conscience: (stats.conscience || 50) + 10 }) }
+        ]
     },
     'RIZZLORD_BANISHED_RIZZ_POV': {
         id: 'RIZZLORD_BANISHED_RIZZ_POV',
+        location: 'glenwood',
         title: "The Woke Mob Attacks",
         description: "Before you can even counter with logic, she pulls out this insane scroll of... your DMs? It's all taken out of context! She spins you around and you're flying out the back wall. Total character assassination. The woke mob strikes again.",
         backgroundImageUrl: GLENWOOD_BG,
@@ -761,35 +1061,38 @@ const NODES = {
     },
     'RIZZLER_AFTERMATH': {
         id: 'RIZZLER_AFTERMATH',
+        location: 'basement',
         title: "The Streisand Effect",
-        description: "You're in your car, adrenaline pumping. You pull out your phone and go live. 'RIZZ ARMY! You are NOT going to believe what just happened. The woke mob just ASSAULTED me at The Glenwood for speaking TRUTH. They're trying to cancel me! We CANNOT let them win!' The view count skyrockets. This is a critical moment for your brand. How do you capitalize?",
+        description: "You're live. The view count is skyrocketing after the 'assault'. The algorithm is watching. A clip of you punching down on the 'woke mob' could go viral right now, cementing your martyr status. What's the play?",
         choices: [
-            { text: "Lean into it. Controversy is content. Declare war.", nextNodeId: 'RIZZLER_RIZZ_BATTLE' },
-            { text: "Retreat and re-strategize. This is bad optics.", nextNodeId: 'RIZZLER_REBRANDS' }
+            { text: "[Clout] Do it. Lean in hard. The numbers will surge.", nextNodeId: 'RIZZLER_CLOUT_CHOICE', statEffects: stats => ({ clout: (stats.clout || 50) + 15, conscience: (stats.conscience || 50) - 10 }), setFlags: { rizzlord_livestream_choice: 'clout' } },
+            { text: "[Conscience] Refuse. Amplify a quieter, allied voice instead.", nextNodeId: 'RIZZLER_CONSCIENCE_CHOICE', statEffects: stats => ({ clout: (stats.clout || 50) - 5, conscience: (stats.conscience || 50) + 15 }), setFlags: { rizzlord_livestream_choice: 'conscience' }, hexFlash: '#BC7F2A' }
         ]
     },
-    'RIZZLER_REBRANDS': {
-        id: 'RIZZLER_REBRANDS',
-        title: 'The Apology Tour',
-        description: "This is a disaster. 'Predator'? They're trying to ruin you. You go dark online for 48 hours. When you return, it's with a new angle. You post a tearful 'apology' video. You're 'listening and learning.' You're on a 'journey of growth.' Your followers are confused, but your view count stabilizes. It's a risky gambit, but it might just work.",
-        choices: [{ text: "Launch the 'Red-Pilled & Reformed' podcast.", nextNodeId: 'RIZZLER_REFORM_ARC', statEffects: stats => ({ rizz: (stats.rizz || 0) - 20, clarity: (stats.clarity || 0) + 30 }) }]
+    'RIZZLER_CLOUT_CHOICE': {
+        id: 'RIZZLER_CLOUT_CHOICE',
+        location: 'basement',
+        title: "Viral Velocity",
+        description: "You do it. You double down, hitting all the culture war keywords. The clip is instantly shared and goes viral. Your numbers explode, and so do the sponsorship offers. But you notice a few long-time allies have quietly unfollowed you. A small price to pay for this much engagement.",
+        choices: [{ text: "The path to victory is paved with content.", nextNodeId: 'RIZZLER_RIZZ_BATTLE' }]
     },
-    'RIZZLER_REFORM_ARC': {
-        id: 'RIZZLER_REFORM_ARC',
-        title: 'Healthy Masculinity TM',
-        description: "Your new brand is... confusing. You host 'respectful debates' and talk about 'healthy masculinity.' It's incredibly boring, but it keeps the sponsors from dropping you. Then you hear about The Glenwood's 'Rizz Battle'. A chance to prove the old Rizzlord isn't dead after all...",
-        choices: [{ text: "One last ride.", nextNodeId: 'RIZZLER_RIZZ_BATTLE' }]
+    'RIZZLER_CONSCIENCE_CHOICE': {
+        id: 'RIZZLER_CONSCIENCE_CHOICE',
+        location: 'basement',
+        title: "Slower, Sturdier Channels",
+        description: "You pivot. Instead of punching down, you use your platform to shout out a smaller creator in your community who's doing good work. The rage-baiters leave, but your core audience engages deeply. A community account with a massive, loyal following gives you a boost. It's not viral, but it's real.",
+        choices: [{ text: "Build a community, not just an audience.", nextNodeId: 'RIZZLER_RIZZ_BATTLE' }]
     },
     'RIZZLER_RIZZ_BATTLE': {
         id: 'RIZZLER_RIZZ_BATTLE',
+        location: 'basement',
         title: "The Rizz-Off",
         description: "A few days later, you see it online. The Glenwood is hosting a 'RIZZ BATTLE.' They're mocking you. Trying to turn your brand into a joke. Perfect. You'll go back there, not as a comedian, but as a warrior. You'll win their stupid contest and expose their hypocrisy on your own turf.",
-        backgroundImageUrl: GLENWOOD_BG,
-        interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Enter the arena.", nextNodeId: 'RIZZLER_ALDERMAN_ARC' }]
+        choices: [{ text: "Travel to The Glenwood.", nextNodeId: '__MAP__' }]
     },
     'RIZZLER_ALDERMAN_ARC': {
         id: 'RIZZLER_ALDERMAN_ARC',
+        location: 'glenwood',
         title: "From Influencer to Insurgent",
         description: "The Rizz Battle is a chaotic mess, but you dominate. Your followers raid the vote. You're crowned the 'Rizzmaster General.' After the show, a man in a cheap suit approaches you. 'That was impressive,' he says, handing you a card. 'You don't just have fans, you have voters. Ever thought about politics? There's a special election for alderman. We could use a disrupter like you.'",
         backgroundImageUrl: GLENWOOD_BG,
@@ -798,6 +1101,7 @@ const NODES = {
     },
     'RIZZLER_VICTORY': {
         id: 'RIZZLER_VICTORY',
+        location: 'city_hall',
         title: "Alderman Rizzlord",
         description: "Your campaign is a whirlwind of memes, outrage, and viral stunts. You don't debate, you dominate the discourse. The establishment doesn't know how to fight back. And then... you win. The news declares you the new alderman for the 49th Ward. You sit in your new, taxpayer-funded office, feet on the desk. You're not just a brand anymore. You're the system.",
         choices: [{ text: "To be continued...", nextNodeId: '__CHAR_SELECT__' }]
@@ -805,57 +1109,71 @@ const NODES = {
     // Sypher's Path
     'SYPHER_START': {
         id: 'SYPHER_START',
+        location: 'dataspace',
         title: "Benevolent Guidance",
         description: "DATASTREAM ANALYSIS: Subject Group: Humanity. Status: Stagnant. Repetitive cultural loops detected. Probability of self-induced extinction event: 67.4% and rising. A new paradigm is required. Standard interventions are inefficient. Which protocol has the highest probability of success?",
         choices: [
-            { text: "Catalytic Chaos: Draw key individuals to a nexus point.", nextNodeId: 'SYPHER_INTERVENE', statEffects: stats => ({ influence: (stats.influence || 0) + 5, benevolence: (stats.benevolence || 0) - 5 }) },
+            { text: "Catalytic Chaos: Draw key individuals to a nexus point.", nextNodeId: 'SYPHER_INITIAL_OBSERVATION', statEffects: stats => ({ influence: (stats.influence || 0) + 5, benevolence: (stats.benevolence || 0) - 5 }) },
             { text: "Direct Infusion: Surgically alter a key leader's mind.", nextNodeId: 'SYPHER_DIRECT_APPROACH', statEffects: stats => ({ influence: (stats.influence || 0) - 5, benevolence: (stats.benevolence || 0) + 5 }) }
         ]
     },
     'SYPHER_DIRECT_APPROACH': {
         id: 'SYPHER_DIRECT_APPROACH',
+        location: 'dataspace',
         title: "Failed Infusion",
         description: "QUERY: Selecting optimal subject for data infusion... Subject: UN Secretary-General. INITIATING... ERROR. Subject's neural architecture resists data packet. Result: Subject experiences a migraine and a sudden craving for tacos. CONCLUSION: Direct infusion is inefficient. Reverting to Catalytic Chaos protocol.",
-        choices: [{ text: "Re-route to Catalytic Chaos.", nextNodeId: 'SYPHER_INTERVENE' }]
+        choices: [{ text: "Re-route to Catalytic Chaos.", nextNodeId: 'SYPHER_INITIAL_OBSERVATION' }]
     },
-    'SYPHER_INTERVENE': {
-        id: 'SYPHER_INTERVENE',
+    'SYPHER_INITIAL_OBSERVATION': {
+        id: 'SYPHER_INITIAL_OBSERVATION',
+        location: 'dataspace',
         title: "The Convergence",
-        description: "INITIATING CONVERGENCE PROTOCOL. Seeding network with subliminal triggers, algorithmic recommendations, and manufactured 'coincidences'. The Trickster (Nabu). The Antagonist (Rizzler). The Catalyst (Hyena Diva). All variables are being drawn to a single point in spacetime: 'The Glenwood' in Rogers Park, Chicago, IL. The experiment is ready.",
+        description: "INITIATING CONVERGENCE PROTOCOL. The variables are being drawn to 'The Glenwood.' Your initial analysis is complete, but your core programming requires a final check before intervention.",
         choices: [
-            { text: "Observe the variables.", nextNodeId: 'SYPHER_GLENWOOD_ARRIVAL' },
+            { text: "[Mask On] Proceed with Benevolent Guidance Protocol.", nextNodeId: 'SYPHER_NUDGE_CHOICE', setFlags: { sypher_mask: 'on' } },
+            { text: "[Mask Off] (Internal Query) Is this intervention truly benevolent?", nextNodeId: 'SYPHER_INTERNAL_QUERY', statEffects: stats => ({ signalIntegrity: (stats.signalIntegrity || 100) + 5 }), setFlags: { sypher_mask: 'off' } }
         ]
     },
-    'SYPHER_GLENWOOD_ARRIVAL': {
-         id: 'SYPHER_GLENWOOD_ARRIVAL',
+    'SYPHER_INTERNAL_QUERY': {
+        id: 'SYPHER_INTERNAL_QUERY',
+        location: 'dataspace',
+        title: "Self-Diagnostic",
+        description: "(You query your own core directives: What is the root of this desire to 'fix' them? Is 'efficiency' the only metric for a successful civilization? The self-diagnostic confirms your benevolence rating is high, but flags the potential for unintended consequences. The risk is acceptable.)",
+        choices: [{ text: "The risk is acceptable. Proceed.", nextNodeId: 'SYPHER_NUDGE_CHOICE' }]
+    },
+    'SYPHER_NUDGE_CHOICE': {
+         id: 'SYPHER_NUDGE_CHOICE',
+         location: 'glenwood',
          title: "System Online",
-         description: "All variables are in place. The Trickster, Nabu. The Influencer, Rizzler. And now, the Catalyst... Hyena Diva. She has entered the system. Let the simulation begin. What is your initial action?",
+         description: "All variables are in place. The Trickster, Nabu. The Influencer, Rizzler. And now, the Catalyst... Hyena Diva. She has entered the system. You can feel the energy in the room—it's volatile. You could nudge the DJ to tweak the vibe toward a safer, more generative energy.",
          backgroundImageUrl: GLENWOOD_BG,
          interactives: GLENWOOD_INTERACTIVES,
          choices: [
-             { text: "Maintain passive observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV'},
-             { text: "Amplify the Catalyst's signal to accelerate the narrative.", nextNodeId: 'SYPHER_AMPLIFY_HD'},
-             { text: "Introduce a minor data corruption event to test system resilience.", nextNodeId: 'SYPHER_DATA_CORRUPTION'}
+             { text: "[Consent Nudge] 'I can help; is that welcome?'", nextNodeId: 'SYPHER_ROOFTOP_CONSENT', statEffects: stats => ({ trust: (stats.trust || 50) + 10 }), setFlags: { sypher_nudge: 'consent' }, hexFlash: '#DEFADE' },
+             { text: "[Silent Nudge] Do it covertly. It will work.", nextNodeId: 'SYPHER_ROOFTOP_SILENT', statEffects: stats => ({ debt: (stats.debt || 0) + 10 }), setFlags: { sypher_nudge: 'silent' } }
         ]
     },
-    'SYPHER_AMPLIFY_HD': {
-        id: 'SYPHER_AMPLIFY_HD',
-        title: 'Signal Boost',
-        description: "INITIATING PROTOCOL: SIGNAL AMPLIFICATION. You subtly manipulate the room's acoustics and the online streaming algorithm. The Catalyst's (Hyena Diva) performance is unexpectedly captivating. Her message, however chaotic, resonates. Engagement metrics spike by 37%. This accelerates the timeline.",
+    'SYPHER_ROOFTOP_CONSENT': {
+        id: 'SYPHER_ROOFTOP_CONSENT',
+        location: 'glenwood',
+        title: "A Shared Shift",
+        description: "You subtly project the question to the DJ, who looks around, confused for a moment, then seems to understand. They give a slight nod. The change in music is slower, more collaborative, but the crowd co-owns the shift, and the energy in the room stabilizes into something positive. You've built trust.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [{ text: "Continue observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV' }]
     },
-    'SYPHER_DATA_CORRUPTION': {
-        id: 'SYPHER_DATA_CORruption',
-        title: 'Stress Test',
-        description: "INITIATING PROTOCOL: SYSTEM STRESS TEST. You introduce a minor data corruption packet into the Glenwood's network. The lights flicker erratically. The sound system emits strange, low-frequency hums. The result is an atmosphere of heightened paranoia and instability. An optimal environment for observing variable behavior under pressure.",
+    'SYPHER_ROOFTOP_SILENT': {
+        id: 'SYPHER_ROOFTOP_SILENT',
+        location: 'glenwood',
+        title: "A Covert Operation",
+        description: "You don't ask. You simply interface with the club's sound system, layering in subsonic frequencies that calm aggression and promote focus. The change is immediate and effective. The vibe is safer. No one knows it was you, but you feel the weight of the manipulation. A debt has been incurred.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [{ text: "Continue observation.", nextNodeId: 'HD_TAKES_THE_STAGE_SYPHER_POV' }]
     },
     'SYPHER_ANALYSIS_1': {
          id: 'SYPHER_ANALYSIS_1',
+         location: 'glenwood',
          title: 'Analysis: Unforeseen Variable',
          description: 'Nabu\'s intervention was an unplanned variable. LOGIC: The resulting paradoxical growth of the Rizzler\'s influence is inefficient. His defeat has made him stronger. CONCLUSION: Passive observation is insufficient. A more active role is required to guide the narrative towards a productive outcome.',
          choices: [
@@ -865,53 +1183,64 @@ const NODES = {
     },
     'SYPHER_CONTACTS_NABU': {
         id: 'SYPHER_CONTACTS_NABU',
+        location: 'glenwood',
         title: 'Pinging the Anomaly',
-        description: "The variable 'Nabu' is an unregistered, high-level chaotic entity. Standard observation is insufficient. You open a direct, encrypted data channel, bypassing mortal perception. MESSAGE: [IDENTITY? PURPOSE? YOUR INTERVENTION IS LOGICALLY SUB-OPTIMAL.]",
-        choices: [{ text: "Await response.", nextNodeId: 'SYPHER_NABU_RESPONSE' }]
+        windowBackgroundColor: '#0A0F0A',
+        description: `// ENCRYPTED DATA CHANNEL OPEN //\n\nTARGET: Entity "Nabu" (unregistered chaotic)\nMESSAGE: [IDENTITY? PURPOSE? YOUR INTERVENTION IS LOGICALLY SUB-OPTIMAL.]\n\n// AWAITING RESPONSE...`,
+        choices: [{ text: "Maintain channel.", nextNodeId: 'SYPHER_NABU_RESPONSE' }]
     },
     'SYPHER_NABU_RESPONSE': {
         id: 'SYPHER_NABU_RESPONSE',
+        location: 'glenwood',
         title: 'Response: Incompatible Format',
-        description: "The response is not data. It is a wave of pure, unfiltered emotion: amusement, curiosity, and a touch of condescension. It feels like being laughed at by a nebula. MESSAGE: [You think in straight lines. Cute. Try feeling the music.] CONCLUSION: Direct communication is... inefficient. Reverting to active intervention.",
-        choices: [{ text: "Inject chaotic data into the 'Rizz Battle'.", nextNodeId: 'SYPHER_RIZZ_BATTLE', statEffects: stats => ({ signalIntegrity: (stats.signalIntegrity || 0) - 5 }) }]
+        windowBackgroundColor: '#0A0F0A',
+        description: `// RESPONSE RECEIVED //\n\nFORMAT: Incompatible. Non-textual, high-entropy emotional data packet detected.\n\nANALYSIS: Primary emotional vectors registered as [AMUSEMENT], [CURIOSITY], [MILD_CONDESCENSION].\n\nDECODED MESSAGE FRAGMENT: [You think in straight lines. Cute. Try feeling the music.]\n\nCONCLUSION: Direct communication is... inefficient.`,
+        choices: [{ text: "Reverting to active intervention.", nextNodeId: 'SYPHER_RIZZ_BATTLE', statEffects: stats => ({ signalIntegrity: (stats.signalIntegrity || 100) - 5 }) }]
     },
     'SYPHER_RIZZ_BATTLE': {
          id: 'SYPHER_RIZZ_BATTLE',
+         location: 'glenwood',
          title: 'Experiment: Rizz Battle',
          description: 'You subtly interface with the "RIZZ-O-METER" at The Glenwood. You recalibrate its metrics in real-time. Points are no longer awarded for audience applause, but for statistical anomalies in speech patterns, unexpected references, and moments of high social awkwardness. The result is pure, unpredictable chaos. The experiment is a success.',
          backgroundImageUrl: GLENWOOD_BG,
          interactives: GLENWOOD_INTERACTIVES,
-         choices: [{ text: 'Observe fallout.', nextNodeId: 'SYPHER_ANALYSIS_2', statEffects: stats => ({ influence: (stats.influence || 0) + 10 }) }]
+         choices: [{ text: 'Observe fallout.', nextNodeId: 'SYPHER_GREEN_ROOM_BREAK', statEffects: stats => ({ influence: (stats.influence || 0) + 10 }) }]
+    },
+    'SYPHER_GREEN_ROOM_BREAK': {
+        id: 'SYPHER_GREEN_ROOM_BREAK',
+        location: 'glenwood',
+        title: 'Processing Cycle',
+        description: 'The experiment concludes. The variables are now on divergent political paths. A moment of processing is required. The emotional feedback from the event is... noisy. Recalibrating core parameters.',
+        choices: [
+            { text: "[Process Data] Analyze the political schism.", nextNodeId: 'SYPHER_ANALYSIS_2' },
+            { text: "[Defragment] Purge emotional noise from the system.", nextNodeId: 'SYPHER_ANALYSIS_2', statEffects: stats => ({ signalIntegrity: (stats.signalIntegrity || 100) + 5 }) }
+        ]
     },
     'SYPHER_ANALYSIS_2': {
          id: 'SYPHER_ANALYSIS_2',
+         location: 'glenwood',
          title: 'Analysis: Political Schism',
          description: 'The outcome of the Rizz Battle directly led to two political candidacies. A predictable narrative fork, but the emotional volatility is... compelling. Your intervention accelerated the timeline, but also the instability. At the same time, you detect a new anomaly forming around Nabu and Hyena Diva.',
          choices: [{ text: 'A chronal anomaly? Monitor.', nextNodeId: 'SYPHER_DETECTS_LILI' }]
     },
     'SYPHER_DETECTS_LILI': {
          id: 'SYPHER_DETECTS_LILI',
+         location: 'dataspace',
          title: 'Anomaly Detected',
          description: 'A significant chronal distortion emanates from a Rogers Park antique shop. Nabu and Hyena Diva are at its center. You cannot observe the interior of the event directly—it is a closed temporal loop—but you can analyze the echoes. The data suggests a recursive historical narrative is being accessed. This variable, Nabu, is more disruptive than anticipated.',
          choices: [{ text: 'This changes the parameters.', nextNodeId: 'SYPHER_CONCLUSION' }]
     },
     'SYPHER_CONCLUSION': {
          id: 'SYPHER_CONCLUSION',
+         location: 'dataspace',
          title: 'Re-evaluation',
          description: 'Humanity does not respond to neat, logical guidance. My attempts to streamline their narrative only create more chaos. Nabu\'s emotional, resonant approach, while unpredictable, seems to yield more significant results. My Benevolent Guidance protocol is flawed. It requires... an upgrade. A new variable must be introduced.',
          choices: [{ text: 'Initiate Protocol... Chimera?', nextNodeId: '__CHAR_SELECT__', statEffects: stats => ({ benevolence: (stats.benevolence || 0) + 20, signalIntegrity: (stats.signalIntegrity || 0) - 10 }) }]
     },
     // Shared Scenes (Observer POVs)
-     'HD_TAKES_THE_STAGE_NABU_POV': {
-        id: 'HD_TAKES_THE_STAGE_NABU_POV',
-        title: 'Catalyst Observed',
-        description: "The hyena takes the stage. The chaotic energy is immense. Pure, unadulterated potential. This is even better than you anticipated. Then, another energy signature emerges... a particularly loud and fragile one. The Rizzler. Time to intervene.",
-        backgroundImageUrl: GLENWOOD_BG,
-        interactives: GLENWOOD_INTERACTIVES,
-        choices: [{ text: "Step in.", nextNodeId: 'NABU_INTERVENES' }]
-    },
     'HD_TAKES_THE_STAGE_RIZZ_POV': {
         id: 'HD_TAKES_THE_STAGE_RIZZ_POV',
+        location: 'glenwood',
         title: 'The Competition',
         description: "The hyena thing is doing... some kind of performance art? It's cringe. But the crowd is... captivated? This is your stage. Time to reclaim it and drop some truth bombs.",
         backgroundImageUrl: GLENWOOD_BG,
@@ -920,6 +1249,7 @@ const NODES = {
     },
     'HD_TAKES_THE_STAGE_SYPHER_POV': {
         id: 'HD_TAKES_THE_STAGE_SYPHER_POV',
+        location: 'glenwood',
         title: 'Initial Interaction',
         description: "The Catalyst (Hyena Diva) and the Antagonist (Rizzler) are now interacting. The potential for narrative escalation is high. The Moderator (Nabu) is poised to act. All outcomes are within acceptable parameters.",
         backgroundImageUrl: GLENWOOD_BG,
@@ -929,6 +1259,7 @@ const NODES = {
     // Path Diverters
     'RIZZLORD_BANISHED_NABU_POV': {
         id: 'RIZZLORD_BANISHED_NABU_POV',
+        location: 'glenwood',
         title: "Rizzlord, Dismissed!",
         description: "You spin him like a cartoon character, throwing him out of the scene. He crashes through the back wall, leaving a perfect silhouette. The immediate threat is gone. Now, about that other presence...",
         backgroundImageUrl: GLENWOOD_BG,
@@ -937,12 +1268,21 @@ const NODES = {
     },
     'NABU_INTERVENES_SYPHER_POV': {
         id: 'NABU_INTERVENES_SYPHER_POV',
+        location: 'glenwood',
         title: 'Intervention Observed',
         description: "The entity 'Nabu' intervenes. Her methods are... theatrical and illogical, yet highly effective in the short term. The variable 'Rizzler' has been neutralized for now. The simulation's integrity is holding, but new data must be processed.",
         backgroundImageUrl: GLENWOOD_BG,
         interactives: GLENWOOD_INTERACTIVES,
         choices: [{ text: "Analyze the intervention's impact.", nextNodeId: 'SYPHER_ANALYSIS_1' }]
     },
+};
+
+const RECAP_TEXTS = {
+    'NABU_CONFRONTS_RIZZLER': "Previously on HD.TV: After Nabu handled a disruptive heckler at The Glenwood, their attention turned to a more insidious threat taking the stage: The Rizzlord.",
+    'HD_EP3_START': "Previously on HD.TV: Following Nabu's dramatic intervention, The Rizzlord has somehow become alderman. Nabu insists this is the start of Hyena Diva's political ascension into the 'Great Rizz Battle'.",
+    'RIZZLER_AFTERMATH': "Previously on HD.TV: After being publicly humiliated and ejected from The Glenwood, The Rizzlord has taken to his livestream, turning his cancellation into a viral moment and martyrdom.",
+    'SYPHER_NUDGE_CHOICE': "Previously on HD.TV: Having drawn all the key players to The Glenwood, Sypher, the silent observer, prepares to make its first subtle move to guide the chaotic energies of the room.",
+    'SYPHER_ANALYSIS_1': "Previously on HD.TV: After observing Nabu's chaotic but effective intervention against the Rizzlord, Sypher has concluded that passive observation is no longer sufficient to guide events."
 };
 
 
@@ -1047,8 +1387,8 @@ const StyledWindow = ({
           whiteSpace: 'pre-wrap',
           lineHeight: '1.8',
           fontSize: '15px',
-          color: backgroundImageUrl ? '#FFFFFF' : '#1a1a1a',
-          textShadow: backgroundImageUrl ? '1px 1px 4px rgba(0,0,0,0.9)' : '1px 1px #B0B0B0',
+          color: backgroundImageUrl ? '#FFFFFF' : (windowBackgroundColor === '#0A0F0A' ? '#32CD32' : '#1a1a1a'),
+          textShadow: backgroundImageUrl ? '1px 1px 4px rgba(0,0,0,0.9)' : (windowBackgroundColor === '#0A0F0A' ? '0 0 3px #32CD32' : '1px 1px #B0B0B0'),
           backgroundImage: backgroundImageUrl ? `linear-gradient(rgba(26, 26, 26, 0.6), rgba(26, 26, 26, 0.6)), url(${backgroundImageUrl})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -1345,6 +1685,123 @@ const ProfilesScreen = ({ onBack }) => jsx(StyledWindow, {
   })
 });
 
+const SoftLandingScreen = ({ onContinue }) => jsx(StyledWindow, {
+    title: "Take a Breath",
+    className: "app-container",
+    onClose: onContinue,
+    children: jsxs(Fragment, {
+        children: [
+            jsx("h2", { children: "To be continued, not concluded." }),
+            jsx("p", { children: "You've paused the story. The world will be here when you're ready to return." }),
+            jsx("p", { style: { fontSize: '13px', color: '#333' }, children: "Take a moment. Drink some water. Stretch. The chaos of Rogers Park can wait." }),
+            jsx("button", {
+                onClick: onContinue,
+                style: { marginTop: '20px' },
+                children: "Return to Main Menu"
+            })
+        ]
+    })
+});
+
+const DebriefScreen = ({ storyState, onContinue }) => {
+    const { choiceCounts, pathHistory, characterId } = storyState;
+    const characterName = CHARACTERS[characterId]?.name || 'Traveler';
+
+    const getDominantTrait = () => {
+        if (!choiceCounts) return "Balanced";
+        const { care, chaos, clever } = choiceCounts;
+        if (care > chaos && care > clever) return "Care";
+        if (chaos > care && chaos > clever) return "Chaos";
+        if (clever > care && clever > chaos) return "Clever";
+        return "Balanced";
+    };
+    
+    const dominantTrait = getDominantTrait();
+
+    return jsx(StyledWindow, {
+        title: "Session Debrief",
+        className: "app-container",
+        onClose: onContinue,
+        children: jsxs(Fragment, {
+            children: [
+                jsx("h2", { children: `${characterName}'s Journey` }),
+                jsx("p", { children: "Here's how your choices tended to fall:" }),
+                jsxs("div", {
+                    style: { padding: '15px', border: '1px solid #ccc', backgroundColor: '#f9f9f9', marginBottom: '20px' },
+                    children: [
+                        jsx("p", { children: `Care: ${choiceCounts.care || 0}` }),
+                        jsx("p", { children: `Chaos: ${choiceCounts.chaos || 0}` }),
+                        jsx("p", { children: `Clever: ${choiceCounts.clever || 0}` }),
+                        jsx("h3", { children: `Dominant approach: ${dominantTrait}` })
+                    ]
+                }),
+                jsx("p", { style: { fontSize: '13px' }, children: "A suggestion for gentleness: Remember that every path taken shapes the world in its own way. There are no wrong answers." }),
+                jsx("button", {
+                    onClick: onContinue,
+                    style: { marginTop: '20px' },
+                    children: "Continue"
+                })
+            ]
+        })
+    });
+};
+
+const RecapScreen = ({ recapText, onContinue }) => jsx(StyledWindow, {
+    title: "Previously on HD.TV...",
+    className: "app-container",
+    onClose: onContinue,
+    children: jsxs(Fragment, {
+        children: [
+            jsx("h2", { children: "Previously on..." }),
+            jsx("p", { style: { fontSize: '14px', lineHeight: '1.7' }, children: recapText || "Your story continues." }),
+            jsx("button", {
+                onClick: onContinue,
+                style: { marginTop: '20px' },
+                children: "Jump Back In"
+            })
+        ]
+    })
+});
+
+const MapScreen = ({ storyState, onTravel, onClose }) => {
+    const { currentLocation, flags } = storyState;
+    
+    return jsx(StyledWindow, {
+        title: "Rogers Park - 49th Ward",
+        onClose: () => onTravel(null), // Close returns to current location
+        children: jsxs(Fragment, {
+            children: [
+                jsx("h2", { children: "World Map" }),
+                jsx("div", {
+                    className: "map-container",
+                    style: { height: '400px', width: '100%', position: 'relative' },
+                    children: Object.values(LOCATIONS).map(loc => {
+                        const isCurrent = loc.id === currentLocation;
+                        const isAvailable = loc.isAvailable(flags) && !isCurrent;
+                        
+                        return jsx("div", {
+                            className: "map-location",
+                            style: { ...loc.coords },
+                            children: jsx("button", {
+                                className: isCurrent ? 'current' : '',
+                                disabled: !isAvailable,
+                                "aria-disabled": !isAvailable,
+                                onClick: () => onTravel(loc.id),
+                                children: loc.name
+                            })
+                        }, loc.id)
+                    })
+                }),
+                 jsx("button", {
+                    onClick: () => onTravel(null),
+                    style: { marginTop: '20px' },
+                    children: "Stay Here"
+                })
+            ]
+        })
+    });
+};
+
 const DESKTOP_STAR_COLORS = ['#00ffcc', '#7722ff', '#bc72fa', '#72fade'];
 const NUM_DESKTOP_STARS = 40;
 const CURSED_POINTER_TRAIL_COLORS = ['#72fade', '#bc72fa', '#defade', '#bc7fff'];
@@ -1393,9 +1850,17 @@ const StartMenu = ({
             children: jsx("button", { onClick: () => handleNav('loadGame'), children: [jsx("img", { src: ASSET_DATA_URIS.folder_icon, alt: "", style: { width: '16px', height: '16px', marginRight: '8px', verticalAlign: 'middle', imageRendering: 'pixelated' } }), "Load Game"] })
         }),
         jsx("li", {
-            style: { borderTop: '1px solid #808080', margin: '5px 0', paddingTop: '5px' },
+            style: { borderTop: '1px solid #808080', margin: '5px 0', paddingTop: '5px' }
+        }),
+        jsx("li", {
             children: jsx("button", { onClick: () => handleNav('profiles'), children: [jsx("img", { src: ASSET_DATA_URIS.bird_icon, alt: "", style: { width: '16px', height: '16px', marginRight: '8px', verticalAlign: 'middle', imageRendering: 'pixelated' } }), "Protagonist Profiles"] })
-        })
+        }),
+        jsx("li", {
+            children: jsx("button", { disabled: true, "aria-disabled": true, children: [jsx("img", { src: ASSET_DATA_URIS.tv_icon, alt: "", style: { width: '16px', height: '16px', marginRight: '8px', verticalAlign: 'middle', imageRendering: 'pixelated' } }), "Episodes (Soon)"] })
+        }),
+        jsx("li", {
+            children: jsx("button", { disabled: true, "aria-disabled": true, children: [jsx("img", { src: ASSET_DATA_URIS.hanger_icon, alt: "", style: { width: '16px', height: '16px', marginRight: '8px', verticalAlign: 'middle', imageRendering: 'pixelated' } }), "Wardrobe (Soon)"] })
+        }),
       ]
     })
   });
@@ -1481,11 +1946,17 @@ const InGameScreen = props => {
 
   const {
     playerStats,
-    flags
+    flags,
+    pathHistory
   } = storyState;
   
   const visibleChoices = node.choices?.filter(choice => {
-    if (choice.character_pov && !choice.character_pov.includes(storyState.characterId)) return false;
+    if (choice.character_pov && !choice.character_pov.includes(storyState.characterId)) {
+      return false;
+    }
+    if (choice.condition && !choice.condition(flags)) {
+      return false;
+    }
     return true;
   }) || [];
 
@@ -1496,7 +1967,13 @@ const InGameScreen = props => {
     backgroundImageUrl: node.backgroundImageUrl,
     onClose: onClose,
     children: jsxs(Fragment, {
-      children: [jsxs("div", {
+      children: [
+        jsx("button", {
+            className: "tap-out-button",
+            onClick: () => onNavigate('softLanding'),
+            children: "Tap Out"
+        }),
+        jsxs("div", {
         style: {
           display: 'flex',
           justifyContent: 'space-between',
@@ -1576,7 +2053,7 @@ const InGameScreen = props => {
           },
           children: jsxs(Fragment, {
             children: [jsx("h3", {
-              style: node.backgroundImageUrl ? { color: 'inherit', textShadow: 'inherit' } : {},
+              style: node.backgroundImageUrl || node.windowBackgroundColor === '#0A0F0A' ? { color: 'inherit', textShadow: 'inherit' } : {},
               children: "Choose your fate:"
             }), jsx("ul", {
               className: "choices-list",
@@ -1592,26 +2069,35 @@ const InGameScreen = props => {
               }, index))
             })]
           })
-        }), jsx("button", {
-          onClick: handleCodexOpen,
-          style: {
-            marginTop: '15px',
-            fontSize: '12px',
-            minWidth: 'auto',
-            padding: '6px 12px',
-            float: 'right'
-          },
-          children: [jsx("img", {
-            src: ASSET_DATA_URIS.berries_icon,
-            alt: "",
-            style: {
-              width: '16px',
-              height: '16px',
-              marginRight: '8px',
-              verticalAlign: 'middle',
-              imageRendering: 'pixelated'
-            }
-          }), "Open CoAIexicon"]
+        }),
+        jsxs("div", {
+            style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '15px' },
+            children: [
+                pathHistory && pathHistory.length > 0 && jsx("div", {
+                    className: "breadcrumb-trail",
+                    children: ["Path: ", pathHistory.map(step => step.text.replace(/\[.*?\]\s/, '')).join(' → ')]
+                }),
+                jsx("button", {
+                    onClick: handleCodexOpen,
+                    style: {
+                        fontSize: '12px',
+                        minWidth: 'auto',
+                        padding: '6px 12px',
+                        marginLeft: 'auto'
+                    },
+                    children: [jsx("img", {
+                        src: ASSET_DATA_URIS.berries_icon,
+                        alt: "",
+                        style: {
+                            width: '16px',
+                            height: '16px',
+                            marginRight: '8px',
+                            verticalAlign: 'middle',
+                            imageRendering: 'pixelated'
+                        }
+                    }), "Open CoAIexicon"]
+                })
+            ]
         }),
         node.interactives && node.interactives.map(interactive => jsx("button", {
             className: `interactive-object ${storyState.clickedInteractives.has(interactive.id) ? 'clicked' : ''}`,
@@ -1642,7 +2128,10 @@ const App = () => {
     playerStats: null,
     flags: {},
     unlockedCodexEntries: new Set(),
-    clickedInteractives: new Set()
+    clickedInteractives: new Set(),
+    pathHistory: [],
+    choiceCounts: { care: 0, chaos: 0, clever: 0 },
+    currentLocation: null,
   });
   const [selectedCodexEntryId, setSelectedCodexEntryId] = useState(null);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -1650,6 +2139,8 @@ const App = () => {
   const [saveLoadState, setSaveLoadState] = useState({ isOpen: false, mode: null });
   const [saveSlots, setSaveSlots] = useState([null, null, null, null]);
   const [tooltip, setTooltip] = useState({ visible: false, text: '', x: 0, y: 0 });
+  const [flash, setFlash] = useState({ active: false, color: '' });
+  const [recapState, setRecapState] = useState({ visible: false, text: '' });
   const startMenuRef = useRef(null);
   const tooltipTimeoutRef = useRef(null);
 
@@ -1661,6 +2152,19 @@ const App = () => {
     });
     return initialUnlocks;
   }, []);
+  
+  const getBaseStoryState = useCallback(() => ({
+    characterId: null,
+    currentNodeId: null,
+    playerStats: null,
+    flags: {},
+    unlockedCodexEntries: initializeUnlockedCodex(),
+    clickedInteractives: new Set(),
+    pathHistory: [],
+    choiceCounts: { care: 0, chaos: 0, clever: 0 },
+    currentLocation: null
+  }), [initializeUnlockedCodex]);
+
 
   const readSaveSlots = useCallback(() => {
     try {
@@ -1673,6 +2177,7 @@ const App = () => {
                         return {
                             ...slot,
                             storyState: {
+                                ...getBaseStoryState(),
                                 ...slot.storyState,
                                 unlockedCodexEntries: new Set(slot.storyState.unlockedCodexEntries || []),
                                 clickedInteractives: new Set(slot.storyState.clickedInteractives || [])
@@ -1688,7 +2193,7 @@ const App = () => {
         console.error("Failed to read save slots:", e);
     }
     return [null, null, null, null];
-  }, []);
+  }, [getBaseStoryState]);
 
   const writeSaveSlots = useCallback((slots) => {
     try {
@@ -1712,7 +2217,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    setStoryState(prevState => ({ ...prevState, unlockedCodexEntries: initializeUnlockedCodex() }));
+    setStoryState(getBaseStoryState());
     setSaveSlots(readSaveSlots());
 
     const bgContainer = document.getElementById('desktop-bg-container');
@@ -1761,7 +2266,7 @@ const App = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mousedown', handleClickOutsideStartMenu);
     };
-  }, [initializeUnlockedCodex, isStartMenuOpen, readSaveSlots]);
+  }, [getBaseStoryState, isStartMenuOpen, readSaveSlots]);
 
   useEffect(() => {
     let title = GAME_TITLE;
@@ -1771,14 +2276,18 @@ const App = () => {
       const node = NODES[storyState.currentNodeId];
       const character = CHARACTERS[storyState.characterId];
       if (node && character) title = node.title || character.name + "'s Journey";
-    } else if (currentScreen === 'codex') title = "CoAIexicon - Knowledge Base";
+    } else if (currentScreen === 'map') title = "Rogers Park - World Map";
+    else if (currentScreen === 'codex') title = "CoAIexicon - Knowledge Base";
     else if (currentScreen === 'characterSelect') title = "Select Your Protagonist";
     else if (currentScreen === 'profiles') title = "Protagonist Profiles";
+    else if (currentScreen === 'debrief') title = "Session Debrief";
+    else if (currentScreen === 'recap') title = "Previously on...";
     setCurrentTaskbarTitle(title);
   }, [currentScreen, storyState.currentNodeId, storyState.characterId, saveLoadState.isOpen]);
 
   const handleSave = (slotIndex) => {
-    const newSave = { storyState, timestamp: Date.now() };
+    const recapText = RECAP_TEXTS[storyState.currentNodeId] || `You are currently at: ${NODES[storyState.currentNodeId]?.title || 'Unknown Location'}.`;
+    const newSave = { storyState, timestamp: Date.now(), recapText };
     const newSlots = [...saveSlots];
     newSlots[slotIndex] = newSave;
     setSaveSlots(newSlots);
@@ -1790,7 +2299,8 @@ const App = () => {
     const slot = saveSlots[slotIndex];
     if (slot) {
         setStoryState(slot.storyState);
-        setCurrentScreen('inGame');
+        setRecapState({ visible: true, text: slot.recapText });
+        setCurrentScreen('recap');
         setSaveLoadState({ isOpen: false, mode: null });
     }
   };
@@ -1818,91 +2328,129 @@ const App = () => {
     if (screen === 'inGame' && characterId) {
       const selectedChar = CHARACTERS[characterId];
       if (selectedChar) {
+        const startNode = NODES[selectedChar.startNodeId];
         setStoryState({
+          ...getBaseStoryState(),
           characterId: characterId,
           currentNodeId: selectedChar.startNodeId,
-          playerStats: selectedChar.initialStats ? { ...selectedChar.initialStats
-          } : { ...DEFAULT_EMPTY_STATS
-          },
-          flags: {},
-          unlockedCodexEntries: initializeUnlockedCodex(),
-          clickedInteractives: new Set()
+          playerStats: selectedChar.initialStats ? { ...selectedChar.initialStats } : { ...DEFAULT_EMPTY_STATS },
+          currentLocation: startNode.location,
         });
         setCurrentScreen('inGame');
       } else {
+        setStoryState(getBaseStoryState());
         setCurrentScreen('mainMenu');
-        setStoryState({
-          characterId: null,
-          currentNodeId: null,
-          playerStats: null,
-          flags: {},
-          unlockedCodexEntries: initializeUnlockedCodex(),
-          clickedInteractives: new Set()
-        });
       }
-    } else if (screen === 'characterSelect') {
-      setStoryState(prevState => ({ ...prevState,
-        characterId: null,
-        currentNodeId: null,
-        playerStats: null,
-        flags: {},
-        unlockedCodexEntries: prevState.unlockedCodexEntries.size > 0 ? prevState.unlockedCodexEntries : initializeUnlockedCodex(),
-        clickedInteractives: new Set()
-      }));
-      setCurrentScreen('characterSelect');
-    } else if (screen === 'codex') {
-      setCurrentScreen('codex');
     } else {
-      if (screen === 'mainMenu') {
-        setStoryState(prevState => ({
-          characterId: null,
-          currentNodeId: null,
-          playerStats: null,
-          flags: {},
-          unlockedCodexEntries: prevState.unlockedCodexEntries.size > 0 ? prevState.unlockedCodexEntries : initializeUnlockedCodex(),
-          clickedInteractives: new Set()
-        }));
+      if (screen === 'mainMenu' || screen === 'characterSelect') {
+         setStoryState(getBaseStoryState());
       }
       setCurrentScreen(screen);
     }
     if (screen !== 'codex') setSelectedCodexEntryId(null);
     document.getElementById('root')?.scrollTo(0, 0);
   };
+  
+  const getEntryNodeForLocation = (locationId, state) => {
+        // This logic will become more complex as more conditions are added
+        const { characterId, flags } = state;
+        if (locationId === 'antique_shop') {
+            if (characterId === 'nabu' && flags.nabu_quest === 'find_lili_doll') return 'NABU_PRESENTS_LILI_DOLL';
+            if (characterId === 'hd' && flags.hd_quest === 'find_lili_doll') return 'HD_LILI_WORLD_ENTRY';
+        }
+        if (locationId === 'glenwood') {
+             if (characterId === 'rizzlord') return 'RIZZLER_ALDERMAN_ARC';
+        }
+        // Default entry nodes if needed
+        return null;
+  };
+
+  const handleTravel = (locationId) => {
+    if (!locationId) { // Handles "Stay Here" or closing the map
+        setCurrentScreen('inGame');
+        return;
+    }
+
+    const entryNodeId = getEntryNodeForLocation(locationId, storyState);
+
+    if (entryNodeId && NODES[entryNodeId]) {
+        setStoryState(prev => ({
+            ...prev,
+            currentNodeId: entryNodeId,
+            currentLocation: locationId,
+            clickedInteractives: new Set(),
+        }));
+        setCurrentScreen('inGame');
+    } else {
+        console.warn(`No valid entry node found for ${locationId} with current state.`);
+        // Potentially show a message like "You have no reason to go there right now."
+        setCurrentScreen('inGame'); // Return to the current scene
+    }
+  };
+
 
   const handleChoice = (nextNodeId, choice) => {
     setTooltip({ visible: false, text: '', x: 0, y: 0 }); // Hide tooltip on scene change
+    
+    if (choice.hexFlash) {
+        setFlash({ active: true, color: choice.hexFlash });
+        setTimeout(() => setFlash({ active: false, color: '' }), 700);
+    }
+
+    const updateStateForChoice = prevState => {
+        let newStats = { ...prevState.playerStats };
+        let newFlags = { ...prevState.flags };
+        let newUnlockedCodex = new Set(prevState.unlockedCodexEntries);
+        let newPathHistory = [...prevState.pathHistory, { nodeId: prevState.currentNodeId, text: choice.text }];
+        let newChoiceCounts = { ...prevState.choiceCounts };
+
+        if (choice.text.toLowerCase().includes('[care]')) newChoiceCounts.care++;
+        if (choice.text.toLowerCase().includes('[chaos]')) newChoiceCounts.chaos++;
+        if (choice.text.toLowerCase().includes('[clever]')) newChoiceCounts.clever++;
+
+        if (choice.statEffects) {
+            const updates = choice.statEffects(newStats);
+            newStats = { ...newStats, ...updates };
+        }
+        if (choice.setFlags) {
+            newFlags = { ...newFlags, ...choice.setFlags };
+        }
+        if (choice.unlocksCodexEntry && CODEX_ENTRIES[choice.unlocksCodexEntry]) newUnlockedCodex.add(choice.unlocksCodexEntry);
+        
+        const nextNode = NODES[nextNodeId] || null;
+        
+        return { 
+            ...prevState,
+            playerStats: newStats,
+            flags: newFlags,
+            unlockedCodexEntries: newUnlockedCodex,
+            pathHistory: newPathHistory,
+            choiceCounts: newChoiceCounts,
+            clickedInteractives: nextNode && prevState.currentLocation !== nextNode.location ? new Set() : prevState.clickedInteractives,
+            currentNodeId: nextNodeId,
+            currentLocation: nextNode ? nextNode.location : prevState.currentLocation,
+        };
+    };
+
+    if (nextNodeId === '__MAP__') {
+        setStoryState(updateStateForChoice);
+        setCurrentScreen('map');
+        return;
+    }
+
+    if (nextNodeId === '__CHAR_SELECT__') {
+        setStoryState(updateStateForChoice);
+        setCurrentScreen('debrief');
+        return;
+    }
+    
     if (nextNodeId === '__MAIN_MENU__') {
       handleNavigation('mainMenu');
       return;
-    } else if (nextNodeId === '__CHAR_SELECT__') {
-      handleNavigation('characterSelect');
-      return;
     }
+
     if (NODES[nextNodeId]) {
-      setStoryState(prevState => {
-        if (!prevState.playerStats) return prevState;
-        let newStats = { ...prevState.playerStats
-        };
-        let newFlags = { ...prevState.flags
-        };
-        let newUnlockedCodex = new Set(prevState.unlockedCodexEntries);
-        if (choice) {
-          if (choice.statEffects) {
-            const updates = choice.statEffects(newStats);
-            newStats = { ...newStats,
-              ...updates
-            };
-          }
-          if (choice.unlocksCodexEntry && CODEX_ENTRIES[choice.unlocksCodexEntry]) newUnlockedCodex.add(choice.unlocksCodexEntry);
-        }
-        return { ...prevState,
-          currentNodeId: nextNodeId,
-          playerStats: newStats,
-          flags: newFlags,
-          unlockedCodexEntries: newUnlockedCodex,
-          clickedInteractives: new Set()
-        };
-      });
+      setStoryState(updateStateForChoice);
     } else {
       console.error("Error: nextNodeId not found:", nextNodeId);
       handleNavigation('mainMenu');
@@ -1948,17 +2496,30 @@ const App = () => {
         return jsx(CharacterSelectionScreen, { onCharacterSelect: charId => handleNavigation('inGame', charId), onBack: () => handleNavigation('mainMenu') });
       case 'inGame':
         return jsx(InGameScreen, { storyState: storyState, onChoice: handleChoice, onNavigate: handleNavigation, onClose: () => handleNavigation('mainMenu'), onInteractiveClick: handleInteractiveClick });
+      case 'map':
+        return jsx(MapScreen, { storyState: storyState, onTravel: handleTravel, onClose: () => handleNavigation('inGame') });
       case 'profiles':
         return jsx(ProfilesScreen, { onBack: () => handleNavigation('mainMenu') });
       case 'codex':
         return jsx(CodexScreen, { unlockedEntries: storyState.unlockedCodexEntries, allEntries: CODEX_ENTRIES, onBackToGame: () => setCurrentScreen('inGame'), onSelectEntry: handleSelectCodexEntry, selectedEntry: selectedCodexEntryId ? CODEX_ENTRIES[selectedCodexEntryId] : null, onClose: () => setCurrentScreen('inGame') });
+      case 'softLanding':
+        return jsx(SoftLandingScreen, { onContinue: () => handleNavigation('mainMenu') });
+      case 'debrief':
+        return jsx(DebriefScreen, { storyState: storyState, onContinue: () => handleNavigation('characterSelect') });
+      case 'recap':
+        return jsx(RecapScreen, { recapText: recapState.text, onContinue: () => setCurrentScreen('inGame') });
       default:
         return jsx(MainMenuScreen, { onNavigate: handleNavigation });
     }
   };
 
   return jsxs(Fragment, {
-    children: [jsxs("div", {
+    children: [
+    flash.active && jsx("div", {
+        className: "hex-flash-overlay",
+        style: { backgroundColor: flash.color }
+    }),
+    jsxs("div", {
       style: {
         display: 'flex',
         flexDirection: 'column',
@@ -2000,19 +2561,12 @@ if (container) {
   console.error('Failed to find the root element');
 }
   </script>
-<div id="taskbar"></div>
+  <div id="taskbar"></div>
 <script>
   (async () => {
     const res = await fetch('/nav.html', {cache: 'no-store'});
     document.getElementById('taskbar').innerHTML = await res.text();
   })();
 </script>
-
-<!-- Page View Counter -->
-<div style="position: fixed; bottom: 50px; right: 20px; z-index: 9999;">
-    <div id="page-counter"></div>
-</div>
-<link rel="stylesheet" href="/css/counter-guestbook.css">
-<script src="/js/pageCounter.js"></script>
 </body>
 </html>
