@@ -143,16 +143,11 @@
                         statusEl.textContent += `✅ Migrated: ${entry.name}\n`;
                     } else {
                         errorCount++;
-                        const errorText = await response.text();
-                        statusEl.textContent += `❌ Failed: ${entry.name}\n`;
-                        statusEl.textContent += `   Status: ${response.status} ${response.statusText}\n`;
-                        statusEl.textContent += `   Details: ${errorText}\n\n`;
+                        statusEl.textContent += `❌ Failed: ${entry.name} - ${response.statusText}\n`;
                     }
                 } catch (error) {
                     errorCount++;
-                    statusEl.textContent += `❌ Error: ${entry.name}\n`;
-                    statusEl.textContent += `   ${error.message}\n`;
-                    statusEl.textContent += `   ${error.stack}\n\n`;
+                    statusEl.textContent += `❌ Error: ${entry.name} - ${error.message}\n`;
                 }
             }
 

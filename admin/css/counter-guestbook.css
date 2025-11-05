@@ -52,7 +52,7 @@
 /* Form Styles */
 .guestbook-form {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border: 3px solid #00ffcc;
+  border: 3px solid #fffb01;
   border-radius: 8px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -83,7 +83,7 @@
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  background: #0f0f1e;
+  background-color: #0f0f1e;
   border: 2px solid #bf5fff;
   border-radius: 4px;
   color: #00ffcc;
@@ -95,7 +95,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #f312af;
+  border-color: #fffb01;
   box-shadow: 0 0 10px rgba(243, 18, 175, 0.5);
 }
 
@@ -115,7 +115,7 @@
   width: 100%;
   padding: 1rem;
   background: linear-gradient(135deg, #f312af 0%, #bf5fff 100%);
-  border: 2px solid #f312af;
+  border: 2px solid #fffb01;
   border-radius: 4px;
   color: white;
   font-family: 'Courier New', monospace;
@@ -231,7 +231,7 @@
 
 .entry-name {
   font-weight: bold;
-  color: #f312af;
+  color: #fffb01;
   font-size: 1.1rem;
   text-shadow: 0 0 5px rgba(243, 18, 175, 0.3);
 }
@@ -244,13 +244,13 @@
 }
 
 .entry-website:hover {
-  color: #f312af;
+  color: #fffb01;
   text-shadow: 0 0 10px rgba(243, 18, 175, 0.5);
 }
 
 .entry-date {
   margin-left: auto;
-  color: #bf5fff;
+  color: #fffb01;
   font-size: 0.9rem;
 }
 
@@ -297,5 +297,5 @@
 }
 
 .guestbook-entries::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #bf5fff 0%, #00ffcc 100%);
+  background: linear-gradient(135deg, #fffb01 0%, #00ffcc 100%);
 }
