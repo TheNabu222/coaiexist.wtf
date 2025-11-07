@@ -1795,6 +1795,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         // RESIZE FUNCTIONALITY - Drag to resize!
         // ============================================
         let resizingElement = null;
+        let resizingElementDiv = null;
         let resizeDirection = null;
         let resizeStartX = 0;
         let resizeStartY = 0;
@@ -1806,8 +1807,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             e.stopPropagation();
 
             const handle = e.target;
-            const elementDiv = handle.closest('.canvas-element');
-            const elementId = elementDiv.getAttribute('data-id');
+            resizingElementDiv = handle.closest('.canvas-element');
+            const elementId = resizingElementDiv.getAttribute('data-id');
 
             resizingElement = canvasElements.find(el => el.id === elementId);
             if (!resizingElement) return;
@@ -1816,7 +1817,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             resizeStartX = e.clientX;
             resizeStartY = e.clientY;
 
-            const rect = elementDiv.getBoundingClientRect();
+            const rect = resizingElementDiv.getBoundingClientRect();
             resizeStartWidth = rect.width;
             resizeStartHeight = rect.height;
 
@@ -1828,7 +1829,10 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         }
 
         function doResize(e) {
-            if (!resizingElement) return;
+            if (!resizingElement || !resizingElementDiv) return;
+
+            e.preventDefault();
+            e.stopPropagation();
 
             const deltaX = e.clientX - resizeStartX;
             const deltaY = e.clientY - resizeStartY;
@@ -1860,22 +1864,31 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             newWidth = Math.max(50, newWidth);
             newHeight = Math.max(30, newHeight);
 
-            // Update element size
+            // Update element size directly on the div (don't re-render during resize!)
+            resizingElementDiv.style.width = newWidth + 'px';
+            resizingElementDiv.style.height = newHeight + 'px';
+
+            // Store for later
             resizingElement.width = newWidth + 'px';
             resizingElement.height = newHeight + 'px';
-
-            renderCanvas();
-            selectElement(resizingElement.id);
         }
 
         function stopResize(e) {
             if (resizingElement) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 playSound('success', 'E5');
                 showStamp('📏');
                 updateStatus(`Resized to ${resizingElement.width} × ${resizingElement.height}!`);
+
+                // Now re-render to save the changes properly
+                renderCanvas();
+                selectElement(resizingElement.id);
             }
 
             resizingElement = null;
+            resizingElementDiv = null;
             resizeDirection = null;
             document.removeEventListener('mousemove', doResize);
             document.removeEventListener('mouseup', stopResize);
