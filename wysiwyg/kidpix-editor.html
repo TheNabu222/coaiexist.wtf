@@ -199,6 +199,7 @@
             background: var(--dark-gray);
             overflow: auto;
             padding: 20px;
+            position: relative;
         }
 
         #canvas {
@@ -489,6 +490,25 @@
             }
         }
 
+        @keyframes blink-animation {
+            0%, 49% { opacity: 1; }
+            50%, 99% { opacity: 0; }
+        }
+
+        @keyframes rainbow-slide {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        @keyframes neon-pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px #00FFFF, inset 0 0 20px rgba(0, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px #00FFFF, inset 0 0 40px rgba(0, 255, 255, 0.5);
+            }
+        }
+
         .page-loader-list {
             max-height: 400px;
             overflow-y: auto;
@@ -534,6 +554,7 @@
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
+            <button class="big-button" id="grid-toggle-btn" onclick="toggleGrid()" style="background: #FFF; border: 3px dashed #000;">📐 GRID</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
         </div>
 
@@ -565,25 +586,77 @@
 
             <div class="tool-section">
                 <div class="tool-section-header" onclick="toggleSection(this)">
-                    🔧 BUILDERS
+                    🔧 BUTTONS & LINKS
                 </div>
                 <div class="tool-items">
-                    <div class="tool-item" onclick="openModal('nav-modal')">🧭 Nav Bar</div>
+                    <div class="tool-item" onclick="addStyledElement('button-basic')">🔘 Basic Button</div>
+                    <div class="tool-item" onclick="addStyledElement('button-neon')">💫 Neon Button</div>
+                    <div class="tool-item" onclick="addStyledElement('button-3d')">🎮 3D Button</div>
+                    <div class="tool-item" onclick="addStyledElement('link-basic')">🔗 Link</div>
+                    <div class="tool-item" onclick="addStyledElement('link-rainbow')">🌈 Rainbow Link</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    🎨 SHAPES
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addStyledElement('shape-square')">⬜ Square</div>
+                    <div class="tool-item" onclick="addStyledElement('shape-circle')">⭕ Circle</div>
+                    <div class="tool-item" onclick="addStyledElement('shape-star')">⭐ Star Box</div>
+                    <div class="tool-item" onclick="addStyledElement('shape-heart')">❤️ Heart Box</div>
+                    <div class="tool-item" onclick="addStyledElement('shape-gradient')">🌈 Gradient Box</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    😀 EMOJIS
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addStyledElement('emoji-happy')">😊 Happy</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-fire')">🔥 Fire</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-star')">⭐ Star</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-heart')">❤️ Heart</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-party')">🎉 Party</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-big')">🎨 Big Emoji</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    🖼️ MEDIA
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addStyledElement('image-placeholder')">🖼️ Image Placeholder</div>
+                    <div class="tool-item" onclick="addStyledElement('video-frame')">🎬 Video Frame</div>
+                    <div class="tool-item" onclick="openModal('asset-modal')">🎨 Asset Browser</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    🎪 FUN STUFF
+                </div>
+                <div class="tool-items">
                     <div class="tool-item" onclick="openModal('ascii-modal')">📟 ASCII Art</div>
                     <div class="tool-item" onclick="openModal('imagemap-modal')">🗺️ Image Map</div>
-                    <div class="tool-item" onclick="addElement('button')">🔘 Button</div>
-                    <div class="tool-item" onclick="addElement('link')">🔗 Link</div>
+                    <div class="tool-item" onclick="addStyledElement('marquee')">📜 Scrolling Text</div>
+                    <div class="tool-item" onclick="addStyledElement('blink')">✨ Blinking Text</div>
+                    <div class="tool-item" onclick="addStyledElement('rainbow-text')">🌈 Rainbow Text</div>
                 </div>
             </div>
 
             <div style="margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.1); border: 2px dashed var(--dark-gray); border-radius: 4px; text-align: center;">
-                <p style="font-size: 12px; margin: 0;">💡 Use <strong>ASSETS</strong> button above to add images, GIFs, audio, and 3D models!</p>
+                <p style="font-size: 12px; margin: 0;">💡 Click <strong>📐 GRID</strong> above to snap elements to a grid!</p>
             </div>
         </div>
 
         <!-- CANVAS -->
         <div class="canvas-area">
             <div id="canvas"></div>
+            <div id="grid-overlay" style="display: none; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 99px, #FF00FF 99px, #FF00FF 100px), repeating-linear-gradient(90deg, transparent, transparent 99px, #FF00FF 99px, #FF00FF 100px); background-size: 100px 100px; opacity: 0.3; z-index: 1000;"></div>
         </div>
 
         <!-- SIDEBAR -->
@@ -1247,6 +1320,82 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             showStamp('✨');
             updateStatus(`Added ${type}!`);
             updateElementCount();
+        }
+
+        // ============================================
+        // STYLED ELEMENTS - Pre-designed goodies!
+        // ============================================
+        const styledElementTemplates = {
+            // Buttons with styles!
+            'button-basic': '<button style="background: #0000FF; color: #FFF; border: 4px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000;">CLICK ME!</button>',
+            'button-neon': '<button style="background: #000; color: #00FFFF; border: 3px solid #00FFFF; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px #00FFFF, inset 0 0 20px rgba(0, 255, 255, 0.3); animation: neon-pulse 2s infinite;">💫 NEON BUTTON</button>',
+            'button-3d': '<button style="background: linear-gradient(180deg, #FF6B6B 0%, #EE5A6F 100%); color: #FFF; border: none; padding: 20px 40px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 12px; box-shadow: 0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3); transform: translateY(0); transition: all 0.1s;" onmousedown="this.style.transform=\'translateY(4px)\'; this.style.boxShadow=\'0 4px 0 #C73866\';" onmouseup="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3)\';">🎮 3D BUTTON</button>',
+
+            // Links with flair!
+            'link-basic': '<a href="#" style="color: #0000FF; font-size: 20px; font-weight: bold; text-decoration: underline; border: 2px dotted #0000FF; padding: 5px 10px; display: inline-block;">🔗 Cool Link!</a>',
+            'link-rainbow': '<a href="#" style="font-size: 24px; font-weight: bold; text-decoration: none; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🌈 RAINBOW LINK!</a>',
+
+            // Shapes!
+            'shape-square': '<div style="width: 150px; height: 150px; background: #FF0000; border: 5px solid #000; box-shadow: 8px 8px 0 #000;"></div>',
+            'shape-circle': '<div style="width: 150px; height: 150px; background: #FF00FF; border: 5px solid #000; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);"></div>',
+            'shape-star': '<div style="width: 200px; height: 200px; background: #FFFF00; border: 5px solid #000; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: 8px 8px 0 #000;"></div>',
+            'shape-heart': '<div style="width: 200px; height: 200px; background: #FF1493; border: 5px solid #000; clip-path: path(\'M50,100 C50,80 30,60 10,60 C-10,60 -10,80 10,100 L50,140 L90,100 C110,80 110,60 90,60 C70,60 50,80 50,100\'); transform: scale(1.5);"></div>',
+            'shape-gradient': '<div style="width: 200px; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border: 5px solid #000; border-radius: 20px; box-shadow: 8px 8px 0 #000;"></div>',
+
+            // Emojis!
+            'emoji-happy': '<div style="font-size: 80px; line-height: 1;">😊</div>',
+            'emoji-fire': '<div style="font-size: 80px; line-height: 1;">🔥</div>',
+            'emoji-star': '<div style="font-size: 80px; line-height: 1;">⭐</div>',
+            'emoji-heart': '<div style="font-size: 80px; line-height: 1;">❤️</div>',
+            'emoji-party': '<div style="font-size: 80px; line-height: 1;">🎉</div>',
+            'emoji-big': '<div style="font-size: 150px; line-height: 1; text-shadow: 4px 4px 0 #000;">🎨</div>',
+
+            // Media!
+            'image-placeholder': '<div style="width: 300px; height: 200px; background: linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%), linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%); background-size: 20px 20px; background-position: 0 0, 10px 10px; border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #666;">🖼️ YOUR IMAGE HERE</div>',
+            'video-frame': '<div style="width: 400px; height: 225px; background: #000; border: 6px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 60px; color: #FFF;">▶️</div>',
+
+            // Fun stuff!
+            'marquee': '<marquee style="background: #FFFF00; border: 4px solid #000; padding: 15px; font-size: 24px; font-weight: bold; color: #FF0000;">✨ SCROLLING TEXT! ✨</marquee>',
+            'blink': '<div style="background: #FF00FF; color: #FFF; border: 4px solid #000; padding: 20px; font-size: 28px; font-weight: bold; text-align: center; animation: blink-animation 1s infinite;">✨ BLINKING TEXT! ✨</div>',
+            'rainbow-text': '<div style="font-size: 48px; font-weight: bold; text-align: center; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: rainbow-slide 3s linear infinite; background-size: 200% 100%;">🌈 RAINBOW! 🌈</div>'
+        };
+
+        function addStyledElement(type) {
+            const id = 'el-' + (++elementIdCounter);
+            const html = styledElementTemplates[type] || '<div>Unknown styled element</div>';
+
+            canvasElements.push({ id, type, html });
+            renderCanvas();
+            playSound('success', 'G5');
+            showStamp('🎨');
+            updateStatus(`Added ${type}!`);
+            updateElementCount();
+        }
+
+        // ============================================
+        // GRID SYSTEM
+        // ============================================
+        let gridEnabled = false;
+
+        function toggleGrid() {
+            gridEnabled = !gridEnabled;
+            const overlay = document.getElementById('grid-overlay');
+            const btn = document.getElementById('grid-toggle-btn');
+
+            if (gridEnabled) {
+                overlay.style.display = 'block';
+                btn.style.background = '#00FF00';
+                btn.style.borderStyle = 'solid';
+                playSound('success', 'E6');
+                showStamp('📐');
+                updateStatus('Grid ON! Elements snap to 100px grid');
+            } else {
+                overlay.style.display = 'none';
+                btn.style.background = '#FFF';
+                btn.style.borderStyle = 'dashed';
+                playSound('boop', 'C5');
+                updateStatus('Grid OFF');
+            }
         }
 
         function renderCanvas() {
