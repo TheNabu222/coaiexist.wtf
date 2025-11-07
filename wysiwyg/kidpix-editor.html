@@ -1088,9 +1088,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function renderCanvas() {
             const canvas = document.getElementById('canvas');
-            canvas.innerHTML = canvasElements.map(el => `
-                <div class="canvas-element" data-id="${el.id}" onclick="selectElement('${el.id}')">
+            canvas.innerHTML = canvasElements.map((el, index) => `
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')">
                     <div class="element-toolbar">
+                        <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); duplicateElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
@@ -1098,6 +1100,84 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     ${el.html}
                 </div>
             `).join('');
+
+            // Add drag and drop event listeners
+            const elements = canvas.querySelectorAll('.canvas-element');
+            elements.forEach(el => {
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragover', handleDragOver);
+                el.addEventListener('drop', handleDrop);
+                el.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        // Drag and Drop Handlers
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            if (draggedElement !== this) {
+                const draggedId = draggedElement.getAttribute('data-id');
+                const targetId = this.getAttribute('data-id');
+
+                const draggedIndex = canvasElements.findIndex(el => el.id === draggedId);
+                const targetIndex = canvasElements.findIndex(el => el.id === targetId);
+
+                // Swap elements
+                const [removed] = canvasElements.splice(draggedIndex, 1);
+                canvasElements.splice(targetIndex, 0, removed);
+
+                renderCanvas();
+                playSound('pop', 'E5');
+                showStamp('🔄');
+            }
+
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+        }
+
+        // Move up/down functions
+        function moveElementUp(id) {
+            const index = canvasElements.findIndex(el => el.id === id);
+            if (index > 0) {
+                [canvasElements[index - 1], canvasElements[index]] = [canvasElements[index], canvasElements[index - 1]];
+                renderCanvas();
+                selectElement(id);
+                playSound('pop', 'D5');
+                showStamp('⬆️');
+            }
+        }
+
+        function moveElementDown(id) {
+            const index = canvasElements.findIndex(el => el.id === id);
+            if (index < canvasElements.length - 1) {
+                [canvasElements[index], canvasElements[index + 1]] = [canvasElements[index + 1], canvasElements[index]];
+                renderCanvas();
+                selectElement(id);
+                playSound('pop', 'D5');
+                showStamp('⬇️');
+            }
         }
 
         function selectElement(id) {
