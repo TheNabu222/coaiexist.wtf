@@ -224,7 +224,9 @@
             margin: 10px 0;
             padding: 10px;
             border: 3px dashed transparent;
-            cursor: pointer;
+            cursor: move;
+            display: inline-block;
+            max-width: 100%;
         }
 
         .canvas-element:hover {
@@ -236,6 +238,88 @@
             border-color: var(--red);
             border-style: solid;
             background: rgba(255, 0, 0, 0.1);
+        }
+
+        /* RESIZE HANDLES! */
+        .resize-handle {
+            position: absolute;
+            background: #FF00FF;
+            border: 2px solid #000;
+            box-shadow: 0 0 0 2px #FFF;
+            display: none;
+            z-index: 100;
+        }
+
+        .canvas-element.selected .resize-handle {
+            display: block;
+        }
+
+        .resize-handle-se {
+            width: 15px;
+            height: 15px;
+            bottom: -8px;
+            right: -8px;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle-sw {
+            width: 15px;
+            height: 15px;
+            bottom: -8px;
+            left: -8px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle-ne {
+            width: 15px;
+            height: 15px;
+            top: -8px;
+            right: -8px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle-nw {
+            width: 15px;
+            height: 15px;
+            top: -8px;
+            left: -8px;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle-e {
+            width: 10px;
+            height: 40px;
+            top: 50%;
+            right: -5px;
+            transform: translateY(-50%);
+            cursor: ew-resize;
+        }
+
+        .resize-handle-w {
+            width: 10px;
+            height: 40px;
+            top: 50%;
+            left: -5px;
+            transform: translateY(-50%);
+            cursor: ew-resize;
+        }
+
+        .resize-handle-n {
+            width: 40px;
+            height: 10px;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+        }
+
+        .resize-handle-s {
+            width: 40px;
+            height: 10px;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
         }
 
         .element-toolbar {
@@ -1293,17 +1377,17 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         // ============================================
         const elementTemplates = {
             // Containers
-            box: '<div style="border: 4px solid #000; padding: 20px; background: #FFFF00;">Box content here!</div>',
-            card: '<div style="border: 4px solid #000; padding: 20px; background: #FFF; box-shadow: 6px 6px 0 #000;"><h3>Card Title</h3><p>Card content goes here!</p></div>',
-            section: '<section style="border: 4px solid #000; padding: 20px; margin: 20px 0; background: #CCC;"><h2>Section Title</h2><p>Section content...</p></section>',
+            box: '<div style="border: 4px solid #000; padding: 20px; background: #FFFF00; width: 300px;">Box content here!</div>',
+            card: '<div style="border: 4px solid #000; padding: 20px; background: #FFF; box-shadow: 6px 6px 0 #000; width: 350px;"><h3>Card Title</h3><p>Card content goes here!</p></div>',
+            section: '<section style="border: 4px solid #000; padding: 20px; margin: 20px 0; background: #CCC; width: 400px;"><h2>Section Title</h2><p>Section content...</p></section>',
 
             // Text
-            heading: '<h1 style="font-size: 36px; color: #FF0000; font-weight: bold;">Big Heading!</h1>',
-            paragraph: '<p style="font-size: 18px; line-height: 1.6;">This is a paragraph of text. Click to edit!</p>',
-            list: '<ul style="font-size: 18px; margin-left: 40px;"><li>First item</li><li>Second item</li><li>Third item</li></ul>',
+            heading: '<h1 style="font-size: 36px; color: #FF0000; font-weight: bold; display: inline-block;">Big Heading!</h1>',
+            paragraph: '<p style="font-size: 18px; line-height: 1.6; width: 400px;">This is a paragraph of text. Click to edit!</p>',
+            list: '<ul style="font-size: 18px; margin-left: 40px; width: 300px;"><li>First item</li><li>Second item</li><li>Third item</li></ul>',
 
             // Interactive Elements
-            button: '<button style="background: #0000FF; color: #FFF; border: 4px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000;">CLICK ME!</button>',
+            button: '<button style="background: #0000FF; color: #FFF; border: 4px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000; display: inline-block;">CLICK ME!</button>',
             link: '<a href="#" style="color: #0000FF; font-size: 20px; font-weight: bold; text-decoration: underline; border: 2px dotted #0000FF; padding: 5px 10px; display: inline-block;">🔗 Link Text</a>'
         };
 
@@ -1327,37 +1411,37 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         // ============================================
         const styledElementTemplates = {
             // Buttons with styles!
-            'button-basic': '<button style="background: #0000FF; color: #FFF; border: 4px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000;">CLICK ME!</button>',
-            'button-neon': '<button style="background: #000; color: #00FFFF; border: 3px solid #00FFFF; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px #00FFFF, inset 0 0 20px rgba(0, 255, 255, 0.3); animation: neon-pulse 2s infinite;">💫 NEON BUTTON</button>',
-            'button-3d': '<button style="background: linear-gradient(180deg, #FF6B6B 0%, #EE5A6F 100%); color: #FFF; border: none; padding: 20px 40px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 12px; box-shadow: 0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3); transform: translateY(0); transition: all 0.1s;" onmousedown="this.style.transform=\'translateY(4px)\'; this.style.boxShadow=\'0 4px 0 #C73866\';" onmouseup="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3)\';">🎮 3D BUTTON</button>',
+            'button-basic': '<button style="background: #0000FF; color: #FFF; border: 4px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000; display: inline-block;">CLICK ME!</button>',
+            'button-neon': '<button style="background: #000; color: #00FFFF; border: 3px solid #00FFFF; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px #00FFFF, inset 0 0 20px rgba(0, 255, 255, 0.3); animation: neon-pulse 2s infinite; display: inline-block;">💫 NEON BUTTON</button>',
+            'button-3d': '<button style="background: linear-gradient(180deg, #FF6B6B 0%, #EE5A6F 100%); color: #FFF; border: none; padding: 20px 40px; font-size: 20px; font-weight: bold; cursor: pointer; border-radius: 12px; box-shadow: 0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3); transform: translateY(0); transition: all 0.1s; display: inline-block;" onmousedown="this.style.transform=\'translateY(4px)\'; this.style.boxShadow=\'0 4px 0 #C73866\';" onmouseup="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 8px 0 #C73866, 0 12px 20px rgba(0,0,0,0.3)\';">🎮 3D BUTTON</button>',
 
             // Links with flair!
             'link-basic': '<a href="#" style="color: #0000FF; font-size: 20px; font-weight: bold; text-decoration: underline; border: 2px dotted #0000FF; padding: 5px 10px; display: inline-block;">🔗 Cool Link!</a>',
-            'link-rainbow': '<a href="#" style="font-size: 24px; font-weight: bold; text-decoration: none; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🌈 RAINBOW LINK!</a>',
+            'link-rainbow': '<a href="#" style="font-size: 24px; font-weight: bold; text-decoration: none; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block;">🌈 RAINBOW LINK!</a>',
 
             // Shapes!
-            'shape-square': '<div style="width: 150px; height: 150px; background: #FF0000; border: 5px solid #000; box-shadow: 8px 8px 0 #000;"></div>',
-            'shape-circle': '<div style="width: 150px; height: 150px; background: #FF00FF; border: 5px solid #000; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6);"></div>',
-            'shape-star': '<div style="width: 200px; height: 200px; background: #FFFF00; border: 5px solid #000; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: 8px 8px 0 #000;"></div>',
-            'shape-heart': '<div style="width: 200px; height: 200px; background: #FF1493; border: 5px solid #000; clip-path: path(\'M50,100 C50,80 30,60 10,60 C-10,60 -10,80 10,100 L50,140 L90,100 C110,80 110,60 90,60 C70,60 50,80 50,100\'); transform: scale(1.5);"></div>',
-            'shape-gradient': '<div style="width: 200px; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border: 5px solid #000; border-radius: 20px; box-shadow: 8px 8px 0 #000;"></div>',
+            'shape-square': '<div style="width: 150px; height: 150px; background: #FF0000; border: 5px solid #000; box-shadow: 8px 8px 0 #000; display: inline-block;"></div>',
+            'shape-circle': '<div style="width: 150px; height: 150px; background: #FF00FF; border: 5px solid #000; border-radius: 50%; box-shadow: 0 0 30px rgba(255, 0, 255, 0.6); display: inline-block;"></div>',
+            'shape-star': '<div style="width: 200px; height: 200px; background: #FFFF00; border: 5px solid #000; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); box-shadow: 8px 8px 0 #000; display: inline-block;"></div>',
+            'shape-heart': '<div style="width: 120px; height: 120px; background: #FF1493; border: 5px solid #000; display: inline-block; position: relative;"><div style="position: absolute; top: 0; left: 25%; width: 50%; height: 80%; background: #FF1493; border-radius: 50% 50% 0 0;"></div><div style="position: absolute; top: 0; left: 0; width: 50%; height: 50%; background: #FF1493; border-radius: 50% 0 0 0; transform: rotate(-45deg); transform-origin: 100% 100%;"></div><div style="position: absolute; top: 0; right: 0; width: 50%; height: 50%; background: #FF1493; border-radius: 0 50% 0 0; transform: rotate(45deg); transform-origin: 0 100%;"></div></div>',
+            'shape-gradient': '<div style="width: 200px; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border: 5px solid #000; border-radius: 20px; box-shadow: 8px 8px 0 #000; display: inline-block;"></div>',
 
             // Emojis!
-            'emoji-happy': '<div style="font-size: 80px; line-height: 1;">😊</div>',
-            'emoji-fire': '<div style="font-size: 80px; line-height: 1;">🔥</div>',
-            'emoji-star': '<div style="font-size: 80px; line-height: 1;">⭐</div>',
-            'emoji-heart': '<div style="font-size: 80px; line-height: 1;">❤️</div>',
-            'emoji-party': '<div style="font-size: 80px; line-height: 1;">🎉</div>',
-            'emoji-big': '<div style="font-size: 150px; line-height: 1; text-shadow: 4px 4px 0 #000;">🎨</div>',
+            'emoji-happy': '<div style="font-size: 80px; line-height: 1; display: inline-block;">😊</div>',
+            'emoji-fire': '<div style="font-size: 80px; line-height: 1; display: inline-block;">🔥</div>',
+            'emoji-star': '<div style="font-size: 80px; line-height: 1; display: inline-block;">⭐</div>',
+            'emoji-heart': '<div style="font-size: 80px; line-height: 1; display: inline-block;">❤️</div>',
+            'emoji-party': '<div style="font-size: 80px; line-height: 1; display: inline-block;">🎉</div>',
+            'emoji-big': '<div style="font-size: 150px; line-height: 1; text-shadow: 4px 4px 0 #000; display: inline-block;">🎨</div>',
 
             // Media!
             'image-placeholder': '<div style="width: 300px; height: 200px; background: linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%), linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%); background-size: 20px 20px; background-position: 0 0, 10px 10px; border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #666;">🖼️ YOUR IMAGE HERE</div>',
             'video-frame': '<div style="width: 400px; height: 225px; background: #000; border: 6px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 60px; color: #FFF;">▶️</div>',
 
             // Fun stuff!
-            'marquee': '<marquee style="background: #FFFF00; border: 4px solid #000; padding: 15px; font-size: 24px; font-weight: bold; color: #FF0000;">✨ SCROLLING TEXT! ✨</marquee>',
-            'blink': '<div style="background: #FF00FF; color: #FFF; border: 4px solid #000; padding: 20px; font-size: 28px; font-weight: bold; text-align: center; animation: blink-animation 1s infinite;">✨ BLINKING TEXT! ✨</div>',
-            'rainbow-text': '<div style="font-size: 48px; font-weight: bold; text-align: center; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: rainbow-slide 3s linear infinite; background-size: 200% 100%;">🌈 RAINBOW! 🌈</div>'
+            'marquee': '<marquee style="background: #FFFF00; border: 4px solid #000; padding: 15px; font-size: 24px; font-weight: bold; color: #FF0000; width: 400px;">✨ SCROLLING TEXT! ✨</marquee>',
+            'blink': '<div style="background: #FF00FF; color: #FFF; border: 4px solid #000; padding: 20px; font-size: 28px; font-weight: bold; text-align: center; animation: blink-animation 1s infinite; width: 400px;">✨ BLINKING TEXT! ✨</div>',
+            'rainbow-text': '<div style="font-size: 48px; font-weight: bold; text-align: center; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: rainbow-slide 3s linear infinite; background-size: 200% 100%; width: 500px;">🌈 RAINBOW! 🌈</div>'
         };
 
         function addStyledElement(type) {
@@ -1400,8 +1484,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function renderCanvas() {
             const canvas = document.getElementById('canvas');
-            canvas.innerHTML = canvasElements.map((el, index) => `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')" style="position: relative; z-index: ${el.zIndex || index};">
+            canvas.innerHTML = canvasElements.map((el, index) => {
+                const width = el.width || 'auto';
+                const height = el.height || 'auto';
+                return `
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')" style="position: relative; z-index: ${el.zIndex || index}; width: ${width}; height: ${height};">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -1412,8 +1499,18 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
                     </div>
                     ${el.html}
+                    <!-- RESIZE HANDLES -->
+                    <div class="resize-handle resize-handle-nw" data-direction="nw"></div>
+                    <div class="resize-handle resize-handle-n" data-direction="n"></div>
+                    <div class="resize-handle resize-handle-ne" data-direction="ne"></div>
+                    <div class="resize-handle resize-handle-e" data-direction="e"></div>
+                    <div class="resize-handle resize-handle-se" data-direction="se"></div>
+                    <div class="resize-handle resize-handle-s" data-direction="s"></div>
+                    <div class="resize-handle resize-handle-sw" data-direction="sw"></div>
+                    <div class="resize-handle resize-handle-w" data-direction="w"></div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             // Add drag and drop event listeners
             const elements = canvas.querySelectorAll('.canvas-element');
@@ -1422,6 +1519,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 el.addEventListener('dragover', handleDragOver);
                 el.addEventListener('drop', handleDrop);
                 el.addEventListener('dragend', handleDragEnd);
+
+                // Add resize handle listeners
+                const handles = el.querySelectorAll('.resize-handle');
+                handles.forEach(handle => {
+                    handle.addEventListener('mousedown', startResize);
+                });
             });
         }
 
@@ -1515,6 +1618,96 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('success', 'D5');
             showStamp('🔽');
             updateStatus('Moved layer back!');
+        }
+
+        // ============================================
+        // RESIZE FUNCTIONALITY - Drag to resize!
+        // ============================================
+        let resizingElement = null;
+        let resizeDirection = null;
+        let resizeStartX = 0;
+        let resizeStartY = 0;
+        let resizeStartWidth = 0;
+        let resizeStartHeight = 0;
+
+        function startResize(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const handle = e.target;
+            const elementDiv = handle.closest('.canvas-element');
+            const elementId = elementDiv.getAttribute('data-id');
+
+            resizingElement = canvasElements.find(el => el.id === elementId);
+            if (!resizingElement) return;
+
+            resizeDirection = handle.getAttribute('data-direction');
+            resizeStartX = e.clientX;
+            resizeStartY = e.clientY;
+
+            const rect = elementDiv.getBoundingClientRect();
+            resizeStartWidth = rect.width;
+            resizeStartHeight = rect.height;
+
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+
+            playSound('boop', 'C5');
+            updateStatus('Resizing...');
+        }
+
+        function doResize(e) {
+            if (!resizingElement) return;
+
+            const deltaX = e.clientX - resizeStartX;
+            const deltaY = e.clientY - resizeStartY;
+
+            let newWidth = resizeStartWidth;
+            let newHeight = resizeStartHeight;
+
+            // Calculate new dimensions based on direction
+            if (resizeDirection.includes('e')) {
+                newWidth = resizeStartWidth + deltaX;
+            }
+            if (resizeDirection.includes('w')) {
+                newWidth = resizeStartWidth - deltaX;
+            }
+            if (resizeDirection.includes('s')) {
+                newHeight = resizeStartHeight + deltaY;
+            }
+            if (resizeDirection.includes('n')) {
+                newHeight = resizeStartHeight - deltaY;
+            }
+
+            // Snap to grid if enabled
+            if (gridEnabled) {
+                newWidth = Math.round(newWidth / 100) * 100;
+                newHeight = Math.round(newHeight / 100) * 100;
+            }
+
+            // Min size constraints
+            newWidth = Math.max(50, newWidth);
+            newHeight = Math.max(30, newHeight);
+
+            // Update element size
+            resizingElement.width = newWidth + 'px';
+            resizingElement.height = newHeight + 'px';
+
+            renderCanvas();
+            selectElement(resizingElement.id);
+        }
+
+        function stopResize(e) {
+            if (resizingElement) {
+                playSound('success', 'E5');
+                showStamp('📏');
+                updateStatus(`Resized to ${resizingElement.width} × ${resizingElement.height}!`);
+            }
+
+            resizingElement = null;
+            resizeDirection = null;
+            document.removeEventListener('mousemove', doResize);
+            document.removeEventListener('mouseup', stopResize);
         }
 
         function selectElement(id) {
