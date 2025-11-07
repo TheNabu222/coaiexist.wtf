@@ -1199,6 +1199,8 @@ Contact | /contact.html</textarea>
             historyIndex: -1,
             pageCSS: '',
             pageJS: '',
+            externalHeadTags: [],
+            externalScripts: [],
             viewMode: 'desktop'
         };
 
@@ -1684,6 +1686,8 @@ Contact | /contact.html</textarea>
                 elements: state.elements,
                 pageCSS: state.pageCSS,
                 pageJS: state.pageJS,
+                externalHeadTags: state.externalHeadTags,
+                externalScripts: state.externalScripts,
                 viewMode: state.viewMode,
                 savedAt: new Date().toISOString()
             };
@@ -1702,7 +1706,12 @@ Contact | /contact.html</textarea>
                 state.elements = projectData.elements || [];
                 state.pageCSS = projectData.pageCSS || '';
                 state.pageJS = projectData.pageJS || '';
+                state.externalHeadTags = projectData.externalHeadTags || [];
+                state.externalScripts = projectData.externalScripts || [];
                 state.viewMode = projectData.viewMode || 'desktop';
+                canvas.className = `${state.viewMode}-view`;
+                state.selectedElement = null;
+                state.clipboard = null;
                 saveHistory();
                 renderCanvas();
                 updateElementCount();
@@ -1734,9 +1743,23 @@ Contact | /contact.html</textarea>
                     const styles = doc.querySelectorAll('style');
                     state.pageCSS = Array.from(styles).map(s => s.textContent).join('\n');
 
-                    // Extract JS
-                    const scripts = doc.querySelectorAll('script');
-                    state.pageJS = Array.from(scripts).map(s => s.textContent).join('\n');
+                    // Extract external resources
+                    state.externalHeadTags = Array.from(new Set(
+                        Array.from(doc.querySelectorAll('head link')).map(link => link.outerHTML)
+                    ));
+
+                    const scripts = Array.from(doc.querySelectorAll('script'));
+                    state.externalScripts = Array.from(new Set(
+                        scripts
+                            .filter(script => script.src)
+                            .map(script => script.outerHTML)
+                    ));
+
+                    // Extract inline JS
+                    state.pageJS = scripts
+                        .filter(script => !script.src)
+                        .map(script => script.textContent)
+                        .join('\n');
 
                     // Extract body elements
                     state.elements = [];
@@ -1760,8 +1783,16 @@ Contact | /contact.html</textarea>
         document.getElementById('btn-new').addEventListener('click', () => {
             if (confirm('Start new project?')) {
                 state.elements = [];
+                state.selectedElement = null;
+                state.clipboard = null;
                 state.history = [];
                 state.historyIndex = -1;
+                state.pageCSS = '';
+                state.pageJS = '';
+                state.externalHeadTags = [];
+                state.externalScripts = [];
+                state.viewMode = 'desktop';
+                canvas.className = 'desktop-view';
                 saveHistory();
                 renderCanvas();
                 updateElementCount();
@@ -1923,22 +1954,51 @@ Contact | /contact.html</textarea>
         });
 
         function exportHTML() {
+            const indentBlock = (block) => block
+                .split('\n')
+                .map(line => line.trim().length ? `    ${line}` : '')
+                .join('\n');
+
             const content = state.elements.map(el => el.html).join('\n\n');
+
+            const headParts = [
+                '<meta charset="UTF-8">',
+                '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+                '<title>My Page</title>',
+                ...state.externalHeadTags
+            ];
+
+            if (state.pageCSS && state.pageCSS.trim()) {
+                headParts.push(`<style>\n${state.pageCSS}\n</style>`);
+            }
+
+            const bodyParts = [];
+            if (content.trim()) {
+                bodyParts.push(content);
+            }
+            if (state.externalScripts.length) {
+                bodyParts.push(...state.externalScripts);
+            }
+            if (state.pageJS && state.pageJS.trim()) {
+                bodyParts.push(`<script>\n${state.pageJS}\n</script>`);
+            }
+
+            const headHTML = headParts
+                .filter(Boolean)
+                .map(indentBlock)
+                .join('\n');
+
+            const bodyHTML = bodyParts.length
+                ? bodyParts.map(indentBlock).join('\n\n')
+                : '';
+
             return `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
-    <style>
-${state.pageCSS}
-    </style>
+${headHTML}
 </head>
 <body>
-${content}
-    <script>
-${state.pageJS}
-    </script>
+${bodyHTML}
 </body>
 </html>`;
         }
@@ -1979,23 +2039,49 @@ ${state.pageJS}
 
         function addLibrary(lib) {
             const libraries = {
-                'tailwind': '<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">',
-                'bootstrap': '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">\n<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>',
-                'fontawesome': '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">',
-                'jquery': '<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>',
-                'alpine': '<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>'
+                tailwind: {
+                    head: ['<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">']
+                },
+                bootstrap: {
+                    head: ['<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">'],
+                    body: ['<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>']
+                },
+                fontawesome: {
+                    head: ['<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">']
+                },
+                jquery: {
+                    body: ['<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>']
+                },
+                alpine: {
+                    body: ['<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>']
+                }
             };
 
             if (libraries[lib]) {
-                // Add to page CSS/JS
-                if (lib === 'tailwind' || lib === 'fontawesome') {
-                    state.pageCSS = `/* ${lib.toUpperCase()} */\n${libraries[lib]}\n\n${state.pageCSS}`;
+                const { head = [], body = [] } = libraries[lib];
+                let added = false;
+
+                head.forEach(tag => {
+                    if (!state.externalHeadTags.includes(tag)) {
+                        state.externalHeadTags.push(tag);
+                        added = true;
+                    }
+                });
+
+                body.forEach(tag => {
+                    if (!state.externalScripts.includes(tag)) {
+                        state.externalScripts.push(tag);
+                        added = true;
+                    }
+                });
+
+                if (added) {
+                    updateStatus(`${lib} library added to page!`);
+                    playSound('success', 'A5');
+                    alert(`${lib} has been added to your page! Export or copy the HTML to include the CDN tags.`);
                 } else {
-                    state.pageJS = `/* ${lib.toUpperCase()} */\n${libraries[lib]}\n\n${state.pageJS}`;
+                    updateStatus(`${lib} library already added.`);
                 }
-                updateStatus(`${lib} library added to page!`);
-                playSound('success', 'A5');
-                alert(`${lib} has been added to your page! Check Page CSS/JS to see it.`);
             }
         }
 
@@ -2353,9 +2439,23 @@ ${state.pageJS}
             const styles = doc.querySelectorAll('style');
             state.pageCSS = Array.from(styles).map(s => s.textContent).join('\n');
 
-            // Extract JS
-            const scripts = doc.querySelectorAll('script');
-            state.pageJS = Array.from(scripts).map(s => s.textContent).join('\n');
+            // Extract external resources
+            state.externalHeadTags = Array.from(new Set(
+                Array.from(doc.querySelectorAll('head link')).map(link => link.outerHTML)
+            ));
+
+            const scripts = Array.from(doc.querySelectorAll('script'));
+            state.externalScripts = Array.from(new Set(
+                scripts
+                    .filter(script => script.src)
+                    .map(script => script.outerHTML)
+            ));
+
+            // Extract inline JS
+            state.pageJS = scripts
+                .filter(script => !script.src)
+                .map(script => script.textContent)
+                .join('\n');
 
             // Extract body elements
             state.elements = [];
@@ -2369,33 +2469,40 @@ ${state.pageJS}
             playSound('success', 'C6');
         });
 
-        document.getElementById('copy-code-view').addEventListener('click', () => {
+        document.getElementById('copy-code-view').addEventListener('click', (event) => {
+            const { clientX, clientY } = event;
             const code = document.getElementById('code-view-editor').value;
             navigator.clipboard.writeText(code).then(() => {
                 updateStatus('Code copied to clipboard!');
                 playSound('success', 'E6');
-                showSparkle(event.clientX, event.clientY, '📋');
-            });
+                showSparkle(clientX, clientY, '📋');
+            }).catch(() => updateStatus('Clipboard copy failed.'));
         });
 
         // ============================================
         // COPY HTML & CSS
         // ============================================
-        document.getElementById('btn-copy-html').addEventListener('click', () => {
+        document.getElementById('btn-copy-html').addEventListener('click', (event) => {
+            const { clientX, clientY } = event;
             const html = exportHTML();
             navigator.clipboard.writeText(html).then(() => {
                 updateStatus('HTML copied to clipboard!');
                 playSound('success', 'E6');
-                showSparkle(event.clientX, event.clientY, '📋');
-            });
+                showSparkle(clientX, clientY, '📋');
+            }).catch(() => updateStatus('Clipboard copy failed.'));
         });
 
-        document.getElementById('btn-copy-css').addEventListener('click', () => {
-            navigator.clipboard.writeText(state.pageCSS || '/* No custom CSS */').then(() => {
+        document.getElementById('btn-copy-css').addEventListener('click', (event) => {
+            const { clientX, clientY } = event;
+            const cssBundle = [
+                state.externalHeadTags.join('\n'),
+                state.pageCSS
+            ].filter(part => part && part.trim().length).join('\n\n') || '/* No custom CSS */';
+            navigator.clipboard.writeText(cssBundle).then(() => {
                 updateStatus('CSS copied to clipboard!');
                 playSound('success', 'E6');
-                showSparkle(event.clientX, event.clientY, '🎨');
-            });
+                showSparkle(clientX, clientY, '🎨');
+            }).catch(() => updateStatus('Clipboard copy failed.'));
         });
 
         // ============================================
@@ -2418,6 +2525,8 @@ ${state.pageJS}
                     elements: state.elements,
                     pageCSS: state.pageCSS,
                     pageJS: state.pageJS,
+                    externalHeadTags: state.externalHeadTags,
+                    externalScripts: state.externalScripts,
                     viewMode: state.viewMode,
                     savedAt: new Date().toISOString()
                 };
@@ -2430,12 +2539,17 @@ ${state.pageJS}
         if (autoSave && state.elements.length === 0) {
             try {
                 const projectData = JSON.parse(autoSave);
-                if (confirm('Found auto-saved work from ' + new Date(projectData.savedAt).toLocaleString() + '. Restore it?')) {
-                    state.elements = projectData.elements || [];
-                    state.pageCSS = projectData.pageCSS || '';
-                    state.pageJS = projectData.pageJS || '';
-                    state.viewMode = projectData.viewMode || 'desktop';
-                    renderCanvas();
+                    if (confirm('Found auto-saved work from ' + new Date(projectData.savedAt).toLocaleString() + '. Restore it?')) {
+                        state.elements = projectData.elements || [];
+                        state.pageCSS = projectData.pageCSS || '';
+                        state.pageJS = projectData.pageJS || '';
+                        state.externalHeadTags = projectData.externalHeadTags || [];
+                        state.externalScripts = projectData.externalScripts || [];
+                        state.viewMode = projectData.viewMode || 'desktop';
+                        canvas.className = `${state.viewMode}-view`;
+                        state.selectedElement = null;
+                        state.clipboard = null;
+                        renderCanvas();
                     updateElementCount();
                     updateStatus('Auto-save restored!');
                 }
