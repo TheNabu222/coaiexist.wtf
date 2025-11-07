@@ -862,8 +862,30 @@
                 <button class="big-button" onclick="closeModal('css-modal')">✖️</button>
             </div>
 
+            <h3 style="margin: 16px 0 12px 0;">📚 Preloaded Styles:</h3>
+            <div class="template-grid" style="margin-bottom: 20px;">
+                <div class="template-card" onclick="insertCSSSnippet('neon')">
+                    💫<br>Neon Glow
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('brutalist')">
+                    🔲<br>Brutalist
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('gradient')">
+                    🌈<br>Gradients
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('animation')">
+                    ✨<br>Animations
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('glassmorphism')">
+                    🪟<br>Glass Effect
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('retro')">
+                    📟<br>Retro 90s
+                </div>
+            </div>
+
             <label class="property-label">Edit Styles:</label>
-            <textarea class="property-input" id="css-editor" rows="20" placeholder="body {&#10;  background: #000;&#10;  color: #fff;&#10;}&#10;&#10;.container {&#10;  max-width: 800px;&#10;}"></textarea>
+            <textarea class="property-input" id="css-editor" rows="15" placeholder="body {&#10;  background: #000;&#10;  color: #fff;&#10;}&#10;&#10;.container {&#10;  max-width: 800px;&#10;}"></textarea>
 
             <div style="display: flex; gap: 12px; margin-top: 12px;">
                 <button class="big-button green" onclick="applyCSS()" style="flex: 1;">
@@ -884,8 +906,30 @@
                 <button class="big-button" onclick="closeModal('js-modal')">✖️</button>
             </div>
 
+            <h3 style="margin: 16px 0 12px 0;">📚 Preloaded Scripts:</h3>
+            <div class="template-grid" style="margin-bottom: 20px;">
+                <div class="template-card" onclick="insertJSSnippet('click-counter')">
+                    🖱️<br>Click Counter
+                </div>
+                <div class="template-card" onclick="insertJSSnippet('smooth-scroll')">
+                    📜<br>Smooth Scroll
+                </div>
+                <div class="template-card" onclick="insertJSSnippet('dark-mode')">
+                    🌙<br>Dark Mode Toggle
+                </div>
+                <div class="template-card" onclick="insertJSSnippet('form-validation')">
+                    ✅<br>Form Validator
+                </div>
+                <div class="template-card" onclick="insertJSSnippet('typewriter')">
+                    ⌨️<br>Typewriter Effect
+                </div>
+                <div class="template-card" onclick="insertJSSnippet('confetti')">
+                    🎉<br>Confetti Burst
+                </div>
+            </div>
+
             <label class="property-label">Edit JavaScript:</label>
-            <textarea class="property-input" id="js-editor" rows="20" placeholder="// Your JavaScript here&#10;document.querySelector('#button').addEventListener('click', () => {&#10;  alert('Hello!');&#10;});"></textarea>
+            <textarea class="property-input" id="js-editor" rows="15" placeholder="// Your JavaScript here&#10;document.querySelector('#button').addEventListener('click', () => {&#10;  alert('Hello!');&#10;});"></textarea>
 
             <div style="display: flex; gap: 12px; margin-top: 12px;">
                 <button class="big-button orange" onclick="applyJS()" style="flex: 1;">
@@ -1019,6 +1063,51 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         </div>
     </div>
 
+    <!-- EDIT ELEMENT MODAL -->
+    <div class="modal" id="edit-element-modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <div class="modal-title">✏️ Edit Element</div>
+                <button class="big-button" onclick="closeModal('edit-element-modal')">✖️</button>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #FF00FF;">HTML Content:</label>
+                <textarea id="edit-element-html" style="width: 100%; min-height: 300px; font-family: monospace; font-size: 14px; padding: 12px; border: 3px solid #000; background: #FFF; color: #000;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #00FFFF;">Background Color:</label>
+                    <input type="color" id="edit-element-bgcolor" style="width: 100%; height: 50px; border: 3px solid #000; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #00FFFF;">Text Color:</label>
+                    <input type="color" id="edit-element-color" style="width: 100%; height: 50px; border: 3px solid #000; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #00FFFF;">Opacity: <span id="opacity-value">100%</span></label>
+                    <input type="range" id="edit-element-opacity" min="0" max="100" value="100" style="width: 100%;" oninput="document.getElementById('opacity-value').textContent = this.value + '%'">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #FFFF00;">Width:</label>
+                    <input type="text" id="edit-element-width" placeholder="auto, 100%, 500px, etc." style="width: 100%; padding: 10px; border: 3px solid #000; font-size: 16px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #FFFF00;">Height:</label>
+                    <input type="text" id="edit-element-height" placeholder="auto, 200px, 50vh, etc." style="width: 100%; padding: 10px; border: 3px solid #000; font-size: 16px;">
+                </div>
+            </div>
+
+            <button class="big-button" onclick="saveElementEdit()" style="width: 100%; margin-top: 20px; background: #00FF00;">
+                💾 SAVE CHANGES
+            </button>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // SOUNDS
@@ -1089,10 +1178,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         function renderCanvas() {
             const canvas = document.getElementById('canvas');
             canvas.innerHTML = canvasElements.map((el, index) => `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')">
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')" style="position: relative; z-index: ${el.zIndex || index};">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); layerForward('${el.id}')">🔼 FRONT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); duplicateElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
@@ -1180,6 +1271,29 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
         }
 
+        // Layering functions (z-index control)
+        function layerForward(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+            el.zIndex = (el.zIndex || 0) + 1;
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'E5');
+            showStamp('🔼');
+            updateStatus('Moved layer forward!');
+        }
+
+        function layerBack(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+            el.zIndex = Math.max(0, (el.zIndex || 0) - 1);
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'D5');
+            showStamp('🔽');
+            updateStatus('Moved layer back!');
+        }
+
         function selectElement(id) {
             document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
             document.querySelector(`[data-id="${id}"]`).classList.add('selected');
@@ -1188,17 +1302,70 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('boop', 'C5');
         }
 
+        let currentEditingId = null;
+
         function editElement(id) {
             const el = canvasElements.find(e => e.id === id);
             if (!el) return;
 
-            const newHtml = prompt('Edit HTML:', el.html);
-            if (newHtml !== null) {
-                el.html = newHtml;
-                renderCanvas();
-                playSound('success', 'G5');
-                showStamp('💾');
+            currentEditingId = id;
+
+            // Populate the modal with current values
+            document.getElementById('edit-element-html').value = el.html;
+            document.getElementById('edit-element-bgcolor').value = el.bgcolor || '#ffffff';
+            document.getElementById('edit-element-color').value = el.color || '#000000';
+            document.getElementById('edit-element-opacity').value = el.opacity || 100;
+            document.getElementById('opacity-value').textContent = (el.opacity || 100) + '%';
+            document.getElementById('edit-element-width').value = el.width || '';
+            document.getElementById('edit-element-height').value = el.height || '';
+
+            openModal('edit-element-modal');
+            playSound('boop', 'E5');
+        }
+
+        function saveElementEdit() {
+            if (!currentEditingId) return;
+
+            const el = canvasElements.find(e => e.id === currentEditingId);
+            if (!el) return;
+
+            // Get values from modal
+            const newHtml = document.getElementById('edit-element-html').value;
+            const bgcolor = document.getElementById('edit-element-bgcolor').value;
+            const color = document.getElementById('edit-element-color').value;
+            const opacity = document.getElementById('edit-element-opacity').value;
+            const width = document.getElementById('edit-element-width').value;
+            const height = document.getElementById('edit-element-height').value;
+
+            // Update element with styles
+            el.html = newHtml;
+            el.bgcolor = bgcolor;
+            el.color = color;
+            el.opacity = opacity;
+            el.width = width;
+            el.height = height;
+
+            // Apply styles to the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newHtml;
+            const firstChild = tempDiv.firstElementChild;
+
+            if (firstChild) {
+                // Apply styles
+                if (bgcolor && bgcolor !== '#ffffff') firstChild.style.backgroundColor = bgcolor;
+                if (color && color !== '#000000') firstChild.style.color = color;
+                if (opacity && opacity !== '100') firstChild.style.opacity = opacity / 100;
+                if (width) firstChild.style.width = width;
+                if (height) firstChild.style.height = height;
+
+                el.html = tempDiv.innerHTML;
             }
+
+            renderCanvas();
+            closeModal('edit-element-modal');
+            playSound('success', 'G5');
+            showStamp('💾');
+            updateStatus('Element updated!');
         }
 
         function duplicateElement(id) {
@@ -2732,6 +2899,93 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             updateStatus('JavaScript loaded into editor!');
         }
 
+        // CSS Snippet Library
+        const cssSnippets = {
+            'neon': `/* Neon Glow Effect */
+.neon {
+  color: #fff;
+  text-shadow: 0 0 10px #fff, 0 0 20px #00ffff, 0 0 30px #00ffff, 0 0 40px #00ffff;
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}`,
+            'brutalist': `/* Brutalist Style */
+.brutalist {
+  border: 4px solid #000;
+  background: #fff;
+  box-shadow: 8px 8px 0 #000;
+  padding: 20px;
+  font-weight: bold;
+}
+
+.brutalist:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0 #000;
+}`,
+            'gradient': `/* Gradient Backgrounds */
+.gradient-sunset {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-ocean {
+  background: linear-gradient(135deg, #667eea 0%, #00d2ff 100%);
+}
+
+.gradient-fire {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}`,
+            'animation': `/* Animations */
+.bounce {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.shake {
+  animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}`,
+            'glassmorphism': `/* Glass Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}`,
+            'retro': `/* Retro 90s Style */
+.retro {
+  background: linear-gradient(45deg, #ff00ff, #00ffff);
+  border: 3px solid #000;
+  box-shadow: 5px 5px 0 #ffff00, -5px -5px 0 #ff00ff;
+  font-family: 'Comic Sans MS', cursive;
+  padding: 20px;
+  transform: rotate(-1deg);
+}`
+        };
+
+        function insertCSSSnippet(type) {
+            const snippet = cssSnippets[type];
+            if (snippet) {
+                const editor = document.getElementById('css-editor');
+                editor.value += (editor.value ? '\n\n' : '') + snippet;
+                playSound('pop', 'E5');
+                showStamp('📝');
+                updateStatus(`Added ${type} CSS snippet!`);
+            }
+        }
+
         function applyCSS() {
             const cssContent = document.getElementById('css-editor').value;
             if (!cssContent.trim()) {
@@ -2749,6 +3003,110 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('success', 'G5');
             showStamp('🎨');
             updateStatus('CSS applied to canvas!');
+        }
+
+        // JavaScript Snippet Library
+        const jsSnippets = {
+            'click-counter': `// Click Counter
+let count = 0;
+const button = document.querySelector('.counter-btn');
+const display = document.querySelector('.counter-display');
+
+button.addEventListener('click', () => {
+  count++;
+  display.textContent = count;
+});`,
+            'smooth-scroll': `// Smooth Scroll to Anchors
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    target.scrollIntoView({ behavior: 'smooth' });
+  });
+});`,
+            'dark-mode': `// Dark Mode Toggle
+const toggleBtn = document.querySelector('.dark-mode-toggle');
+toggleBtn.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+});
+
+// Load saved preference
+if (localStorage.getItem('darkMode') === 'true') {
+  document.body.classList.add('dark-mode');
+}`,
+            'form-validation': `// Form Validation
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const email = form.querySelector('input[type="email"]').value;
+  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    alert('Please enter a valid email address');
+    return;
+  }
+
+  alert('Form submitted successfully!');
+});`,
+            'typewriter': `// Typewriter Effect
+function typewriter(element, text, speed = 50) {
+  let i = 0;
+  element.textContent = '';
+
+  function type() {
+    if (i < text.length) {
+      element.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+
+  type();
+}
+
+// Usage: typewriter(document.querySelector('.typewriter'), 'Hello World!');`,
+            'confetti': `// Confetti Burst Effect
+function createConfetti() {
+  const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'fixed';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.top = '-10px';
+    confetti.style.opacity = Math.random();
+    confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+    document.body.appendChild(confetti);
+
+    let pos = 0;
+    const fall = setInterval(() => {
+      if (pos >= window.innerHeight) {
+        clearInterval(fall);
+        confetti.remove();
+      }
+      pos += 5;
+      confetti.style.top = pos + 'px';
+    }, 20);
+  }
+}
+
+// Usage: createConfetti();`
+        };
+
+        function insertJSSnippet(type) {
+            const snippet = jsSnippets[type];
+            if (snippet) {
+                const editor = document.getElementById('js-editor');
+                editor.value += (editor.value ? '\n\n' : '') + snippet;
+                playSound('pop', 'E5');
+                showStamp('📝');
+                updateStatus(`Added ${type} JS snippet!`);
+            }
         }
 
         function applyJS() {
