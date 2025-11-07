@@ -732,12 +732,17 @@
                 <button class="toolbar-btn" id="btn-add-navbar">Navbar</button>
                 <button class="toolbar-btn" id="btn-templates">Templates</button>
                 <button class="toolbar-btn" id="btn-assets">Assets</button>
+                <button class="toolbar-btn" id="btn-ascii">ASCII Art</button>
+                <button class="toolbar-btn" id="btn-imagemap">Image Map</button>
             </div>
 
             <div class="toolbar-section style" data-label="🎨 Style">
                 <button class="toolbar-btn" id="btn-page-css">Page CSS</button>
                 <button class="toolbar-btn" id="btn-page-js">Page JS</button>
                 <button class="toolbar-btn" id="btn-code-view">Code View</button>
+                <button class="toolbar-btn" id="btn-animation">Animation</button>
+                <button class="toolbar-btn" id="btn-components">Components</button>
+                <button class="toolbar-btn" id="btn-extraction">🎯 Extract</button>
             </div>
 
             <div class="toolbar-section view" data-label="👁️ View">
@@ -1075,6 +1080,84 @@ Contact | /contact.html</textarea>
                     <li>Clicker Game (yes, really!)</li>
                 </ul>
             </div>
+        </div>
+    </div>
+
+    <!-- ASCII ART INJECTOR MODAL -->
+    <div class="modal" id="ascii-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📟 ASCII Art Injector</h2>
+                <button class="btn-danger" id="close-ascii">Close</button>
+            </div>
+            <label class="property-label">Paste ASCII Art:</label>
+            <textarea class="property-textarea" id="ascii-input" rows="10" placeholder="Paste your ASCII art here..." style="font-family: monospace;"></textarea>
+            <button class="btn-primary" id="add-ascii-btn" style="width: 100%; margin-top: var(--spacing-md);">✨ Add to Canvas</button>
+        </div>
+    </div>
+
+    <!-- IMAGE MAP CREATOR MODAL -->
+    <div class="modal" id="imagemap-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🗺️ Image Map Creator</h2>
+                <button class="btn-danger" id="close-imagemap">Close</button>
+            </div>
+            <label class="property-label">Image URL:</label>
+            <input type="text" class="property-input" id="imagemap-url" placeholder="https://via.placeholder.com/800x600">
+            <label class="property-label" style="margin-top: var(--spacing-md);">Clickable Areas (format: "x,y,width,height | URL | Title"):</label>
+            <textarea class="property-textarea" id="imagemap-areas" rows="6" placeholder="100,100,50,50 | /page1 | Click Here&#10;200,150,60,40 | /page2 | Or Here"></textarea>
+            <button class="btn-primary" id="create-imagemap-btn" style="width: 100%; margin-top: var(--spacing-md);">✨ Create Image Map</button>
+        </div>
+    </div>
+
+    <!-- ANIMATION SYSTEM MODAL -->
+    <div class="modal" id="animation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🎬 Animation System</h2>
+                <button class="btn-danger" id="close-animation">Close</button>
+            </div>
+            <p style="color: var(--cyan); margin-bottom: var(--spacing-md);">Select an element first, then choose an animation!</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                <button class="btn-primary" onclick="applyAnimation('bounce')">🎾 Bounce</button>
+                <button class="btn-primary" onclick="applyAnimation('fade')">👻 Fade In/Out</button>
+                <button class="btn-primary" onclick="applyAnimation('slide')">➡️ Slide</button>
+                <button class="btn-primary" onclick="applyAnimation('spin')">🌀 Spin</button>
+                <button class="btn-primary" onclick="applyAnimation('pulse')">💓 Pulse</button>
+                <button class="btn-primary" onclick="applyAnimation('shake')">📳 Shake</button>
+                <button class="btn-primary" onclick="applyAnimation('glow')">✨ Glow</button>
+                <button class="btn-primary" onclick="applyAnimation('float')">☁️ Float</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPONENT LIBRARY MODAL -->
+    <div class="modal" id="component-library-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">💾 Component Library</h2>
+                <button class="btn-danger" id="close-component-library">Close</button>
+            </div>
+            <div style="margin-bottom: var(--spacing-lg);">
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Save Current Selection</h3>
+                <p style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Select an element first, then save it as a reusable component!</p>
+                <button class="btn-primary" id="save-component-btn" style="width: 100%;">💾 Save Selected Element</button>
+            </div>
+            <div>
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Saved Components</h3>
+                <div id="saved-components-list" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXTRACTION MODE OVERLAY -->
+    <div id="extraction-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(243, 18, 175, 0.2); z-index: 10000; pointer-events: none;">
+        <div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--magenta); color: white; padding: 15px 30px; border: 3px solid var(--cyan); font-weight: bold; font-size: 20px; box-shadow: var(--glow-lg) var(--magenta); border-radius: var(--border-radius);">
+            🎯 EXTRACTION MODE: Click any element to extract it
+            <button id="exit-extraction" style="margin-left: 20px; background: white; color: var(--magenta); border: 2px solid var(--cyan); padding: 5px 15px; font-weight: bold; cursor: pointer; border-radius: 4px;">
+                EXIT
+            </button>
         </div>
     </div>
 
@@ -1628,6 +1711,10 @@ Contact | /contact.html</textarea>
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const html = event.target.result;
+
+                    // Store for extraction mode!
+                    localStorage.setItem('coaiexist-loaded-page', html);
+
                     // Parse HTML and extract body content
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
@@ -1647,8 +1734,9 @@ Contact | /contact.html</textarea>
                         addElement(child.outerHTML, 'imported');
                     });
 
-                    updateStatus('Page loaded!');
+                    updateStatus('Page loaded! Now you can use Extraction Mode!');
                     playSound('success', 'C6');
+                    showStamp('📄');
                 };
                 reader.readAsText(file);
             };
@@ -2343,6 +2431,304 @@ ${state.pageJS}
             } catch (e) {
                 console.error('Auto-save restore failed:', e);
             }
+        }
+
+        // ============================================
+        // ASCII ART INJECTOR
+        // ============================================
+        document.getElementById('btn-ascii').addEventListener('click', () => {
+            document.getElementById('ascii-modal').classList.add('active');
+        });
+
+        document.getElementById('close-ascii').addEventListener('click', () => {
+            document.getElementById('ascii-modal').classList.remove('active');
+        });
+
+        document.getElementById('add-ascii-btn').addEventListener('click', () => {
+            const ascii = document.getElementById('ascii-input').value;
+            if (!ascii) {
+                alert('Please paste some ASCII art first!');
+                return;
+            }
+
+            const html = `<pre style="font-family: monospace; font-size: 12px; line-height: 1; border: 2px solid var(--cyan); padding: 20px; background: var(--darker-bg); color: var(--green); overflow-x: auto; border-radius: var(--border-radius);">${ascii}</pre>`;
+            addElement(html, 'ascii');
+            document.getElementById('ascii-modal').classList.remove('active');
+            document.getElementById('ascii-input').value = '';
+            updateStatus('ASCII art added!');
+            playSound('success', 'C6');
+            showStamp('📟');
+        });
+
+        // ============================================
+        // IMAGE MAP CREATOR
+        // ============================================
+        document.getElementById('btn-imagemap').addEventListener('click', () => {
+            document.getElementById('imagemap-modal').classList.add('active');
+        });
+
+        document.getElementById('close-imagemap').addEventListener('click', () => {
+            document.getElementById('imagemap-modal').classList.remove('active');
+        });
+
+        document.getElementById('create-imagemap-btn').addEventListener('click', () => {
+            const imageUrl = document.getElementById('imagemap-url').value;
+            const areasText = document.getElementById('imagemap-areas').value;
+
+            if (!imageUrl) {
+                alert('Please enter an image URL!');
+                return;
+            }
+
+            const areas = areasText.split('\n').map(line => {
+                const [coords, url, title] = line.split('|').map(s => s.trim());
+                if (!coords || !url) return null;
+                const [x, y, w, h] = coords.split(',').map(n => parseInt(n));
+                return { x, y, w, h, url, title: title || 'Click here' };
+            }).filter(a => a);
+
+            const mapName = 'map-' + Date.now();
+            const html = `
+                <div style="position: relative; display: inline-block; border: 2px solid var(--cyan); border-radius: var(--border-radius);">
+                    <img src="${imageUrl}" usemap="#${mapName}" style="max-width: 100%; display: block;">
+                    <map name="${mapName}">
+                        ${areas.map(a => `<area shape="rect" coords="${a.x},${a.y},${a.x + a.w},${a.y + a.h}" href="${a.url}" alt="${a.title}" title="${a.title}">`).join('\n')}
+                    </map>
+                </div>
+            `;
+
+            addElement(html, 'imagemap');
+            document.getElementById('imagemap-modal').classList.remove('active');
+            updateStatus('Image map created!');
+            playSound('success', 'E6');
+            showStamp('🗺️');
+        });
+
+        // ============================================
+        // ANIMATION SYSTEM
+        // ============================================
+        document.getElementById('btn-animation').addEventListener('click', () => {
+            document.getElementById('animation-modal').classList.add('active');
+        });
+
+        document.getElementById('close-animation').addEventListener('click', () => {
+            document.getElementById('animation-modal').classList.remove('active');
+        });
+
+        function applyAnimation(animName) {
+            if (!state.selectedElement) {
+                alert('Please select an element first!');
+                return;
+            }
+
+            const animations = {
+                'bounce': `@keyframes bounce-anim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } } `,
+                'fade': `@keyframes fade-anim { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } } `,
+                'slide': `@keyframes slide-anim { 0% { transform: translateX(0); } 50% { transform: translateX(20px); } 100% { transform: translateX(0); } } `,
+                'spin': `@keyframes spin-anim { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } `,
+                'pulse': `@keyframes pulse-anim { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } } `,
+                'shake': `@keyframes shake-anim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } } `,
+                'glow': `@keyframes glow-anim { 0%, 100% { box-shadow: 0 0 5px var(--cyan); } 50% { box-shadow: 0 0 20px var(--magenta); } } `,
+                'float': `@keyframes float-anim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } } `
+            };
+
+            const element = state.elements.find(el => el.id === state.selectedElement);
+            if (!element) return;
+
+            // Parse the HTML and add animation
+            const temp = document.createElement('div');
+            temp.innerHTML = element.html;
+            const firstChild = temp.firstElementChild;
+
+            if (firstChild) {
+                const animStyle = `<style>${animations[animName]}</style>`;
+                firstChild.style.animation = `${animName}-anim 1s ease-in-out infinite`;
+                element.html = animStyle + temp.innerHTML;
+                saveHistory();
+                renderCanvas();
+                selectElement(state.selectedElement);
+                updateStatus(`Animation "${animName}" applied!`);
+                playSound('success', 'C6');
+                showStamp('🎬');
+            }
+        }
+
+        // ============================================
+        // COMPONENT LIBRARY
+        // ============================================
+        let savedComponents = JSON.parse(localStorage.getItem('wysiwyg-components') || '[]');
+
+        document.getElementById('btn-components').addEventListener('click', () => {
+            renderComponentLibrary();
+            document.getElementById('component-library-modal').classList.add('active');
+        });
+
+        document.getElementById('close-component-library').addEventListener('click', () => {
+            document.getElementById('component-library-modal').classList.remove('active');
+        });
+
+        document.getElementById('save-component-btn').addEventListener('click', () => {
+            if (!state.selectedElement) {
+                alert('Please select an element first!');
+                return;
+            }
+
+            const element = state.elements.find(el => el.id === state.selectedElement);
+            if (!element) return;
+
+            const componentName = prompt('Name your component:', `${element.type}-component`);
+            if (!componentName) return;
+
+            savedComponents.push({
+                id: Date.now(),
+                name: componentName,
+                type: element.type,
+                html: element.html
+            });
+
+            localStorage.setItem('wysiwyg-components', JSON.stringify(savedComponents));
+            renderComponentLibrary();
+            updateStatus(`Component "${componentName}" saved!`);
+            playSound('success', 'C6');
+            showStamp('💾');
+        });
+
+        function renderComponentLibrary() {
+            const list = document.getElementById('saved-components-list');
+            if (savedComponents.length === 0) {
+                list.innerHTML = '<p style="color: var(--cyan); padding: var(--spacing-md);">No saved components yet. Select an element and save it!</p>';
+                return;
+            }
+
+            list.innerHTML = savedComponents.map(comp => `
+                <div style="background: var(--card-bg); border: 2px solid var(--cyan); padding: var(--spacing-md); margin-bottom: var(--spacing-sm); border-radius: var(--border-radius); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--magenta);">${comp.name}</strong>
+                        <span style="color: var(--cyan); margin-left: 10px;">(${comp.type})</span>
+                    </div>
+                    <div>
+                        <button class="btn-primary" onclick="loadComponent(${comp.id})" style="margin-right: 5px; padding: 5px 10px;">Load</button>
+                        <button class="btn-danger" onclick="deleteComponent(${comp.id})" style="padding: 5px 10px;">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadComponent(id) {
+            const comp = savedComponents.find(c => c.id === id);
+            if (!comp) return;
+
+            addElement(comp.html, comp.type);
+            document.getElementById('component-library-modal').classList.remove('active');
+            updateStatus(`Component "${comp.name}" loaded!`);
+            playSound('success', 'E6');
+            showStamp('📦');
+        }
+
+        function deleteComponent(id) {
+            if (!confirm('Delete this component?')) return;
+
+            savedComponents = savedComponents.filter(c => c.id !== id);
+            localStorage.setItem('wysiwyg-components', JSON.stringify(savedComponents));
+            renderComponentLibrary();
+            updateStatus('Component deleted');
+            playSound('boop', 'C4');
+        }
+
+        // ============================================
+        // EXTRACTION MODE - The Crown Jewel!
+        // ============================================
+        let extractionMode = false;
+        let extractionIframe = null;
+
+        document.getElementById('btn-extraction').addEventListener('click', () => {
+            enableExtractionMode();
+        });
+
+        document.getElementById('exit-extraction').addEventListener('click', () => {
+            exitExtractionMode();
+        });
+
+        function enableExtractionMode() {
+            // Check if we have a loaded page
+            const loadedPage = localStorage.getItem('coaiexist-loaded-page');
+            if (!loadedPage) {
+                alert('Please load an HTML page first using "Load Page" button!\n\nExtraction mode lets you click elements from loaded pages to extract them as components.');
+                return;
+            }
+
+            extractionMode = true;
+            document.getElementById('extraction-overlay').style.display = 'block';
+
+            // Create iframe with loaded page
+            const canvas = document.getElementById('canvas');
+            const originalContent = canvas.innerHTML;
+
+            canvas.innerHTML = `
+                <div style="padding: 20px; background: var(--panel-bg); border: 3px solid var(--magenta); border-radius: var(--border-radius); margin: 20px;">
+                    <h2 style="color: var(--magenta); margin-bottom: 15px;">🎯 EXTRACTION MODE ACTIVE</h2>
+                    <p style="color: var(--cyan); margin-bottom: 15px;">The loaded page appears below. Click any element to extract it!</p>
+                    <iframe id="extraction-iframe" style="width: 100%; height: calc(100vh - 300px); border: 2px solid var(--cyan); border-radius: var(--border-radius); background: white;"></iframe>
+                </div>
+            `;
+
+            // Load page into iframe
+            const iframe = document.getElementById('extraction-iframe');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(loadedPage);
+            iframeDoc.close();
+
+            // Add click handler to extract elements
+            iframe.contentWindow.document.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                extractElement(e.target);
+            });
+
+            extractionIframe = iframe;
+            updateStatus('Extraction mode enabled! Click elements to extract them.');
+            playSound('success', 'C6');
+        }
+
+        function extractElement(element) {
+            if (!element || element === extractionIframe.contentWindow.document.body) return;
+
+            const html = element.outerHTML;
+            addElement(html, 'extracted');
+
+            // Visual feedback
+            element.style.outline = '3px solid #f312af';
+            setTimeout(() => {
+                if (element.style) element.style.outline = '';
+            }, 500);
+
+            updateStatus('Element extracted! Check your canvas.');
+            playSound('success', 'E6');
+            showStamp('🎯');
+        }
+
+        function exitExtractionMode() {
+            extractionMode = false;
+            document.getElementById('extraction-overlay').style.display = 'none';
+            extractionIframe = null;
+            renderCanvas();
+            updateStatus('Extraction mode exited');
+            playSound('boop', 'C5');
+        }
+
+        // Store loaded page for extraction
+        const originalLoadPage = document.getElementById('btn-load-page');
+        if (originalLoadPage) {
+            originalLoadPage.addEventListener('click', () => {
+                // Store the loaded HTML for extraction mode
+                setTimeout(() => {
+                    const allHTML = Array.from(document.querySelectorAll('.canvas-element'))
+                        .map(el => el.innerHTML)
+                        .join('\n');
+                    // This will be set by the load page function
+                }, 1000);
+            });
         }
 
         // ============================================
