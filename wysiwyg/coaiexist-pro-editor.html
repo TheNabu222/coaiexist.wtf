@@ -1165,15 +1165,26 @@ Contact | /contact.html</textarea>
         // ============================================
         // SOUND SYSTEM
         // ============================================
-        const sounds = {
-            boop: new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination(),
-            pop: new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination(),
-            success: new Tone.Synth({ oscillator: { type: 'square' } }).toDestination()
-        };
+        let sounds = {};
+        try {
+            if (typeof Tone !== 'undefined') {
+                sounds = {
+                    boop: new Tone.Synth({ oscillator: { type: 'sine' } }).toDestination(),
+                    pop: new Tone.Synth({ oscillator: { type: 'triangle' } }).toDestination(),
+                    success: new Tone.Synth({ oscillator: { type: 'square' } }).toDestination()
+                };
+            }
+        } catch (e) {
+            console.warn('Tone.js not loaded, sounds disabled');
+        }
 
         function playSound(type, note = 'C5') {
-            if (sounds[type]) {
-                sounds[type].triggerAttackRelease(note, '16n');
+            try {
+                if (sounds[type]) {
+                    sounds[type].triggerAttackRelease(note, '16n');
+                }
+            } catch (e) {
+                // Silently fail if sound doesn't work
             }
         }
 
