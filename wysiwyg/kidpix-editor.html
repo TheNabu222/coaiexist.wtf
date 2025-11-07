@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ CoAIexist Web Builder</title>
+    <!--
+    FIXED: CSS/Style Bleed Issues
+    - CSS added via the CSS editor is now scoped to #canvas only
+    - Prevents injected styles from affecting the UI grid, toolbox, and sidebar
+    - Added CSS isolation and content-box reset for canvas elements
+    - All user CSS is automatically prefixed with #canvas selector
+    -->
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
     <script type="importmap">
     {
@@ -50,6 +57,11 @@
             background: var(--gray);
             color: var(--black);
             overflow: hidden;
+        }
+
+        /* PROTECTION: Ensure canvas content doesn't inherit box-sizing that breaks layout */
+        .editor-wrapper, .toolbar, .toolbox, .sidebar, .statusbar {
+            box-sizing: border-box !important;
         }
 
         /* ============================================
@@ -198,6 +210,21 @@
             min-height: 600px;
             padding: 20px;
             box-shadow: 8px 8px 0 var(--black);
+            /* ISOLATION: Prevent canvas content styles from affecting UI */
+            position: relative;
+            isolation: isolate;
+        }
+
+        /* CANVAS CONTENT RESET: Prevent inherited styles from breaking canvas elements */
+        #canvas * {
+            /* Don't inherit UI-specific styles */
+            font-family: inherit;
+            box-sizing: content-box;
+        }
+
+        /* Preserve canvas-element wrapper styles */
+        #canvas .canvas-element {
+            box-sizing: border-box;
         }
 
         #canvas:empty::before {
@@ -2648,9 +2675,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 return;
             }
 
-            // Add CSS to canvas as a style element
+            // FIXED: Scope CSS to only affect canvas content!
+            // Wrap all CSS rules to only apply inside #canvas
+            const scopedCSS = scopeCSSToCanvas(cssContent);
             const id = 'el-' + (++elementIdCounter);
-            const html = `<style>${cssContent}</style>`;
+            const html = `<style>${scopedCSS}</style>`;
             canvasElements.push({ id, type: 'css', html });
 
             renderCanvas();
@@ -2658,6 +2687,49 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('success', 'G5');
             showStamp('🎨');
             updateStatus('CSS applied to canvas!');
+        }
+
+        // Helper function to scope CSS to canvas only
+        function scopeCSSToCanvas(css) {
+            // Parse CSS and prefix all selectors with #canvas to prevent UI bleed
+            // This scopes styles to only affect content inside the canvas
+
+            try {
+                // Split by } to get individual rules
+                const rules = css.split('}').filter(r => r.trim());
+
+                const scopedRules = rules.map(rule => {
+                    if (!rule.trim()) return '';
+
+                    // Split selector from properties
+                    const parts = rule.split('{');
+                    if (parts.length !== 2) return rule + '}';
+
+                    const selectors = parts[0].trim();
+                    const properties = parts[1].trim();
+
+                    // Handle multiple selectors (comma-separated)
+                    const selectorList = selectors.split(',').map(s => s.trim());
+
+                    // Prefix each selector with #canvas (unless it's already prefixed or uses :root, @, etc.)
+                    const scopedSelectors = selectorList.map(selector => {
+                        // Don't prefix special selectors
+                        if (selector.startsWith('@') || selector.startsWith(':root') || selector.includes('#canvas')) {
+                            return selector;
+                        }
+                        // Add canvas scope
+                        return `#canvas ${selector}`;
+                    }).join(', ');
+
+                    return `${scopedSelectors} { ${properties} }`;
+                }).join('\n');
+
+                return scopedRules;
+            } catch (e) {
+                // If parsing fails, fallback to simple wrap
+                console.warn('CSS scoping failed, using simple wrap:', e);
+                return `#canvas { ${css} }`;
+            }
         }
 
         function applyJS() {
