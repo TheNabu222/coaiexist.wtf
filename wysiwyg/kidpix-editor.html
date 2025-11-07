@@ -639,6 +639,7 @@
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
             <button class="big-button" id="grid-toggle-btn" onclick="toggleGrid()" style="background: #FFF; border: 3px dashed #000;">📐 GRID</button>
+            <button class="big-button" id="position-mode-btn" onclick="togglePositionMode()" style="background: #00FF00;">📍 FLOW</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
         </div>
 
@@ -1482,20 +1483,185 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
         }
 
+        // ============================================
+        // POSITION MODE SYSTEM - Flow vs Free!
+        // ============================================
+        let positionMode = 'flow'; // 'flow' or 'free'
+
+        function togglePositionMode() {
+            positionMode = positionMode === 'flow' ? 'free' : 'flow';
+            const btn = document.getElementById('position-mode-btn');
+
+            if (positionMode === 'free') {
+                btn.textContent = '📍 FREE';
+                btn.style.background = '#FF00FF';
+                playSound('success', 'G5');
+                showStamp('📍');
+                updateStatus('FREE MODE: Drag elements anywhere!');
+            } else {
+                btn.textContent = '📍 FLOW';
+                btn.style.background = '#00FF00';
+                playSound('boop', 'E5');
+                updateStatus('FLOW MODE: Elements stack vertically');
+            }
+
+            renderCanvas();
+        }
+
+        // ============================================
+        // DRAG-TO-MOVE System - FREE MODE ONLY!
+        // ============================================
+        let movingElement = null;
+        let moveStartX = 0;
+        let moveStartY = 0;
+        let moveStartLeft = 0;
+        let moveStartTop = 0;
+
+        function startDragMove(e) {
+            // Don't move if clicking on a button or handle
+            if (e.target.classList.contains('mini-btn') ||
+                e.target.classList.contains('resize-handle') ||
+                e.target.closest('.element-toolbar')) {
+                return;
+            }
+
+            e.preventDefault();
+            const elementDiv = e.currentTarget;
+            const elementId = elementDiv.getAttribute('data-id');
+
+            movingElement = canvasElements.find(el => el.id === elementId);
+            if (!movingElement) return;
+
+            moveStartX = e.clientX;
+            moveStartY = e.clientY;
+
+            // Get current position
+            const rect = elementDiv.getBoundingClientRect();
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            moveStartLeft = rect.left - canvasRect.left;
+            moveStartTop = rect.top - canvasRect.top;
+
+            document.addEventListener('mousemove', doDragMove);
+            document.addEventListener('mouseup', stopDragMove);
+
+            playSound('boop', 'C5');
+            elementDiv.style.cursor = 'grabbing';
+        }
+
+        function doDragMove(e) {
+            if (!movingElement) return;
+
+            const deltaX = e.clientX - moveStartX;
+            const deltaY = e.clientY - moveStartY;
+
+            let newLeft = moveStartLeft + deltaX;
+            let newTop = moveStartTop + deltaY;
+
+            // Snap to grid if enabled
+            if (gridEnabled) {
+                newLeft = Math.round(newLeft / 100) * 100;
+                newTop = Math.round(newTop / 100) * 100;
+            }
+
+            // Keep within canvas bounds
+            newLeft = Math.max(0, newLeft);
+            newTop = Math.max(0, newTop);
+
+            movingElement.left = newLeft + 'px';
+            movingElement.top = newTop + 'px';
+
+            renderCanvas();
+            selectElement(movingElement.id);
+        }
+
+        function stopDragMove(e) {
+            if (movingElement) {
+                playSound('success', 'E5');
+                showStamp('📍');
+                updateStatus(`Moved to ${movingElement.left} × ${movingElement.top}!`);
+            }
+
+            movingElement = null;
+            document.removeEventListener('mousemove', doDragMove);
+            document.removeEventListener('mouseup', stopDragMove);
+
+            // Reset cursor
+            document.querySelectorAll('.canvas-element').forEach(el => {
+                el.style.cursor = 'move';
+            });
+        }
+
+        // ============================================
+        // COPY/PASTE System
+        // ============================================
+        let copiedElement = null;
+
+        function copyElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            copiedElement = { ...el }; // Clone the element
+            playSound('pop', 'F5');
+            showStamp('📋');
+            updateStatus('Element copied! Use Ctrl+V to paste');
+        }
+
+        // Listen for Ctrl+V / Cmd+V
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'v' && copiedElement) {
+                pasteElement();
+            }
+        });
+
+        function pasteElement() {
+            if (!copiedElement) {
+                updateStatus('Nothing to paste!');
+                return;
+            }
+
+            const newId = 'el-' + (++elementIdCounter);
+            const newEl = { ...copiedElement, id: newId };
+
+            // Offset position slightly if in free mode
+            if (positionMode === 'free') {
+                const currentLeft = parseInt(newEl.left) || 0;
+                const currentTop = parseInt(newEl.top) || 0;
+                newEl.left = (currentLeft + 20) + 'px';
+                newEl.top = (currentTop + 20) + 'px';
+            }
+
+            canvasElements.push(newEl);
+            renderCanvas();
+            playSound('success', 'G5');
+            showStamp('✨');
+            updateStatus('Element pasted!');
+            updateElementCount();
+            selectElement(newId);
+        }
+
         function renderCanvas() {
             const canvas = document.getElementById('canvas');
             canvas.innerHTML = canvasElements.map((el, index) => {
                 const width = el.width || 'auto';
                 const height = el.height || 'auto';
+
+                // In FREE mode, use absolute positioning
+                let positionStyle = 'position: relative;';
+                if (positionMode === 'free') {
+                    const left = el.left || '20px';
+                    const top = el.top || (20 + index * 150) + 'px';
+                    positionStyle = `position: absolute; left: ${left}; top: ${top};`;
+                }
+
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="true" onclick="selectElement('${el.id}')" style="position: relative; z-index: ${el.zIndex || index}; width: ${width}; height: ${height};">
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height};">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); layerForward('${el.id}')">🔼 FRONT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); duplicateElement('${el.id}')">📋 COPY</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); copyElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
                     </div>
                     ${el.html}
@@ -1515,10 +1681,15 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             // Add drag and drop event listeners
             const elements = canvas.querySelectorAll('.canvas-element');
             elements.forEach(el => {
-                el.addEventListener('dragstart', handleDragStart);
-                el.addEventListener('dragover', handleDragOver);
-                el.addEventListener('drop', handleDrop);
-                el.addEventListener('dragend', handleDragEnd);
+                if (positionMode === 'flow') {
+                    el.addEventListener('dragstart', handleDragStart);
+                    el.addEventListener('dragover', handleDragOver);
+                    el.addEventListener('drop', handleDrop);
+                    el.addEventListener('dragend', handleDragEnd);
+                } else {
+                    // In FREE mode, add mousedown for drag-to-move
+                    el.addEventListener('mousedown', startDragMove);
+                }
 
                 // Add resize handle listeners
                 const handles = el.querySelectorAll('.resize-handle');
