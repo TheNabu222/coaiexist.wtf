@@ -1101,19 +1101,83 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">📏 Size (Visual!):</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #FFFF00;">Width:</label>
-                    <input type="text" id="edit-element-width" placeholder="auto, 100%, 500px, etc." style="width: 100%; padding: 10px; border: 3px solid #000; font-size: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Width:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="big-button" onclick="setVisualWidth('small')" style="flex: 1; padding: 10px; background: #FFFF00;">Narrow</button>
+                        <button class="big-button" onclick="setVisualWidth('medium')" style="flex: 1; padding: 10px; background: #FFFF00;">Normal</button>
+                        <button class="big-button" onclick="setVisualWidth('large')" style="flex: 1; padding: 10px; background: #FFFF00;">Wide</button>
+                        <button class="big-button" onclick="setVisualWidth('full')" style="flex: 1; padding: 10px; background: #FFFF00;">Full</button>
+                    </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #FFFF00;">Height:</label>
-                    <input type="text" id="edit-element-height" placeholder="auto, 200px, 50vh, etc." style="width: 100%; padding: 10px; border: 3px solid #000; font-size: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Height:</label>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="big-button" onclick="setVisualHeight('small')" style="flex: 1; padding: 10px; background: #FFFF00;">Short</button>
+                        <button class="big-button" onclick="setVisualHeight('medium')" style="flex: 1; padding: 10px; background: #FFFF00;">Normal</button>
+                        <button class="big-button" onclick="setVisualHeight('large')" style="flex: 1; padding: 10px; background: #FFFF00;">Tall</button>
+                    </div>
                 </div>
             </div>
 
-            <button class="big-button" onclick="saveElementEdit()" style="width: 100%; margin-top: 20px; background: #00FF00;">
-                💾 SAVE CHANGES
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">✍️ Text Size:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="setVisualFontSize('tiny')" style="flex: 1; font-size: 10px; background: #00FFFF;">Tiny</button>
+                <button class="big-button" onclick="setVisualFontSize('small')" style="flex: 1; font-size: 14px; background: #00FFFF;">Small</button>
+                <button class="big-button" onclick="setVisualFontSize('normal')" style="flex: 1; font-size: 18px; background: #00FFFF;">Normal</button>
+                <button class="big-button" onclick="setVisualFontSize('big')" style="flex: 1; font-size: 24px; background: #00FFFF;">Big</button>
+                <button class="big-button" onclick="setVisualFontSize('huge')" style="flex: 1; font-size: 32px; background: #00FFFF;">HUGE!</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">📐 Border Thickness:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="setVisualBorder('none')" style="flex: 1; background: #FF69B4;">None</button>
+                <button class="big-button" onclick="setVisualBorder('thin')" style="flex: 1; background: #FF69B4; border-width: 2px;">Thin</button>
+                <button class="big-button" onclick="setVisualBorder('medium')" style="flex: 1; background: #FF69B4; border-width: 4px;">Medium</button>
+                <button class="big-button" onclick="setVisualBorder('thick')" style="flex: 1; background: #FF69B4; border-width: 6px;">Thick</button>
+                <button class="big-button" onclick="setVisualBorder('super')" style="flex: 1; background: #FF69B4; border-width: 8px;">SUPER!</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">📍 Alignment:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="setVisualAlign('left')" style="flex: 1; background: #9900FF;">⬅️ Left</button>
+                <button class="big-button" onclick="setVisualAlign('center')" style="flex: 1; background: #9900FF;">⬆️ Center</button>
+                <button class="big-button" onclick="setVisualAlign('right')" style="flex: 1; background: #9900FF;">➡️ Right</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">🎨 Padding (Space Inside):</h3>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="big-button" onclick="adjustPadding(-5)" style="flex: 0 0 60px; background: #FF6600; font-size: 24px;">➖</button>
+                <div id="padding-display" style="flex: 1; text-align: center; font-weight: bold; font-size: 20px; background: #FFF; border: 3px solid #000; padding: 10px;">Normal</div>
+                <button class="big-button" onclick="adjustPadding(5)" style="flex: 0 0 60px; background: #00FF00; font-size: 24px;">➕</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">✨ Shadow:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="setVisualShadow('none')" style="flex: 1; background: #00FF00;">None</button>
+                <button class="big-button" onclick="setVisualShadow('subtle')" style="flex: 1; background: #00FF00; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Subtle</button>
+                <button class="big-button" onclick="setVisualShadow('medium')" style="flex: 1; background: #00FF00; box-shadow: 4px 4px 8px rgba(0,0,0,0.4);">Medium</button>
+                <button class="big-button" onclick="setVisualShadow('strong')" style="flex: 1; background: #00FF00; box-shadow: 8px 8px 0 #000;">Strong</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">🔲 Corners:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="setVisualRadius('sharp')" style="flex: 1; background: #FF0000; border-radius: 0;">⬜ Sharp</button>
+                <button class="big-button" onclick="setVisualRadius('rounded')" style="flex: 1; background: #FF0000; border-radius: 10px;">▢ Rounded</button>
+                <button class="big-button" onclick="setVisualRadius('pill')" style="flex: 1; background: #FF0000; border-radius: 50px;">⬭ Pill</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px 0; color: #FF00FF;">🔄 Rotation:</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="big-button" onclick="rotateElement(-45)" style="flex: 1; background: #0000FF;">↶ Left</button>
+                <button class="big-button" onclick="rotateElement(0)" style="flex: 1; background: #0000FF;">⬆️ Straight</button>
+                <button class="big-button" onclick="rotateElement(45)" style="flex: 1; background: #0000FF;">↷ Right</button>
+            </div>
+
+            <button class="big-button" onclick="saveElementEdit()" style="width: 100%; margin-top: 30px; background: #00FF00; font-size: 24px; padding: 20px;">
+                💾 SAVE ALL CHANGES!
             </button>
         </div>
     </div>
@@ -1313,6 +1377,17 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         }
 
         let currentEditingId = null;
+        let visualEdits = {
+            width: 'medium',
+            height: 'medium',
+            fontSize: 'normal',
+            border: 'medium',
+            align: 'left',
+            padding: 20,
+            shadow: 'none',
+            radius: 'sharp',
+            rotation: 0
+        };
 
         function editElement(id) {
             const el = canvasElements.find(e => e.id === id);
@@ -1320,17 +1395,98 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             currentEditingId = id;
 
+            // Reset visual edits to defaults
+            visualEdits = {
+                width: el.visualWidth || 'medium',
+                height: el.visualHeight || 'medium',
+                fontSize: el.visualFontSize || 'normal',
+                border: el.visualBorder || 'medium',
+                align: el.visualAlign || 'left',
+                padding: el.visualPadding || 20,
+                shadow: el.visualShadow || 'none',
+                radius: el.visualRadius || 'sharp',
+                rotation: el.visualRotation || 0
+            };
+
             // Populate the modal with current values
             document.getElementById('edit-element-html').value = el.html;
             document.getElementById('edit-element-bgcolor').value = el.bgcolor || '#ffffff';
             document.getElementById('edit-element-color').value = el.color || '#000000';
             document.getElementById('edit-element-opacity').value = el.opacity || 100;
             document.getElementById('opacity-value').textContent = (el.opacity || 100) + '%';
-            document.getElementById('edit-element-width').value = el.width || '';
-            document.getElementById('edit-element-height').value = el.height || '';
+            updatePaddingDisplay();
 
             openModal('edit-element-modal');
             playSound('boop', 'E5');
+        }
+
+        // VISUAL EDITING FUNCTIONS!
+        function setVisualWidth(size) {
+            visualEdits.width = size;
+            playSound('pop', 'D5');
+            showStamp('📏');
+        }
+
+        function setVisualHeight(size) {
+            visualEdits.height = size;
+            playSound('pop', 'D5');
+            showStamp('📏');
+        }
+
+        function setVisualFontSize(size) {
+            visualEdits.fontSize = size;
+            playSound('pop', 'E5');
+            showStamp('✍️');
+        }
+
+        function setVisualBorder(thickness) {
+            visualEdits.border = thickness;
+            playSound('pop', 'F5');
+            showStamp('📐');
+        }
+
+        function setVisualAlign(align) {
+            visualEdits.align = align;
+            playSound('pop', 'G5');
+            showStamp('📍');
+        }
+
+        function adjustPadding(change) {
+            visualEdits.padding = Math.max(0, visualEdits.padding + change);
+            updatePaddingDisplay();
+            playSound('boop', change > 0 ? 'A5' : 'G4');
+            showStamp(change > 0 ? '➕' : '➖');
+        }
+
+        function updatePaddingDisplay() {
+            const display = document.getElementById('padding-display');
+            if (!display) return;
+
+            const p = visualEdits.padding;
+            if (p === 0) display.textContent = 'None';
+            else if (p < 10) display.textContent = 'Tiny';
+            else if (p < 20) display.textContent = 'Small';
+            else if (p < 30) display.textContent = 'Normal';
+            else if (p < 50) display.textContent = 'Big';
+            else display.textContent = 'HUGE!';
+        }
+
+        function setVisualShadow(level) {
+            visualEdits.shadow = level;
+            playSound('pop', 'A5');
+            showStamp('✨');
+        }
+
+        function setVisualRadius(style) {
+            visualEdits.radius = style;
+            playSound('pop', 'B5');
+            showStamp('🔲');
+        }
+
+        function rotateElement(degrees) {
+            visualEdits.rotation = degrees;
+            playSound('success', 'C6');
+            showStamp('🔄');
         }
 
         function saveElementEdit() {
@@ -1344,16 +1500,30 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const bgcolor = document.getElementById('edit-element-bgcolor').value;
             const color = document.getElementById('edit-element-color').value;
             const opacity = document.getElementById('edit-element-opacity').value;
-            const width = document.getElementById('edit-element-width').value;
-            const height = document.getElementById('edit-element-height').value;
 
-            // Update element with styles
-            el.html = newHtml;
-            el.bgcolor = bgcolor;
-            el.color = color;
-            el.opacity = opacity;
-            el.width = width;
-            el.height = height;
+            // Save visual edits to element for later re-editing
+            el.visualWidth = visualEdits.width;
+            el.visualHeight = visualEdits.height;
+            el.visualFontSize = visualEdits.fontSize;
+            el.visualBorder = visualEdits.border;
+            el.visualAlign = visualEdits.align;
+            el.visualPadding = visualEdits.padding;
+            el.visualShadow = visualEdits.shadow;
+            el.visualRadius = visualEdits.radius;
+            el.visualRotation = visualEdits.rotation;
+
+            // Convert visual choices to CSS
+            const widthMap = { small: '300px', medium: '600px', large: '900px', full: '100%' };
+            const heightMap = { small: '100px', medium: '300px', large: '600px' };
+            const fontSizeMap = { tiny: '12px', small: '16px', normal: '20px', big: '28px', huge: '40px' };
+            const borderMap = { none: '0', thin: '2px', medium: '4px', thick: '6px', super: '10px' };
+            const shadowMap = {
+                none: 'none',
+                subtle: '2px 2px 4px rgba(0,0,0,0.3)',
+                medium: '4px 4px 8px rgba(0,0,0,0.4)',
+                strong: '8px 8px 0 #000'
+            };
+            const radiusMap = { sharp: '0', rounded: '10px', pill: '50px' };
 
             // Apply styles to the HTML
             const tempDiv = document.createElement('div');
@@ -1361,12 +1531,38 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const firstChild = tempDiv.firstElementChild;
 
             if (firstChild) {
-                // Apply styles
+                // Apply basic styles
                 if (bgcolor && bgcolor !== '#ffffff') firstChild.style.backgroundColor = bgcolor;
                 if (color && color !== '#000000') firstChild.style.color = color;
                 if (opacity && opacity !== '100') firstChild.style.opacity = opacity / 100;
-                if (width) firstChild.style.width = width;
-                if (height) firstChild.style.height = height;
+
+                // Apply visual edits
+                firstChild.style.width = widthMap[visualEdits.width];
+                firstChild.style.height = heightMap[visualEdits.height];
+                firstChild.style.fontSize = fontSizeMap[visualEdits.fontSize];
+                firstChild.style.textAlign = visualEdits.align;
+                firstChild.style.padding = visualEdits.padding + 'px';
+                firstChild.style.boxShadow = shadowMap[visualEdits.shadow];
+                firstChild.style.borderRadius = radiusMap[visualEdits.radius];
+
+                // Border
+                if (visualEdits.border !== 'none') {
+                    firstChild.style.border = `${borderMap[visualEdits.border]} solid ${color !== '#000000' ? color : '#000'}`;
+                } else {
+                    firstChild.style.border = 'none';
+                }
+
+                // Rotation
+                if (visualEdits.rotation !== 0) {
+                    firstChild.style.transform = `rotate(${visualEdits.rotation}deg)`;
+                }
+
+                // Display block for sizing to work
+                if (firstChild.tagName === 'SPAN' || firstChild.tagName === 'A') {
+                    firstChild.style.display = 'inline-block';
+                } else {
+                    firstChild.style.display = 'block';
+                }
 
                 el.html = tempDiv.innerHTML;
             }
@@ -1375,7 +1571,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             closeModal('edit-element-modal');
             playSound('success', 'G5');
             showStamp('💾');
-            updateStatus('Element updated!');
+            updateStatus('Element styled with visual controls!');
         }
 
         function duplicateElement(id) {
