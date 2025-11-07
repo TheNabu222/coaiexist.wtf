@@ -621,6 +621,67 @@
             transform: scale(1.05);
             box-shadow: var(--glow-lg) var(--cyan);
         }
+
+        /* SPARKLE FEEDBACK */
+        .feedback-sparkle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 32px;
+            z-index: 99999;
+            animation: sparkle-float 1s ease-out forwards;
+        }
+
+        @keyframes sparkle-float {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5) rotate(360deg);
+            }
+        }
+
+        /* TEXT FORMATTING TOOLBAR */
+        .format-toolbar {
+            position: absolute;
+            top: -45px;
+            left: 0;
+            background: var(--panel-bg);
+            border: 2px solid var(--yellow);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs);
+            display: none;
+            gap: var(--spacing-xs);
+            z-index: 1000;
+            box-shadow: var(--glow-md) var(--yellow);
+        }
+
+        .format-toolbar.active {
+            display: flex;
+        }
+
+        .format-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .format-btn:hover {
+            background: var(--yellow);
+            color: var(--dark-bg);
+        }
+
+        .format-btn.active {
+            background: var(--yellow);
+            color: var(--dark-bg);
+        }
     </style>
 </head>
 <body>
@@ -640,6 +701,7 @@
                 <button class="toolbar-btn" id="btn-redo">Redo</button>
                 <button class="toolbar-btn" id="btn-copy">Copy</button>
                 <button class="toolbar-btn" id="btn-paste">Paste</button>
+                <button class="toolbar-btn" id="btn-clear">Clear</button>
             </div>
 
             <div class="toolbar-section insert" data-label="➕ Insert">
@@ -652,6 +714,7 @@
             <div class="toolbar-section style" data-label="🎨 Style">
                 <button class="toolbar-btn" id="btn-page-css">Page CSS</button>
                 <button class="toolbar-btn" id="btn-page-js">Page JS</button>
+                <button class="toolbar-btn" id="btn-code-view">Code View</button>
             </div>
 
             <div class="toolbar-section view" data-label="👁️ View">
@@ -663,6 +726,9 @@
 
             <div class="toolbar-section export" data-label="📤 Export">
                 <button class="toolbar-btn" id="btn-export">Export HTML</button>
+                <button class="toolbar-btn" id="btn-copy-html">Copy HTML</button>
+                <button class="toolbar-btn" id="btn-copy-css">Copy CSS</button>
+                <button class="toolbar-btn" id="btn-help">Help (F1)</button>
             </div>
         </div>
 
@@ -922,6 +988,69 @@ Contact | /contact.html</textarea>
                     <button class="btn-primary" onclick="insertIcon('🎨')">🎨 Art</button>
                     <button class="btn-primary" onclick="insertIcon('🔥')">🔥 Fire</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CODE VIEW MODAL -->
+    <div class="modal" id="code-view-modal">
+        <div class="modal-content" style="min-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">💻 Code View - Full HTML</h2>
+                <button class="btn-danger" id="close-code-view">Close</button>
+            </div>
+            <div style="margin-bottom: var(--spacing-md);">
+                <p style="color: var(--cyan);">Edit the complete HTML output. Be careful - this will replace everything!</p>
+            </div>
+            <textarea id="code-view-editor" class="property-textarea" style="min-height: 500px; font-family: 'Courier New', monospace;"></textarea>
+            <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                <button class="btn-primary" id="apply-code-view">Apply Changes</button>
+                <button class="btn-primary" id="copy-code-view" style="background: var(--purple); border-color: var(--purple);">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP/SHORTCUTS MODAL -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content" style="min-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">⌨️ Keyboard Shortcuts & Help</h2>
+                <button class="btn-danger" id="close-help">Close</button>
+            </div>
+            <div style="color: var(--cyan);">
+                <h3 style="color: var(--magenta); margin-bottom: var(--spacing-md);">Keyboard Shortcuts</h3>
+                <table style="width: 100%; margin-bottom: var(--spacing-lg);">
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + Z</strong></td><td style="padding: var(--spacing-sm);">Undo</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + Shift + Z</strong></td><td style="padding: var(--spacing-sm);">Redo</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + C</strong></td><td style="padding: var(--spacing-sm);">Copy selected element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + V</strong></td><td style="padding: var(--spacing-sm);">Paste element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Delete</strong></td><td style="padding: var(--spacing-sm);">Delete selected element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Escape</strong></td><td style="padding: var(--spacing-sm);">Close modals</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>F1</strong></td><td style="padding: var(--spacing-sm);">Show this help</td></tr>
+                </table>
+
+                <h3 style="color: var(--magenta); margin-bottom: var(--spacing-md);">Quick Tips</h3>
+                <ul style="padding-left: 20px;">
+                    <li style="margin-bottom: var(--spacing-sm);">Drag components from the left sidebar to the canvas</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Click any element to select it and see properties</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Drag elements on the canvas to reorder them</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Use ↑↓ buttons to move elements up/down</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Save your project to localStorage with a custom name</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Load existing HTML pages to import and edit</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Use Preview mode to see your page without editor UI</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Export to HTML file or copy to clipboard</li>
+                </ul>
+
+                <h3 style="color: var(--magenta); margin: var(--spacing-lg) 0 var(--spacing-md);">Available Templates</h3>
+                <p>Click "Templates" to access:</p>
+                <ul style="padding-left: 20px; margin-top: var(--spacing-sm);">
+                    <li>Contact & Survey Forms</li>
+                    <li>Interactive Quiz</li>
+                    <li>PDF Viewer</li>
+                    <li>Image Gallery & Slideshow</li>
+                    <li>Accordion, Tabs, Modal</li>
+                    <li>Clicker Game (yes, really!)</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -2042,6 +2171,146 @@ ${state.pageJS}
         }
 
         // ============================================
+        // SPARKLE FEEDBACK
+        // ============================================
+        function showSparkle(x, y, emoji = '✨') {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'feedback-sparkle';
+            sparkle.textContent = emoji;
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+
+        // ============================================
+        // CLEAR CANVAS
+        // ============================================
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            if (confirm('Clear entire canvas? This cannot be undone!')) {
+                state.elements = [];
+                saveHistory();
+                renderCanvas();
+                updateElementCount();
+                updateStatus('Canvas cleared!');
+                playSound('boop', 'C4');
+            }
+        });
+
+        // ============================================
+        // CODE VIEW MODAL
+        // ============================================
+        document.getElementById('btn-code-view').addEventListener('click', () => {
+            document.getElementById('code-view-editor').value = exportHTML();
+            document.getElementById('code-view-modal').classList.add('active');
+        });
+
+        document.getElementById('close-code-view').addEventListener('click', () => {
+            document.getElementById('code-view-modal').classList.remove('active');
+        });
+
+        document.getElementById('apply-code-view').addEventListener('click', () => {
+            const html = document.getElementById('code-view-editor').value;
+            // Parse and import
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extract CSS
+            const styles = doc.querySelectorAll('style');
+            state.pageCSS = Array.from(styles).map(s => s.textContent).join('\n');
+
+            // Extract JS
+            const scripts = doc.querySelectorAll('script');
+            state.pageJS = Array.from(scripts).map(s => s.textContent).join('\n');
+
+            // Extract body elements
+            state.elements = [];
+            const bodyChildren = doc.body.children;
+            Array.from(bodyChildren).forEach(child => {
+                addElement(child.outerHTML, 'imported');
+            });
+
+            document.getElementById('code-view-modal').classList.remove('active');
+            updateStatus('Code applied!');
+            playSound('success', 'C6');
+        });
+
+        document.getElementById('copy-code-view').addEventListener('click', () => {
+            const code = document.getElementById('code-view-editor').value;
+            navigator.clipboard.writeText(code).then(() => {
+                updateStatus('Code copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '📋');
+            });
+        });
+
+        // ============================================
+        // COPY HTML & CSS
+        // ============================================
+        document.getElementById('btn-copy-html').addEventListener('click', () => {
+            const html = exportHTML();
+            navigator.clipboard.writeText(html).then(() => {
+                updateStatus('HTML copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '📋');
+            });
+        });
+
+        document.getElementById('btn-copy-css').addEventListener('click', () => {
+            navigator.clipboard.writeText(state.pageCSS || '/* No custom CSS */').then(() => {
+                updateStatus('CSS copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '🎨');
+            });
+        });
+
+        // ============================================
+        // HELP MODAL
+        // ============================================
+        document.getElementById('btn-help').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.add('active');
+        });
+
+        document.getElementById('close-help').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.remove('active');
+        });
+
+        // ============================================
+        // AUTO-SAVE
+        // ============================================
+        setInterval(() => {
+            if (state.elements.length > 0) {
+                const projectData = {
+                    elements: state.elements,
+                    pageCSS: state.pageCSS,
+                    pageJS: state.pageJS,
+                    viewMode: state.viewMode,
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem('coaiexist-auto-save', JSON.stringify(projectData));
+            }
+        }, 60000); // Auto-save every 60 seconds
+
+        // Load auto-save on startup
+        const autoSave = localStorage.getItem('coaiexist-auto-save');
+        if (autoSave && state.elements.length === 0) {
+            try {
+                const projectData = JSON.parse(autoSave);
+                if (confirm('Found auto-saved work from ' + new Date(projectData.savedAt).toLocaleString() + '. Restore it?')) {
+                    state.elements = projectData.elements || [];
+                    state.pageCSS = projectData.pageCSS || '';
+                    state.pageJS = projectData.pageJS || '';
+                    state.viewMode = projectData.viewMode || 'desktop';
+                    renderCanvas();
+                    updateElementCount();
+                    updateStatus('Auto-save restored!');
+                }
+            } catch (e) {
+                console.error('Auto-save restore failed:', e);
+            }
+        }
+
+        // ============================================
         // KEYBOARD SHORTCUTS
         // ============================================
         document.addEventListener('keydown', (e) => {
@@ -2067,6 +2336,10 @@ ${state.pageJS}
             }
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+            }
+            if (e.key === 'F1') {
+                e.preventDefault();
+                document.getElementById('help-modal').classList.add('active');
             }
         });
 
