@@ -642,6 +642,29 @@
             }
         }
 
+        /* STAMP FEEDBACK (KidPix style!) */
+        .stamp {
+            position: fixed;
+            font-size: 48px;
+            pointer-events: none;
+            animation: stamp 0.5s ease-out forwards;
+            z-index: 99999;
+        }
+
+        @keyframes stamp {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(5deg);
+                opacity: 0;
+            }
+        }
+
         /* TEXT FORMATTING TOOLBAR */
         .format-toolbar {
             position: absolute;
@@ -2181,6 +2204,18 @@ ${state.pageJS}
             sparkle.style.top = y + 'px';
             document.body.appendChild(sparkle);
             setTimeout(() => sparkle.remove(), 1000);
+        }
+
+        // KidPix-style Stamp System!
+        function showStamp(emoji) {
+            const stamp = document.createElement('div');
+            stamp.className = 'stamp';
+            stamp.textContent = emoji;
+            stamp.style.left = (Math.random() * (window.innerWidth - 100)) + 'px';
+            stamp.style.top = (Math.random() * (window.innerHeight - 100)) + 'px';
+            document.body.appendChild(stamp);
+            setTimeout(() => stamp.remove(), 500);
+            playSound('pop', 'E5');
         }
 
         // ============================================
