@@ -564,9 +564,151 @@
             font-family: var(--font-main);
             font-size: 16px;
         }
+
+        /* PREVIEW MODE */
+        body.preview-mode .component-library,
+        body.preview-mode .sidebar-container,
+        body.preview-mode .toolbar,
+        body.preview-mode .status-bar {
+            display: none;
+        }
+
+        body.preview-mode .editor-container {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            grid-template-areas: "canvas";
+        }
+
+        body.preview-mode .canvas-toolbar {
+            display: none;
+        }
+
+        body.preview-mode .element-controls {
+            display: none !important;
+        }
+
+        body.preview-mode .canvas-element {
+            cursor: default;
+        }
+
+        body.preview-mode .canvas-element:hover {
+            outline: none;
+        }
+
+        /* Preview Exit Button */
+        .preview-exit-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--magenta);
+            color: white;
+            border: 3px solid var(--cyan);
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 20px;
+            z-index: 10000;
+            box-shadow: var(--glow-lg) var(--magenta);
+            display: none;
+        }
+
+        body.preview-mode .preview-exit-btn {
+            display: block;
+        }
+
+        .preview-exit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow-lg) var(--cyan);
+        }
+
+        /* SPARKLE FEEDBACK */
+        .feedback-sparkle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 32px;
+            z-index: 99999;
+            animation: sparkle-float 1s ease-out forwards;
+        }
+
+        @keyframes sparkle-float {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5) rotate(360deg);
+            }
+        }
+
+        /* STAMP FEEDBACK (KidPix style!) */
+        .stamp {
+            position: fixed;
+            font-size: 48px;
+            pointer-events: none;
+            animation: stamp 0.5s ease-out forwards;
+            z-index: 99999;
+        }
+
+        @keyframes stamp {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(5deg);
+                opacity: 0;
+            }
+        }
+
+        /* TEXT FORMATTING TOOLBAR */
+        .format-toolbar {
+            position: absolute;
+            top: -45px;
+            left: 0;
+            background: var(--panel-bg);
+            border: 2px solid var(--yellow);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xs);
+            display: none;
+            gap: var(--spacing-xs);
+            z-index: 1000;
+            box-shadow: var(--glow-md) var(--yellow);
+        }
+
+        .format-toolbar.active {
+            display: flex;
+        }
+
+        .format-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--yellow);
+            color: var(--yellow);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .format-btn:hover {
+            background: var(--yellow);
+            color: var(--dark-bg);
+        }
+
+        .format-btn.active {
+            background: var(--yellow);
+            color: var(--dark-bg);
+        }
     </style>
 </head>
 <body>
+    <button class="preview-exit-btn" id="exit-preview">Exit Preview</button>
     <div class="editor-container">
         <!-- TOOLBAR -->
         <div class="toolbar">
@@ -582,6 +724,7 @@
                 <button class="toolbar-btn" id="btn-redo">Redo</button>
                 <button class="toolbar-btn" id="btn-copy">Copy</button>
                 <button class="toolbar-btn" id="btn-paste">Paste</button>
+                <button class="toolbar-btn" id="btn-clear">Clear</button>
             </div>
 
             <div class="toolbar-section insert" data-label="➕ Insert">
@@ -594,16 +737,21 @@
             <div class="toolbar-section style" data-label="🎨 Style">
                 <button class="toolbar-btn" id="btn-page-css">Page CSS</button>
                 <button class="toolbar-btn" id="btn-page-js">Page JS</button>
+                <button class="toolbar-btn" id="btn-code-view">Code View</button>
             </div>
 
             <div class="toolbar-section view" data-label="👁️ View">
                 <button class="toolbar-btn" id="btn-view-desktop" class="active">Desktop</button>
                 <button class="toolbar-btn" id="btn-view-tablet">Tablet</button>
                 <button class="toolbar-btn" id="btn-view-mobile">Mobile</button>
+                <button class="toolbar-btn" id="btn-preview">Preview</button>
             </div>
 
             <div class="toolbar-section export" data-label="📤 Export">
                 <button class="toolbar-btn" id="btn-export">Export HTML</button>
+                <button class="toolbar-btn" id="btn-copy-html">Copy HTML</button>
+                <button class="toolbar-btn" id="btn-copy-css">Copy CSS</button>
+                <button class="toolbar-btn" id="btn-help">Help (F1)</button>
             </div>
         </div>
 
@@ -631,6 +779,30 @@
                     <div class="library-item" draggable="true" data-component="flexbox">Flexbox</div>
                     <div class="library-item" draggable="true" data-component="grid">Grid</div>
                     <div class="library-item" draggable="true" data-component="section">Section</div>
+                    <div class="library-item" draggable="true" data-component="hero">Hero Section</div>
+                    <div class="library-item" draggable="true" data-component="card">Card</div>
+                </div>
+            </div>
+
+            <div class="library-section">
+                <div class="library-section-title">Forms & Inputs</div>
+                <div class="library-items">
+                    <div class="library-item" draggable="true" data-component="input">Text Input</div>
+                    <div class="library-item" draggable="true" data-component="textarea">Textarea</div>
+                    <div class="library-item" draggable="true" data-component="select">Select Dropdown</div>
+                    <div class="library-item" draggable="true" data-component="checkbox">Checkbox</div>
+                    <div class="library-item" draggable="true" data-component="radio">Radio Buttons</div>
+                </div>
+            </div>
+
+            <div class="library-section">
+                <div class="library-section-title">Special</div>
+                <div class="library-items">
+                    <div class="library-item" draggable="true" data-component="video">Video Player</div>
+                    <div class="library-item" draggable="true" data-component="audio">Audio Player</div>
+                    <div class="library-item" draggable="true" data-component="code">Code Block</div>
+                    <div class="library-item" draggable="true" data-component="list">List</div>
+                    <div class="library-item" draggable="true" data-component="table">Table</div>
                 </div>
             </div>
         </div>
@@ -795,6 +967,117 @@ Contact | /contact.html</textarea>
         </div>
     </div>
 
+    <!-- ASSETS MODAL -->
+    <div class="modal" id="assets-modal">
+        <div class="modal-content" style="min-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Assets & Resources</h2>
+                <button class="btn-danger" id="close-assets">Close</button>
+            </div>
+            <div style="margin-bottom: var(--spacing-lg);">
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Add Image from URL</h3>
+                <div style="display: flex; gap: var(--spacing-sm);">
+                    <input type="text" id="image-url-input" class="property-input" placeholder="https://example.com/image.jpg" style="flex: 1;">
+                    <button class="btn-primary" id="add-image-url" style="width: auto;">Add Image</button>
+                </div>
+            </div>
+            <div style="margin-bottom: var(--spacing-lg);">
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Quick Placeholder Images</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--spacing-sm);">
+                    <button class="btn-primary" onclick="insertAsset('https://via.placeholder.com/400x300')">400×300</button>
+                    <button class="btn-primary" onclick="insertAsset('https://via.placeholder.com/800x600')">800×600</button>
+                    <button class="btn-primary" onclick="insertAsset('https://via.placeholder.com/1200x800')">1200×800</button>
+                    <button class="btn-primary" onclick="insertAsset('https://via.placeholder.com/400x400')">400×400 Square</button>
+                </div>
+            </div>
+            <div style="margin-bottom: var(--spacing-lg);">
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">External Libraries</h3>
+                <p style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Add CDN links to your page:</p>
+                <div style="display: grid; gap: var(--spacing-sm);">
+                    <button class="btn-primary" onclick="addLibrary('tailwind')">Tailwind CSS</button>
+                    <button class="btn-primary" onclick="addLibrary('bootstrap')">Bootstrap 5</button>
+                    <button class="btn-primary" onclick="addLibrary('fontawesome')">Font Awesome</button>
+                    <button class="btn-primary" onclick="addLibrary('jquery')">jQuery</button>
+                    <button class="btn-primary" onclick="addLibrary('alpine')">Alpine.js</button>
+                </div>
+            </div>
+            <div>
+                <h3 style="color: var(--cyan); margin-bottom: var(--spacing-sm);">Icon Fonts</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--spacing-sm);">
+                    <button class="btn-primary" onclick="insertIcon('❤️')">❤️ Heart</button>
+                    <button class="btn-primary" onclick="insertIcon('⭐')">⭐ Star</button>
+                    <button class="btn-primary" onclick="insertIcon('🚀')">🚀 Rocket</button>
+                    <button class="btn-primary" onclick="insertIcon('✨')">✨ Sparkles</button>
+                    <button class="btn-primary" onclick="insertIcon('🎨')">🎨 Art</button>
+                    <button class="btn-primary" onclick="insertIcon('🔥')">🔥 Fire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CODE VIEW MODAL -->
+    <div class="modal" id="code-view-modal">
+        <div class="modal-content" style="min-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">💻 Code View - Full HTML</h2>
+                <button class="btn-danger" id="close-code-view">Close</button>
+            </div>
+            <div style="margin-bottom: var(--spacing-md);">
+                <p style="color: var(--cyan);">Edit the complete HTML output. Be careful - this will replace everything!</p>
+            </div>
+            <textarea id="code-view-editor" class="property-textarea" style="min-height: 500px; font-family: 'Courier New', monospace;"></textarea>
+            <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-md);">
+                <button class="btn-primary" id="apply-code-view">Apply Changes</button>
+                <button class="btn-primary" id="copy-code-view" style="background: var(--purple); border-color: var(--purple);">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HELP/SHORTCUTS MODAL -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content" style="min-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">⌨️ Keyboard Shortcuts & Help</h2>
+                <button class="btn-danger" id="close-help">Close</button>
+            </div>
+            <div style="color: var(--cyan);">
+                <h3 style="color: var(--magenta); margin-bottom: var(--spacing-md);">Keyboard Shortcuts</h3>
+                <table style="width: 100%; margin-bottom: var(--spacing-lg);">
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + Z</strong></td><td style="padding: var(--spacing-sm);">Undo</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + Shift + Z</strong></td><td style="padding: var(--spacing-sm);">Redo</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + C</strong></td><td style="padding: var(--spacing-sm);">Copy selected element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Ctrl/Cmd + V</strong></td><td style="padding: var(--spacing-sm);">Paste element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Delete</strong></td><td style="padding: var(--spacing-sm);">Delete selected element</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>Escape</strong></td><td style="padding: var(--spacing-sm);">Close modals</td></tr>
+                    <tr><td style="padding: var(--spacing-sm);"><strong>F1</strong></td><td style="padding: var(--spacing-sm);">Show this help</td></tr>
+                </table>
+
+                <h3 style="color: var(--magenta); margin-bottom: var(--spacing-md);">Quick Tips</h3>
+                <ul style="padding-left: 20px;">
+                    <li style="margin-bottom: var(--spacing-sm);">Drag components from the left sidebar to the canvas</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Click any element to select it and see properties</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Drag elements on the canvas to reorder them</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Use ↑↓ buttons to move elements up/down</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Save your project to localStorage with a custom name</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Load existing HTML pages to import and edit</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Use Preview mode to see your page without editor UI</li>
+                    <li style="margin-bottom: var(--spacing-sm);">Export to HTML file or copy to clipboard</li>
+                </ul>
+
+                <h3 style="color: var(--magenta); margin: var(--spacing-lg) 0 var(--spacing-md);">Available Templates</h3>
+                <p>Click "Templates" to access:</p>
+                <ul style="padding-left: 20px; margin-top: var(--spacing-sm);">
+                    <li>Contact & Survey Forms</li>
+                    <li>Interactive Quiz</li>
+                    <li>PDF Viewer</li>
+                    <li>Image Gallery & Slideshow</li>
+                    <li>Accordion, Tabs, Modal</li>
+                    <li>Clicker Game (yes, really!)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // SOUND SYSTEM
@@ -839,10 +1122,22 @@ Contact | /contact.html</textarea>
             'button': '<button style="padding: 10px 20px; background: #0066cc; color: white; border: none; border-radius: 5px; cursor: pointer;">Click Me</button>',
             'link': '<a href="#" style="color: #0066cc; text-decoration: underline;">Link Text</a>',
             'image': '<img src="https://via.placeholder.com/400x200" alt="Placeholder" style="max-width: 100%; border: 1px solid #ccc;">',
-            'div': '<div style="padding: 20px; border: 1px solid #ccc; background: #f5f5f5;">Container</div>',
-            'flexbox': '<div style="display: flex; gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="flex: 1; padding: 10px; background: #e0e0e0;">Item 1</div><div style="flex: 1; padding: 10px; background: #e0e0e0;">Item 2</div></div>',
-            'grid': '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="padding: 10px; background: #e0e0e0;">Item 1</div><div style="padding: 10px; background: #e0e0e0;">Item 2</div><div style="padding: 10px; background: #e0e0e0;">Item 3</div></div>',
-            'section': '<section style="padding: 40px; background: #f9f9f9; border: 1px solid #ddd;"><h2>Section Title</h2><p>Section content goes here.</p></section>'
+            'div': '<div style="padding: 20px; border: 1px solid #ccc; background: #f5f5f5; color: #000;">Container</div>',
+            'flexbox': '<div style="display: flex; gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="flex: 1; padding: 10px; background: #e0e0e0; color: #000;">Item 1</div><div style="flex: 1; padding: 10px; background: #e0e0e0; color: #000;">Item 2</div></div>',
+            'grid': '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; border: 1px solid #ccc;"><div style="padding: 10px; background: #e0e0e0; color: #000;">Item 1</div><div style="padding: 10px; background: #e0e0e0; color: #000;">Item 2</div><div style="padding: 10px; background: #e0e0e0; color: #000;">Item 3</div></div>',
+            'section': '<section style="padding: 40px; background: #f9f9f9; border: 1px solid #ddd;"><h2 style="color: #000;">Section Title</h2><p style="color: #000;">Section content goes here.</p></section>',
+            'hero': '<section style="padding: 80px 40px; background: linear-gradient(135deg, #f312af, #00ffcc); text-align: center; border-radius: 8px;"><h1 style="color: white; font-size: 48px; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Welcome to My Site</h1><p style="color: white; font-size: 24px; margin-bottom: 30px;">Build amazing things</p><button style="padding: 15px 40px; background: white; color: #f312af; border: none; border-radius: 8px; font-size: 20px; cursor: pointer; font-weight: bold;">Get Started</button></section>',
+            'card': '<div style="max-width: 300px; border: 2px solid #00ffcc; border-radius: 8px; overflow: hidden; background: white;"><img src="https://via.placeholder.com/300x200" style="width: 100%; display: block;"><div style="padding: 20px;"><h3 style="color: #f312af; margin-bottom: 10px;">Card Title</h3><p style="color: #000; margin-bottom: 15px;">Card description goes here.</p><button style="padding: 8px 16px; background: #00ffcc; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Learn More</button></div></div>',
+            'input': '<div style="margin: 10px 0;"><label style="display: block; margin-bottom: 5px; color: #000;">Label:</label><input type="text" placeholder="Enter text..." style="width: 100%; padding: 10px; border: 2px solid #00ffcc; border-radius: 4px; font-size: 16px;"></div>',
+            'textarea': '<div style="margin: 10px 0;"><label style="display: block; margin-bottom: 5px; color: #000;">Message:</label><textarea placeholder="Enter message..." style="width: 100%; padding: 10px; border: 2px solid #00ffcc; border-radius: 4px; font-size: 16px; min-height: 100px; resize: vertical;"></textarea></div>',
+            'select': '<div style="margin: 10px 0;"><label style="display: block; margin-bottom: 5px; color: #000;">Select Option:</label><select style="width: 100%; padding: 10px; border: 2px solid #00ffcc; border-radius: 4px; font-size: 16px;"><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></div>',
+            'checkbox': '<div style="margin: 10px 0; color: #000;"><label style="display: flex; align-items: center; cursor: pointer;"><input type="checkbox" style="margin-right: 10px; width: 20px; height: 20px; cursor: pointer;"><span>Checkbox option</span></label></div>',
+            'radio': '<div style="margin: 10px 0; color: #000;"><label style="display: flex; align-items: center; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="radio-group" style="margin-right: 10px; width: 20px; height: 20px; cursor: pointer;"><span>Option 1</span></label><label style="display: flex; align-items: center; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="radio-group" style="margin-right: 10px; width: 20px; height: 20px; cursor: pointer;"><span>Option 2</span></label></div>',
+            'video': '<div style="margin: 20px 0;"><video controls style="width: 100%; max-width: 640px; border: 2px solid #00ffcc; border-radius: 8px;"><source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">Your browser does not support video.</video></div>',
+            'audio': '<div style="margin: 20px 0;"><audio controls style="width: 100%;"><source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">Your browser does not support audio.</audio></div>',
+            'code': '<pre style="background: #0a1a1a; color: #00ffcc; padding: 20px; border-radius: 8px; overflow-x: auto; border: 2px solid #00ffcc;"><code>function hello() {\n    console.log("Hello, world!");\n}</code></pre>',
+            'list': '<ul style="color: #000; padding-left: 30px; margin: 20px 0;"><li style="margin-bottom: 8px;">List item 1</li><li style="margin-bottom: 8px;">List item 2</li><li style="margin-bottom: 8px;">List item 3</li></ul>',
+            'table': '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;"><thead><tr style="background: #00ffcc;"><th style="padding: 10px; border: 1px solid #ccc; text-align: left;">Header 1</th><th style="padding: 10px; border: 1px solid #ccc; text-align: left;">Header 2</th><th style="padding: 10px; border: 1px solid #ccc; text-align: left;">Header 3</th></tr></thead><tbody><tr><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 1</td><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 2</td><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 3</td></tr><tr style="background: #f9f9f9;"><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 4</td><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 5</td><td style="padding: 10px; border: 1px solid #ccc; color: #000;">Cell 6</td></tr></tbody></table>'
         };
 
         // ============================================
@@ -889,12 +1184,16 @@ Contact | /contact.html</textarea>
 
         function renderCanvas() {
             canvas.innerHTML = '';
-            state.elements.forEach(element => {
+            state.elements.forEach((element, index) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'canvas-element';
                 wrapper.setAttribute('data-id', element.id);
+                wrapper.setAttribute('data-index', index);
+                wrapper.setAttribute('draggable', 'true');
                 wrapper.innerHTML = `
                     <div class="element-controls">
+                        <button class="control-btn" onclick="moveElement('${element.id}', 'up')">↑</button>
+                        <button class="control-btn" onclick="moveElement('${element.id}', 'down')">↓</button>
                         <button class="control-btn" onclick="editElement('${element.id}')">Edit</button>
                         <button class="control-btn" onclick="duplicateElement('${element.id}')">Duplicate</button>
                         <button class="control-btn" onclick="deleteElement('${element.id}')">Delete</button>
@@ -907,9 +1206,71 @@ Contact | /contact.html</textarea>
                         playSound('pop', 'G5');
                     }
                 });
+
+                // Drag and drop for reordering
+                wrapper.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/html', element.id);
+                    wrapper.style.opacity = '0.5';
+                });
+
+                wrapper.addEventListener('dragend', (e) => {
+                    wrapper.style.opacity = '1';
+                });
+
+                wrapper.addEventListener('dragover', (e) => {
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    e.dataTransfer.dropEffect = 'move';
+                    return false;
+                });
+
+                wrapper.addEventListener('drop', (e) => {
+                    if (e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    const draggedId = e.dataTransfer.getData('text/html');
+                    if (draggedId && draggedId !== element.id) {
+                        reorderElements(draggedId, element.id);
+                    }
+                    return false;
+                });
+
                 canvas.appendChild(wrapper);
             });
             renderTree();
+        }
+
+        function moveElement(id, direction) {
+            const index = state.elements.findIndex(el => el.id === id);
+            if (index === -1) return;
+
+            if (direction === 'up' && index > 0) {
+                [state.elements[index], state.elements[index - 1]] = [state.elements[index - 1], state.elements[index]];
+            } else if (direction === 'down' && index < state.elements.length - 1) {
+                [state.elements[index], state.elements[index + 1]] = [state.elements[index + 1], state.elements[index]];
+            }
+
+            saveHistory();
+            renderCanvas();
+            selectElement(id);
+            playSound('pop', 'D5');
+            updateStatus('Element moved!');
+        }
+
+        function reorderElements(draggedId, targetId) {
+            const draggedIndex = state.elements.findIndex(el => el.id === draggedId);
+            const targetIndex = state.elements.findIndex(el => el.id === targetId);
+
+            if (draggedIndex !== -1 && targetIndex !== -1) {
+                const [draggedElement] = state.elements.splice(draggedIndex, 1);
+                state.elements.splice(targetIndex, 0, draggedElement);
+                saveHistory();
+                renderCanvas();
+                updateStatus('Elements reordered!');
+                playSound('success', 'E5');
+            }
         }
 
         function selectElement(id) {
@@ -1221,6 +1582,80 @@ Contact | /contact.html</textarea>
         }
 
         // ============================================
+        // SAVE/LOAD FUNCTIONALITY
+        // ============================================
+        document.getElementById('btn-save').addEventListener('click', () => {
+            const projectName = prompt('Project name:', 'my-project') || 'my-project';
+            const projectData = {
+                elements: state.elements,
+                pageCSS: state.pageCSS,
+                pageJS: state.pageJS,
+                viewMode: state.viewMode,
+                savedAt: new Date().toISOString()
+            };
+            localStorage.setItem('coaiexist-project-' + projectName, JSON.stringify(projectData));
+            updateStatus(`Project "${projectName}" saved!`);
+            playSound('success', 'C6');
+        });
+
+        document.getElementById('btn-load').addEventListener('click', () => {
+            const projectName = prompt('Project name to load:');
+            if (!projectName) return;
+
+            const saved = localStorage.getItem('coaiexist-project-' + projectName);
+            if (saved) {
+                const projectData = JSON.parse(saved);
+                state.elements = projectData.elements || [];
+                state.pageCSS = projectData.pageCSS || '';
+                state.pageJS = projectData.pageJS || '';
+                state.viewMode = projectData.viewMode || 'desktop';
+                saveHistory();
+                renderCanvas();
+                updateElementCount();
+                updateStatus(`Project "${projectName}" loaded!`);
+                playSound('success', 'C6');
+            } else {
+                alert('Project not found!');
+            }
+        });
+
+        document.getElementById('btn-load-page').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.html';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const html = event.target.result;
+                    // Parse HTML and extract body content
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Extract CSS
+                    const styles = doc.querySelectorAll('style');
+                    state.pageCSS = Array.from(styles).map(s => s.textContent).join('\n');
+
+                    // Extract JS
+                    const scripts = doc.querySelectorAll('script');
+                    state.pageJS = Array.from(scripts).map(s => s.textContent).join('\n');
+
+                    // Extract body elements
+                    state.elements = [];
+                    const bodyChildren = doc.body.children;
+                    Array.from(bodyChildren).forEach(child => {
+                        addElement(child.outerHTML, 'imported');
+                    });
+
+                    updateStatus('Page loaded!');
+                    playSound('success', 'C6');
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        });
+
+        // ============================================
         // TOOLBAR ACTIONS
         // ============================================
         document.getElementById('btn-new').addEventListener('click', () => {
@@ -1318,6 +1753,19 @@ Contact | /contact.html</textarea>
         });
 
         // ============================================
+        // PREVIEW MODE
+        // ============================================
+        document.getElementById('btn-preview').addEventListener('click', () => {
+            document.body.classList.add('preview-mode');
+            playSound('success', 'C6');
+        });
+
+        document.getElementById('exit-preview').addEventListener('click', () => {
+            document.body.classList.remove('preview-mode');
+            playSound('pop', 'C5');
+        });
+
+        // ============================================
         // PAGE CSS/JS
         // ============================================
         document.getElementById('btn-page-css').addEventListener('click', () => {
@@ -1397,6 +1845,62 @@ ${state.pageJS}
         }
 
         // ============================================
+        // ASSETS FUNCTIONALITY
+        // ============================================
+        document.getElementById('btn-assets').addEventListener('click', () => {
+            document.getElementById('assets-modal').classList.add('active');
+        });
+
+        document.getElementById('close-assets').addEventListener('click', () => {
+            document.getElementById('assets-modal').classList.remove('active');
+        });
+
+        document.getElementById('add-image-url').addEventListener('click', () => {
+            const url = document.getElementById('image-url-input').value;
+            if (url) {
+                insertAsset(url);
+                document.getElementById('image-url-input').value = '';
+            }
+        });
+
+        function insertAsset(url) {
+            const html = `<img src="${url}" alt="Image" style="max-width: 100%; height: auto; border: 2px solid #00ffcc; border-radius: 8px;">`;
+            addElement(html, 'image');
+            document.getElementById('assets-modal').classList.remove('active');
+            updateStatus('Image added!');
+            playSound('success', 'C6');
+        }
+
+        function insertIcon(emoji) {
+            const html = `<span style="font-size: 48px; display: inline-block;">${emoji}</span>`;
+            addElement(html, 'icon');
+            updateStatus('Icon added!');
+            playSound('pop', 'E5');
+        }
+
+        function addLibrary(lib) {
+            const libraries = {
+                'tailwind': '<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">',
+                'bootstrap': '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">\n<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>',
+                'fontawesome': '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">',
+                'jquery': '<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>',
+                'alpine': '<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>'
+            };
+
+            if (libraries[lib]) {
+                // Add to page CSS/JS
+                if (lib === 'tailwind' || lib === 'fontawesome') {
+                    state.pageCSS = `/* ${lib.toUpperCase()} */\n${libraries[lib]}\n\n${state.pageCSS}`;
+                } else {
+                    state.pageJS = `/* ${lib.toUpperCase()} */\n${libraries[lib]}\n\n${state.pageJS}`;
+                }
+                updateStatus(`${lib} library added to page!`);
+                playSound('success', 'A5');
+                alert(`${lib} has been added to your page! Check Page CSS/JS to see it.`);
+            }
+        }
+
+        // ============================================
         // NAVBAR & TEMPLATES
         // ============================================
         document.getElementById('btn-add-navbar').addEventListener('click', () => {
@@ -1443,36 +1947,205 @@ ${state.pageJS}
         function insertTemplate(type) {
             const templates = {
                 'contact-form': `<form style="max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
-                    <h2>Contact Us</h2>
+                    <h2 style="color: #000;">Contact Us</h2>
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Name:</label>
+                        <label style="display: block; margin-bottom: 5px; color: #000;">Name:</label>
                         <input type="text" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Email:</label>
+                        <label style="display: block; margin-bottom: 5px; color: #000;">Email:</label>
                         <input type="email" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px;">Message:</label>
+                        <label style="display: block; margin-bottom: 5px; color: #000;">Message:</label>
                         <textarea style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px;"></textarea>
                     </div>
                     <button type="submit" style="background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Send</button>
                 </form>`,
+                'survey-form': `<form style="max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #00ffcc; border-radius: 8px; background: #f9f9f9;">
+                    <h2 style="color: #000; margin-bottom: 20px;">Quick Survey</h2>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #000; font-weight: bold;">How satisfied are you?</label>
+                        <div style="color: #000;">
+                            <label><input type="radio" name="satisfaction" value="1"> Very Unsatisfied</label><br>
+                            <label><input type="radio" name="satisfaction" value="2"> Unsatisfied</label><br>
+                            <label><input type="radio" name="satisfaction" value="3"> Neutral</label><br>
+                            <label><input type="radio" name="satisfaction" value="4"> Satisfied</label><br>
+                            <label><input type="radio" name="satisfaction" value="5"> Very Satisfied</label>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #000; font-weight: bold;">Which features do you use? (Select all)</label>
+                        <div style="color: #000;">
+                            <label><input type="checkbox" name="features" value="feature1"> Feature 1</label><br>
+                            <label><input type="checkbox" name="features" value="feature2"> Feature 2</label><br>
+                            <label><input type="checkbox" name="features" value="feature3"> Feature 3</label>
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; color: #000; font-weight: bold;">Additional Comments:</label>
+                        <textarea style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 80px;"></textarea>
+                    </div>
+                    <button type="submit" style="background: #00ffcc; color: #000; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Submit Survey</button>
+                </form>`,
+                'quiz': `<div id="quiz-container" style="max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #f312af; border-radius: 8px; background: white;">
+                    <h2 style="color: #f312af; margin-bottom: 20px;">🎯 Quick Quiz</h2>
+                    <div id="quiz-question" style="margin-bottom: 20px;">
+                        <p style="color: #000; font-size: 18px; margin-bottom: 15px;"><strong>Question 1:</strong> What is 2 + 2?</p>
+                        <button onclick="checkAnswer(3)" style="display: block; width: 100%; margin: 5px 0; padding: 10px; border: 2px solid #00ffcc; background: white; cursor: pointer; border-radius: 4px;">3</button>
+                        <button onclick="checkAnswer(4)" style="display: block; width: 100%; margin: 5px 0; padding: 10px; border: 2px solid #00ffcc; background: white; cursor: pointer; border-radius: 4px;">4</button>
+                        <button onclick="checkAnswer(5)" style="display: block; width: 100%; margin: 5px 0; padding: 10px; border: 2px solid #00ffcc; background: white; cursor: pointer; border-radius: 4px;">5</button>
+                    </div>
+                    <div id="quiz-result" style="color: #00ffcc; font-size: 20px; display: none;"></div>
+                    <script>
+                        function checkAnswer(answer) {
+                            const result = document.getElementById('quiz-result');
+                            if (answer === 4) {
+                                result.style.color = '#00ff00';
+                                result.textContent = '✓ Correct!';
+                            } else {
+                                result.style.color = '#ff4444';
+                                result.textContent = '✗ Wrong! The answer is 4.';
+                            }
+                            result.style.display = 'block';
+                        }
+                    </script>
+                </div>`,
+                'pdf-viewer': `<div style="max-width: 800px; margin: 20px auto; padding: 20px; border: 2px solid #bf5fff; border-radius: 8px;">
+                    <h2 style="color: #000; margin-bottom: 15px;">📄 PDF Viewer</h2>
+                    <input type="file" accept=".pdf" id="pdf-upload" style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <iframe id="pdf-frame" style="width: 100%; height: 600px; border: 1px solid #ccc; border-radius: 4px;"></iframe>
+                    <script>
+                        document.getElementById('pdf-upload').addEventListener('change', function(e) {
+                            const file = e.target.files[0];
+                            if (file && file.type === 'application/pdf') {
+                                const url = URL.createObjectURL(file);
+                                document.getElementById('pdf-frame').src = url;
+                            }
+                        });
+                    </script>
+                </div>`,
                 'gallery': `<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px;">
-                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
-                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
-                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
-                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px;">
+                    <img src="https://via.placeholder.com/300" style="width: 100%; border-radius: 8px; cursor: pointer;" onclick="this.requestFullscreen()">
+                    <img src="https://via.placeholder.com/300/ff69b4" style="width: 100%; border-radius: 8px; cursor: pointer;" onclick="this.requestFullscreen()">
+                    <img src="https://via.placeholder.com/300/00ffcc" style="width: 100%; border-radius: 8px; cursor: pointer;" onclick="this.requestFullscreen()">
+                    <img src="https://via.placeholder.com/300/f312af" style="width: 100%; border-radius: 8px; cursor: pointer;" onclick="this.requestFullscreen()">
+                </div>`,
+                'slideshow': `<div style="max-width: 600px; margin: 20px auto; text-align: center;">
+                    <div id="slideshow" style="position: relative; height: 400px; border: 2px solid #00ffcc; border-radius: 8px; overflow: hidden;">
+                        <div class="slide" style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #f312af, #00ffcc); display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">Slide 1</div>
+                        <div class="slide" style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #00ffcc, #bf5fff); display: none; align-items: center; justify-content: center; color: white; font-size: 32px;">Slide 2</div>
+                        <div class="slide" style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, #bf5fff, #fffb01); display: none; align-items: center; justify-content: center; color: #000; font-size: 32px;">Slide 3</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button onclick="prevSlide()" style="padding: 10px 20px; margin: 5px; border: 2px solid #00ffcc; background: white; cursor: pointer; border-radius: 4px;">← Prev</button>
+                        <button onclick="nextSlide()" style="padding: 10px 20px; margin: 5px; border: 2px solid #00ffcc; background: white; cursor: pointer; border-radius: 4px;">Next →</button>
+                    </div>
+                    <script>
+                        let currentSlide = 0;
+                        const slides = document.querySelectorAll('.slide');
+                        function showSlide(n) {
+                            slides.forEach((slide, i) => {
+                                slide.style.display = i === n ? 'flex' : 'none';
+                            });
+                        }
+                        function nextSlide() {
+                            currentSlide = (currentSlide + 1) % slides.length;
+                            showSlide(currentSlide);
+                        }
+                        function prevSlide() {
+                            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                            showSlide(currentSlide);
+                        }
+                    </script>
                 </div>`,
                 'accordion': `<div style="max-width: 600px; margin: 20px auto;">
-                    <details style="margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
-                        <summary style="cursor: pointer; font-weight: bold;">Section 1</summary>
-                        <p>Content for section 1</p>
+                    <details style="margin-bottom: 10px; border: 2px solid #00ffcc; border-radius: 4px; padding: 15px; background: white;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #f312af; font-size: 18px;">🎨 Section 1: Getting Started</summary>
+                        <p style="margin-top: 10px; color: #000;">Content for section 1. Click the summary to expand/collapse!</p>
                     </details>
-                    <details style="margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
-                        <summary style="cursor: pointer; font-weight: bold;">Section 2</summary>
-                        <p>Content for section 2</p>
+                    <details style="margin-bottom: 10px; border: 2px solid #00ffcc; border-radius: 4px; padding: 15px; background: white;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #f312af; font-size: 18px;">⚡ Section 2: Advanced Features</summary>
+                        <p style="margin-top: 10px; color: #000;">Content for section 2. Add more details here!</p>
                     </details>
+                    <details style="margin-bottom: 10px; border: 2px solid #00ffcc; border-radius: 4px; padding: 15px; background: white;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #f312af; font-size: 18px;">✨ Section 3: Tips & Tricks</summary>
+                        <p style="margin-top: 10px; color: #000;">Content for section 3. Customize as needed!</p>
+                    </details>
+                </div>`,
+                'tabs': `<div style="max-width: 600px; margin: 20px auto;">
+                    <div style="display: flex; border-bottom: 2px solid #00ffcc;">
+                        <button class="tab-btn" onclick="showTab(0)" style="padding: 10px 20px; border: 2px solid #00ffcc; border-bottom: none; background: #00ffcc; cursor: pointer; margin-right: 5px; border-radius: 4px 4px 0 0;">Tab 1</button>
+                        <button class="tab-btn" onclick="showTab(1)" style="padding: 10px 20px; border: 2px solid #00ffcc; border-bottom: none; background: white; cursor: pointer; margin-right: 5px; border-radius: 4px 4px 0 0;">Tab 2</button>
+                        <button class="tab-btn" onclick="showTab(2)" style="padding: 10px 20px; border: 2px solid #00ffcc; border-bottom: none; background: white; cursor: pointer; border-radius: 4px 4px 0 0;">Tab 3</button>
+                    </div>
+                    <div class="tab-content" style="padding: 20px; border: 2px solid #00ffcc; border-top: none; background: white; display: block;">
+                        <h3 style="color: #f312af;">Tab 1 Content</h3>
+                        <p style="color: #000;">This is the content for tab 1!</p>
+                    </div>
+                    <div class="tab-content" style="padding: 20px; border: 2px solid #00ffcc; border-top: none; background: white; display: none;">
+                        <h3 style="color: #f312af;">Tab 2 Content</h3>
+                        <p style="color: #000;">This is the content for tab 2!</p>
+                    </div>
+                    <div class="tab-content" style="padding: 20px; border: 2px solid #00ffcc; border-top: none; background: white; display: none;">
+                        <h3 style="color: #f312af;">Tab 3 Content</h3>
+                        <p style="color: #000;">This is the content for tab 3!</p>
+                    </div>
+                    <script>
+                        function showTab(n) {
+                            const contents = document.querySelectorAll('.tab-content');
+                            const btns = document.querySelectorAll('.tab-btn');
+                            contents.forEach((c, i) => c.style.display = i === n ? 'block' : 'none');
+                            btns.forEach((b, i) => b.style.background = i === n ? '#00ffcc' : 'white');
+                        }
+                    </script>
+                </div>`,
+                'modal': `<div>
+                    <button onclick="document.getElementById('demo-modal').style.display='flex'" style="padding: 15px 30px; background: #f312af; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 18px;">Open Modal</button>
+                    <div id="demo-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 9999;">
+                        <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; border: 3px solid #00ffcc;">
+                            <h2 style="color: #f312af; margin-bottom: 15px;">Modal Title</h2>
+                            <p style="color: #000; margin-bottom: 20px;">This is a modal dialog! You can put any content here.</p>
+                            <button onclick="document.getElementById('demo-modal').style.display='none'" style="padding: 10px 20px; background: #00ffcc; color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Close</button>
+                        </div>
+                    </div>
+                </div>`,
+                'clicker-game': `<div style="max-width: 400px; margin: 20px auto; padding: 30px; border: 3px solid #f312af; border-radius: 8px; text-align: center; background: linear-gradient(135deg, rgba(243,18,175,0.1), rgba(0,255,204,0.1));">
+                    <h2 style="color: #f312af; margin-bottom: 20px;">🎮 Clicker Game</h2>
+                    <div style="font-size: 48px; margin: 20px 0; color: #00ffcc;" id="click-score">0</div>
+                    <button onclick="incrementClicks()" style="width: 200px; height: 200px; border-radius: 50%; background: linear-gradient(135deg, #f312af, #bf5fff); color: white; border: 5px solid #00ffcc; cursor: pointer; font-size: 32px; transition: transform 0.1s;">CLICK ME!</button>
+                    <div style="margin-top: 20px; color: #000;">
+                        <p><strong>Clicks per second:</strong> <span id="cps">0</span></p>
+                        <button onclick="buyUpgrade()" style="margin-top: 10px; padding: 10px 20px; background: #00ffcc; color: #000; border: 2px solid #f312af; border-radius: 4px; cursor: pointer; font-weight: bold;">Buy Auto-Clicker (Cost: <span id="upgrade-cost">10</span>)</button>
+                    </div>
+                    <script>
+                        let clicks = 0;
+                        let autoClickers = 0;
+                        let upgradeCost = 10;
+
+                        function incrementClicks() {
+                            clicks++;
+                            document.getElementById('click-score').textContent = clicks;
+                        }
+
+                        function buyUpgrade() {
+                            if (clicks >= upgradeCost) {
+                                clicks -= upgradeCost;
+                                autoClickers++;
+                                upgradeCost = Math.floor(upgradeCost * 1.5);
+                                document.getElementById('click-score').textContent = clicks;
+                                document.getElementById('upgrade-cost').textContent = upgradeCost;
+                                document.getElementById('cps').textContent = autoClickers;
+                            }
+                        }
+
+                        setInterval(() => {
+                            if (autoClickers > 0) {
+                                clicks += autoClickers;
+                                document.getElementById('click-score').textContent = clicks;
+                            }
+                        }, 1000);
+                    </script>
                 </div>`
             };
 
@@ -1521,6 +2194,158 @@ ${state.pageJS}
         }
 
         // ============================================
+        // SPARKLE FEEDBACK
+        // ============================================
+        function showSparkle(x, y, emoji = '✨') {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'feedback-sparkle';
+            sparkle.textContent = emoji;
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+
+        // KidPix-style Stamp System!
+        function showStamp(emoji) {
+            const stamp = document.createElement('div');
+            stamp.className = 'stamp';
+            stamp.textContent = emoji;
+            stamp.style.left = (Math.random() * (window.innerWidth - 100)) + 'px';
+            stamp.style.top = (Math.random() * (window.innerHeight - 100)) + 'px';
+            document.body.appendChild(stamp);
+            setTimeout(() => stamp.remove(), 500);
+            playSound('pop', 'E5');
+        }
+
+        // ============================================
+        // CLEAR CANVAS
+        // ============================================
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            if (confirm('Clear entire canvas? This cannot be undone!')) {
+                state.elements = [];
+                saveHistory();
+                renderCanvas();
+                updateElementCount();
+                updateStatus('Canvas cleared!');
+                playSound('boop', 'C4');
+            }
+        });
+
+        // ============================================
+        // CODE VIEW MODAL
+        // ============================================
+        document.getElementById('btn-code-view').addEventListener('click', () => {
+            document.getElementById('code-view-editor').value = exportHTML();
+            document.getElementById('code-view-modal').classList.add('active');
+        });
+
+        document.getElementById('close-code-view').addEventListener('click', () => {
+            document.getElementById('code-view-modal').classList.remove('active');
+        });
+
+        document.getElementById('apply-code-view').addEventListener('click', () => {
+            const html = document.getElementById('code-view-editor').value;
+            // Parse and import
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extract CSS
+            const styles = doc.querySelectorAll('style');
+            state.pageCSS = Array.from(styles).map(s => s.textContent).join('\n');
+
+            // Extract JS
+            const scripts = doc.querySelectorAll('script');
+            state.pageJS = Array.from(scripts).map(s => s.textContent).join('\n');
+
+            // Extract body elements
+            state.elements = [];
+            const bodyChildren = doc.body.children;
+            Array.from(bodyChildren).forEach(child => {
+                addElement(child.outerHTML, 'imported');
+            });
+
+            document.getElementById('code-view-modal').classList.remove('active');
+            updateStatus('Code applied!');
+            playSound('success', 'C6');
+        });
+
+        document.getElementById('copy-code-view').addEventListener('click', () => {
+            const code = document.getElementById('code-view-editor').value;
+            navigator.clipboard.writeText(code).then(() => {
+                updateStatus('Code copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '📋');
+            });
+        });
+
+        // ============================================
+        // COPY HTML & CSS
+        // ============================================
+        document.getElementById('btn-copy-html').addEventListener('click', () => {
+            const html = exportHTML();
+            navigator.clipboard.writeText(html).then(() => {
+                updateStatus('HTML copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '📋');
+            });
+        });
+
+        document.getElementById('btn-copy-css').addEventListener('click', () => {
+            navigator.clipboard.writeText(state.pageCSS || '/* No custom CSS */').then(() => {
+                updateStatus('CSS copied to clipboard!');
+                playSound('success', 'E6');
+                showSparkle(event.clientX, event.clientY, '🎨');
+            });
+        });
+
+        // ============================================
+        // HELP MODAL
+        // ============================================
+        document.getElementById('btn-help').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.add('active');
+        });
+
+        document.getElementById('close-help').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.remove('active');
+        });
+
+        // ============================================
+        // AUTO-SAVE
+        // ============================================
+        setInterval(() => {
+            if (state.elements.length > 0) {
+                const projectData = {
+                    elements: state.elements,
+                    pageCSS: state.pageCSS,
+                    pageJS: state.pageJS,
+                    viewMode: state.viewMode,
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem('coaiexist-auto-save', JSON.stringify(projectData));
+            }
+        }, 60000); // Auto-save every 60 seconds
+
+        // Load auto-save on startup
+        const autoSave = localStorage.getItem('coaiexist-auto-save');
+        if (autoSave && state.elements.length === 0) {
+            try {
+                const projectData = JSON.parse(autoSave);
+                if (confirm('Found auto-saved work from ' + new Date(projectData.savedAt).toLocaleString() + '. Restore it?')) {
+                    state.elements = projectData.elements || [];
+                    state.pageCSS = projectData.pageCSS || '';
+                    state.pageJS = projectData.pageJS || '';
+                    state.viewMode = projectData.viewMode || 'desktop';
+                    renderCanvas();
+                    updateElementCount();
+                    updateStatus('Auto-save restored!');
+                }
+            } catch (e) {
+                console.error('Auto-save restore failed:', e);
+            }
+        }
+
+        // ============================================
         // KEYBOARD SHORTCUTS
         // ============================================
         document.addEventListener('keydown', (e) => {
@@ -1546,6 +2371,10 @@ ${state.pageJS}
             }
             if (e.key === 'Escape') {
                 document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+            }
+            if (e.key === 'F1') {
+                e.preventDefault();
+                document.getElementById('help-modal').classList.add('active');
             }
         });
 
