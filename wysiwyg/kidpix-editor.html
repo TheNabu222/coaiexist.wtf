@@ -43,12 +43,21 @@
             --border-thick: 4px;
             --border-super-thick: 6px;
             --spacing: 12px;
+
+            /* Theme Variables (default: KidPix Classic) */
+            --bg: #FFFFE0;
+            --toolbox-bg: #E6E6FA;
+            --canvas-bg: #FFF;
+            --properties-bg: #FFE4E1;
+            --toolbar-bg: #87CEEB;
+            --border: #000;
+            --text: #000;
         }
 
         body {
             font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Black', sans-serif;
-            background: var(--gray);
-            color: var(--black);
+            background: var(--bg);
+            color: var(--text);
             overflow: hidden;
         }
 
@@ -73,8 +82,8 @@
            ============================================ */
         .toolbar {
             grid-area: toolbar;
-            background: var(--white);
-            border-bottom: var(--border-super-thick) solid var(--black);
+            background: var(--toolbar-bg);
+            border-bottom: var(--border-super-thick) solid var(--border);
             display: flex;
             align-items: center;
             padding: var(--spacing);
@@ -124,8 +133,8 @@
            ============================================ */
         .toolbox {
             grid-area: toolbox;
-            background: var(--white);
-            border-right: var(--border-super-thick) solid var(--black);
+            background: var(--toolbox-bg);
+            border-right: var(--border-super-thick) solid var(--border);
             overflow-y: auto;
             padding: var(--spacing);
         }
@@ -193,11 +202,11 @@
         }
 
         #canvas {
-            background: var(--white);
-            border: var(--border-super-thick) solid var(--black);
+            background: var(--canvas-bg);
+            border: var(--border-super-thick) solid var(--border);
             min-height: 600px;
             padding: 20px;
-            box-shadow: 8px 8px 0 var(--black);
+            box-shadow: 8px 8px 0 var(--border);
         }
 
         #canvas:empty::before {
@@ -258,8 +267,8 @@
            ============================================ */
         .sidebar {
             grid-area: sidebar;
-            background: var(--white);
-            border-left: var(--border-super-thick) solid var(--black);
+            background: var(--properties-bg);
+            border-left: var(--border-super-thick) solid var(--border);
             overflow-y: auto;
             padding: var(--spacing);
         }
@@ -524,6 +533,7 @@
             <button class="big-button purple" onclick="openModal('enhanced-templates-modal')" style="background: #9900FF;">✨ TEMPLATES+</button>
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
+            <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
         </div>
 
@@ -3155,6 +3165,101 @@ function createConfetti() {
         }
 
         // ============================================
+        // THEME SYSTEM
+        // ============================================
+        const themes = {
+            'kidpix': {
+                name: '🎨 KidPix Classic',
+                '--bg': '#FFFFE0',
+                '--toolbox-bg': '#E6E6FA',
+                '--canvas-bg': '#FFF',
+                '--properties-bg': '#FFE4E1',
+                '--toolbar-bg': '#87CEEB',
+                '--border': '#000',
+                '--text': '#000'
+            },
+            'dark': {
+                name: '🌙 Dark Mode',
+                '--bg': '#1a1a1a',
+                '--toolbox-bg': '#2d2d2d',
+                '--canvas-bg': '#1a1a1a',
+                '--properties-bg': '#2d2d2d',
+                '--toolbar-bg': '#000',
+                '--border': '#444',
+                '--text': '#00ff00'
+            },
+            'neon': {
+                name: '💫 Neon Dreams',
+                '--bg': '#0a0a0a',
+                '--toolbox-bg': '#1a001a',
+                '--canvas-bg': '#000',
+                '--properties-bg': '#001a1a',
+                '--toolbar-bg': '#1a0033',
+                '--border': '#ff00ff',
+                '--text': '#00ffff'
+            },
+            'pastel': {
+                name: '🍬 Pastel Party',
+                '--bg': '#ffeef8',
+                '--toolbox-bg': '#fff0f5',
+                '--canvas-bg': '#fff',
+                '--properties-bg': '#f0f8ff',
+                '--toolbar-bg': '#ffe4e1',
+                '--border': '#ffb6c1',
+                '--text': '#8b4789'
+            },
+            'matrix': {
+                name: '💻 Matrix',
+                '--bg': '#000',
+                '--toolbox-bg': '#001100',
+                '--canvas-bg': '#000',
+                '--properties-bg': '#001100',
+                '--toolbar-bg': '#002200',
+                '--border': '#00ff00',
+                '--text': '#00ff00'
+            }
+        };
+
+        let currentThemeIndex = 0;
+        const themeKeys = Object.keys(themes);
+
+        function cycleTheme() {
+            currentThemeIndex = (currentThemeIndex + 1) % themeKeys.length;
+            const themeKey = themeKeys[currentThemeIndex];
+            const theme = themes[themeKey];
+
+            // Apply theme
+            const root = document.documentElement;
+            Object.keys(theme).forEach(key => {
+                if (key !== 'name') {
+                    root.style.setProperty(key, theme[key]);
+                }
+            });
+
+            // Save preference
+            localStorage.setItem('wysiwyg-theme', themeKey);
+
+            playSound('success', 'C6');
+            showStamp('🎨');
+            updateStatus(`Theme: ${theme.name}`);
+        }
+
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('wysiwyg-theme');
+            if (savedTheme && themes[savedTheme]) {
+                currentThemeIndex = themeKeys.indexOf(savedTheme);
+                const theme = themes[savedTheme];
+
+                const root = document.documentElement;
+                Object.keys(theme).forEach(key => {
+                    if (key !== 'name') {
+                        root.style.setProperty(key, theme[key]);
+                    }
+                });
+            }
+        }
+
+        // ============================================
         // INIT
         // ============================================
         function init() {
@@ -3168,6 +3273,9 @@ function createConfetti() {
 
             // Init asset browser
             browseAssets('gifs');
+
+            // Load saved theme
+            loadSavedTheme();
         }
 
         init();
