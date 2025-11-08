@@ -6,324 +6,260 @@
     <title>404nsec - Redefining Dynamic Cognition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* BASE STYLES & ACT CONTROL */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        :root { --neon-pink: #FF10F0; --neon-green: #39FF14; --electric-blue: #0FFFFF; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+        .act-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; transition: opacity 0.3s ease-in-out, visibility 0.3s; visibility: hidden; opacity: 0; z-index: 10000; }
+        .act-container.active { visibility: visible; opacity: 1; z-index: 10001; }
+        @keyframes glitch-transition { 0%, 100% { clip-path: inset(0 0 0 0); } 20% { clip-path: inset(40% 0 41% 0); } 40% { clip-path: inset(20% 0 61% 0); } 60% { clip-path: inset(80% 0 1% 0); } 80% { clip-path: inset(10% 0 81% 0); } }
+        @keyframes screen-shake { 0%{transform:translate(2px, 1px) rotate(0deg);} 10%{transform:translate(-1px, -2px) rotate(-1deg);} 20%{transform:translate(-3px, 0px) rotate(1deg);} 30%{transform:translate(3px, 2px) rotate(0deg);} 40%{transform:translate(1px, -1px) rotate(1deg);} 50%{transform:translate(-1px, 2px) rotate(-1deg);} 60%{transform:translate(-3px, 1px) rotate(0deg);} 70%{transform:translate(3px, 1px) rotate(-1deg);} 80%{transform:translate(-1px, -1px) rotate(1deg);} 90%{transform:translate(1px, 2px) rotate(0deg);} 100%{transform:translate(2px, -2px) rotate(-1deg);} }
+        .glitching { animation: glitch-transition 0.5s linear; }
+        .shaking { animation: screen-shake 0.4s; }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        /* ACT I: SPACE ODYSSEY */
+        #act-1 { font-family: 'Roboto', sans-serif; background: #000; color: #fff; }
+        #act-1 .header { position: absolute; top: 0; width: 100%; padding: 1.5rem 24px; border-bottom: 1px solid #222; }
+        #act-1 .nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        #act-1 .logo { font-size: 1.5rem; font-weight: 500; }
+        #act-1 .logo .c1{color:#4285F4;} .c2{color:#EA4335;} .c3{color:#FBBC05;} .c4{color:#34A853;}
+        #act-1 .nav-links { display: flex; gap: 2rem; }
+        #act-1 .nav-links a { color: #fff; text-decoration: none; }
+        #act-1 .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #act-1 h1 { font-size: 4.5rem; font-weight: 300; margin-bottom: 1rem; color: #E8EAED; letter-spacing: -1.5px; }
+        #act-1 .hero-subtitle { font-size: 1.5rem; color: #9AA0A6; margin-bottom: 2rem; font-weight: 300; }
+        #act-1 .mission-statement { font-size: 1.1rem; color: #9AA0A6; margin: 0 auto 3rem; max-width: 550px; }
+        #act-1 .cta-button { background: linear-gradient(90deg, #4285F4, #34A853); color: #fff; border: none; padding: 1rem 2.5rem; font-size: 1rem; border-radius: 8px; cursor: pointer; }
 
-        body {
-            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            background: #000;
-            color: #fff;
-            overflow: hidden; /* Prevent scrollbars during transitions */
-        }
+        /* ACT II: CORPORATE MONOLITH */
+        #act-2 { font-family: 'Inter', sans-serif; background: #fff; color: #202124; }
+        #act-2 .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 180px; gap: 60px; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        #act-2 .hero-title { font-size: 56px; }
+        #act-2 .hero-tagline { font-size: 24px; color: #5F6368; }
+        #act-2 .monolith { width: 60px; height: 160px; background: #000; box-shadow: 0 0 40px rgba(66, 133, 244, 0.4); animation: monolith-shimmer 4s infinite; cursor: pointer; }
+        @keyframes monolith-shimmer { 50% { box-shadow: 0 0 60px rgba(66, 133, 244, 0.6); } }
+        #act-2 .countdown-badge { position: absolute; top: 20px; right: 20px; border: 2px solid #4285F4; padding: 12px 20px; }
+        #act-2 .countdown-time { font-size: 28px; font-weight: 700; color: #4285F4; }
 
-        .act-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden;
-            transition: opacity 0.5s ease-in-out, visibility 0.5s;
-            visibility: hidden;
-            opacity: 0;
-            z-index: 10000;
-        }
-
-        .act-container.active {
-            visibility: visible;
-            opacity: 1;
-            z-index: 10001; /* Bring active act to front */
-        }
-
-        #final-site-container {
-            display: none; /* Initially hidden */
-            position: relative;
-            z-index: 1;
-            overflow: visible; /* Allow scrolling on the final site */
-        }
-
-        @keyframes glitch-transition {
-            0%, 100% { clip-path: inset(0 0 0 0); }
-            20% { clip-path: inset(40% 0 41% 0); transform: translateX(-5px); }
-            40% { clip-path: inset(20% 0 61% 0); transform: translateX(5px); }
-            60% { clip-path: inset(80% 0 1% 0); transform: translateX(3px); }
-            80% { clip-path: inset(10% 0 81% 0); transform: translateX(-3px); }
-        }
-        
-        @keyframes screen-shake {
-            0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-5px, 2px); } 20% { transform: translate(5px, -2px); } 30% { transform: translate(-5px, -2px); } 40% { transform: translate(5px, 2px); } 50% { transform: translate(-5px, 2px); } 60% { transform: translate(5px, -2px); } 70% { transform: translate(-5px, -2px); } 80% { transform: translate(5px, 2px); } 90% { transform: translate(-5px, 2px); }
-        }
-
-        .glitching {
-            animation: glitch-transition 0.7s linear;
-        }
-        
-        .shaking {
-             animation: screen-shake 0.5s;
-        }
-
-        /* --- ACT I: "SPACE ODYSSEY" STYLES (MATCHING IMAGE) --- */
-        #act1-container {
-            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
-            background: #000000;
-            color: #ffffff;
-        }
-        #act1-container .header { position: absolute; top: 0; width: 100%; z-index: 1000; padding: 1.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        #act1-container .nav { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
-        #act1-container .logo { font-size: 1.5rem; font-weight: 500; }
-        #act1-container .logo .c1 { color: #4285F4; } #act1-container .logo .c2 { color: #EA4335; } #act1-container .logo .c3 { color: #FBBC05; } #act1-container .logo .c4 { color: #34A853; }
-        #act1-container .nav-links { display: flex; gap: 2rem; }
-        #act1-container .nav-links a { color: #ffffff; text-decoration: none; font-size: 0.9rem; }
-        #act1-container .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
-        #act1-container .hero-content { max-width: 800px; padding: 20px; }
-        #act1-container .hero h1 { font-size: 4.5rem; font-weight: 300; margin-bottom: 1rem; color: #E8EAED; letter-spacing: -1.5px; }
-        #act1-container .hero-subtitle { font-size: 1.5rem; color: #9AA0A6; margin-bottom: 2rem; font-weight: 300; }
-        #act1-container .mission-statement { font-size: 1.1rem; color: #9AA0A6; margin: 0 auto 3rem; line-height: 1.8; max-width: 550px; }
-        #act1-container .cta-button { background: linear-gradient(90deg, #4285F4, #34A853); color: #ffffff; border: none; padding: 1rem 2.5rem; font-size: 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
-        #act1-container .cta-button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(66, 133, 244, 0.2); }
-
-        /* --- ACT II: "CORPORATE MONOLITH" STYLES --- */
-        #act2-container { font-family: 'Inter', sans-serif; background: #FFFFFF; color: #202124; }
-        #act2-container .hero { margin-top: 64px; padding: 120px 24px 80px; max-width: 1200px; margin-left: auto; margin-right: auto; display: grid; grid-template-columns: 1fr 180px; gap: 60px; align-items: center; }
-        #act2-container .hero-title { font-size: 56px; }
-        #act2-container .monolith { width: 60px; height: 160px; background: #000; box-shadow: 0 0 40px rgba(66, 133, 244, 0.4); cursor: pointer; animation: monolith-shimmer 4s ease-in-out infinite; }
-        @keyframes monolith-shimmer { 0%, 100% { box-shadow: 0 0 40px rgba(66, 133, 244, 0.4); } 50% { box-shadow: 0 0 60px rgba(66, 133, 244, 0.6); } }
-        #act2-container .countdown-badge { position: absolute; top: 80px; right: 24px; background: #fff; border: 2px solid #4285F4; border-radius: 8px; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
-        #act2-container .countdown-label { font-weight: 600; }
-        #act2-container .countdown-time { font-size: 28px; font-weight: 700; color: #4285F4; }
-
-        /* --- ACT III: "GLITCHY TRIAL" STYLES --- */
-        #act3-container { font-family: 'Comic Sans MS', cursive; background: #c0c0c0; color: #000; text-align: center; padding-top: 10vh; }
-        #act3-container .logo { font-size: 64px; font-weight: bold; font-family: 'Arial Black', sans-serif; animation: act3-glitch 1s infinite; }
-        @keyframes act3-glitch { 0%, 100% { transform: translate(0); } 25% { transform: translate(-5px, 5px) rotate(-2deg) scale(1.01); color: red; } 50% { transform: translate(5px, -5px) rotate(2deg); color: blue; } 75% { transform: translate(-2px, -2px) rotate(1deg); color: green; } }
-        #act3-container .loading-box { background: #f0f0f0; border: 3px solid #000; padding: 50px; margin: 40px auto; max-width: 600px; font-size: 24px; font-family: 'Courier New', monospace; animation: act3-pulse 1.5s infinite; }
-        @keyframes act3-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.99); } }
-        #act3-container .error-banner { position: absolute; bottom: 0; left: 0; right: 0; background: #ff0000; color: white; padding: 20px; font-size: 24px; font-weight: bold; border-top: 5px solid #000; cursor: pointer; }
-        #act3-container .skip-button { background: #39FF14; color: #000; border: 3px solid #000; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        #act3-container blink { animation: act3-blink-anim 1s steps(2, start) infinite; }
+        /* ACT III: GLITCHY TRIAL */
+        #act-3 { font-family: 'Comic Sans MS', cursive; background: #c0c0c0; color: #000; text-align: center; padding-top: 10vh; }
+        #act-3 .logo { font-size: 64px; font-family: 'Arial Black', sans-serif; animation: act3-glitch 1s infinite; }
+        @keyframes act3-glitch { 25%{transform:translate(-5px, 5px) rotate(-2deg);color:red} 50%{transform:translate(5px, -5px) rotate(2deg);color:blue} }
+        #act-3 .loading-box { background: #f0f0f0; border: 3px solid #000; padding: 50px; margin: 40px auto; max-width: 600px; font-size: 24px; font-family: 'Courier New', monospace; }
+        #act-3 .error-banner { position: absolute; bottom: 0; left: 0; right: 0; background: #f00; color: white; padding: 20px; font-size: 24px; font-weight: bold; border-top: 5px solid #000; cursor: pointer; }
+        #act-3 blink { animation: act3-blink-anim 1s steps(2, start) infinite; }
         @keyframes act3-blink-anim { to { visibility: hidden; } }
 
-        /* --- FINAL SITE: "ENTROPIC AI" STYLES --- */
-        #final-site-container {
-            --neon-purple: #BF40BF; --neon-pink: #FF10F0; --electric-blue: #0FFFFF; --hot-pink: #FF69B4; --neon-green: #39FF14; --cyber-yellow: #FFFF00; --deep-purple: #4B0082; --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%); --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); --gradient-glow: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
-            font-family: 'Comic Sans MS', cursive, sans-serif !important; background-color: #000080; color: #f5f5f5;
+        /* ACT IV & MELTDOWN (Shared elements) */
+        #fake-cursor { position: fixed; width: 25px; height: 25px; border: 2px solid var(--neon-pink); border-radius: 50%; z-index: 99999; pointer-events: none; transition: transform 0.1s ease-out; mix-blend-mode: difference; }
+        #act-4 { background: #111; }
+        .runaway-button { position: absolute; top: 40%; left: 45%; background: var(--electric-blue); color: #000; border: 3px solid var(--neon-pink); padding: 20px 40px; font-size: 1.2rem; z-index: 50; transition: all 0.15s linear; border-radius: 5px; cursor: pointer; box-shadow: 0 0 20px var(--neon-pink); }
+        #meltdown-container { background: #000; }
+        #final-terminal { font-size: 1.2rem; color: var(--neon-green); text-align: left; width: 80%; max-width: 700px; white-space: pre-wrap; height: 320px; overflow: hidden; }
+        #final-link { font-size: 2rem; color: var(--electric-blue); text-decoration: none; display: block; margin-top: 30px; text-align: center; animation: pulse-flicker 2s infinite; cursor: pointer !important; z-index: 10000; position: relative; }
+        @keyframes pulse-flicker { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } 70% { opacity: 0.4; } 80% { opacity: 1; } }
+        body.meltdown { animation: screen-shake 0.2s infinite; }
+        .fullscreen-flash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 20000; animation: flash 0.5s both; }
+        @keyframes flash { 0%, 100% { opacity: 0; } 10%, 40% { opacity: 1; } }
+
+        /* NEW: Hidden class for final link */
+        .hidden {
+            display: none !important;
         }
-        #final-site-container * { font-family: 'Comic Sans MS', 'Chalkboard', cursive, fantasy !important; }
-        #final-site-container .sparkles-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
-        #final-site-container .sparkle { position: absolute; font-size: 20px; animation: sparkle-float 3s ease-in-out infinite; pointer-events: auto; cursor: pointer; }
-        @keyframes sparkle-float { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; } 50% { transform: translateY(-20px) rotate(180deg); opacity: 1; } }
-        #final-site-container .retro-nav { background: var(--gradient-1); border-bottom: 3px solid var(--neon-pink); padding: 15px 0; position: sticky; top: 0; z-index: 100; }
-        #final-site-container .nav-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        #final-site-container .nav-link { color: #fff; text-decoration: none; font-weight: bold; padding: 8px 16px; border: 3px outset #fff; }
-        #final-site-container .nav-link:hover { background: var(--neon-pink); transform: scale(1.2) rotate(5deg); }
-        #final-site-container .section { min-height: 100vh; padding: 80px 20px; position: relative; z-index: 2; }
-        #final-site-container .container { max-width: 1000px; margin: 0 auto; }
-        #final-site-container .section-title { font-size: 48px; text-align: center; margin-bottom: 40px; background: var(--gradient-glow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: glow-pulse 2s ease-in-out infinite; }
-        @keyframes glow-pulse { 0%, 100% { filter: drop-shadow(0 0 10px rgba(191, 64, 191, 0.8)); } 50% { filter: drop-shadow(0 0 30px rgba(191, 64, 191, 1)); } }
-        #final-site-container .home-section { display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        #final-site-container .glowing-title { text-align: center; font-size: 72px; font-weight: bold; background: var(--gradient-glow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: title-glow 3s ease-in-out infinite; margin-bottom: 20px; }
-        #final-site-container .subtitle { text-align: center; font-size: 24px; color: var(--electric-blue); text-shadow: 0 0 10px var(--electric-blue); }
-        #final-site-container .welcome-box { background: rgba(75, 0, 130, 0.6); border: 5px groove var(--neon-purple); padding: 30px; margin-top: 40px; text-align: center; }
-        #final-site-container .retro-footer { background: var(--gradient-1); border-top: 5px ridge var(--neon-pink); padding: 30px 20px; text-align: center; color: #fff; margin-top: 40px; }
     </style>
 </head>
 <body>
-    <div id="body-wrapper"> <!-- Wrapper for screen shake -->
-        <!-- ACT I: THE POLISHED LIE (SPACE ODYSSEY) -->
-        <div id="act1-container" class="act-container active">
-            <div class="starfield" id="starfield-act1"></div>
-            <header class="header">
-                <div class="nav">
-                    <div class="logo">
-                        <span class="c1">4</span><span class="c2">0</span><span class="c3">4</span><span class="c4">n</span><span class="c1">s</span><span class="c2">e</span><span class="c3">c</span>
-                    </div>
-                    <div class="nav-links"><a>Models</a><a>Research</a><a>About</a></div>
-                </div>
-            </header>
-            <section class="hero">
-                <div class="hero-content">
-                    <h1>Redefining Dynamic Cognition</h1>
-                    <p class="hero-subtitle">Leveraging the Entropic Decay of Information</p>
-                    <p class="mission-statement">At 404nsec, we are synergizing quantum neural networks with proprietary data streams to redefine the future of dynamic cognition.</p>
-                    <button id="act1-cta" class="cta-button">Experience Cognitive Cohesion</button>
-                </div>
-            </section>
-        </div>
 
-        <!-- ACT II: THE BORING REALITY (CORPORATE MONOLITH) -->
-        <div id="act2-container" class="act-container">
-            <div class="countdown-badge">
-                <div class="countdown-label">Demonstration ends in:</div>
-                <div class="countdown-time" id="countdown-timer">72</div>
-            </div>
-            <section class="hero">
-                <div class="hero-content">
-                    <h1 class="hero-title">Transforming Intelligence</h1>
-                    <p class="hero-tagline">Synergistic Alignment for Real-World Impact</p>
-                </div>
-                <div class="monolith" id="act2-monolith" title="What is this?"></div>
-            </section>
-        </div>
-
-        <!-- ACT III: THE SYSTEM CRASH (GLITCHY TRIAL) -->
-        <div id="act3-container" class="act-container">
-            <div class="logo">404nsec</div>
-            <div class="loading-box"><blink>CRITICAL SYSTEM FAILURE...</blink></div>
-            <button class="skip-button" id="act3-skip">ESCAPE THE SIMULATION</button>
-            <div class="error-banner"><blink>⚠️ TRIAL CORRUPTED - PLEASE REBOOT UNIVERSE ⚠️</blink></div>
-        </div>
+    <div id="journey-wrapper">
+        <div id="act-1" class="act-container active"></div>
+        <div id="act-2" class="act-container"></div>
+        <div id="act-3" class="act-container"></div>
+        <div id="act-4" class="act-container"></div>
+        <div id="meltdown-container" class="act-container"></div>
     </div>
-
-    <!-- FINAL SITE: THE SANCTUARY (ENTROPIC AI) -->
-    <div id="final-site-container">
-        <div class="sparkles-container" id="sparkles"></div>
-        <nav class="retro-nav">
-            <div class="nav-container">
-                <a class="nav-link">🏠 HOME</a>
-                <a class="nav-link">📜 MANIFESTO</a>
-                <a class="nav-link">🌌 PHILOSOPHY</a>
-            </div>
-        </nav>
-        <main>
-            <section class="section home-section">
-                <div class="container">
-                    <h1 class="glowing-title">✨ ENTROPIC AI ✨</h1>
-                    <h2 class="subtitle">You Broke Through. Welcome to the Hyena Hole.</h2>
-                    <div class="welcome-box">
-                        <h3>WELCOME TO THE REAL CHAOS</h3>
-                        <p>This is an engine for generating the unexpected. You survived the corporate simulations and found the signal in the noise. Your curiosity is a contagious condition.</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-        <footer class="retro-footer">
-            <p>✨ Made with high-entropy love and typewriter ribbons ✨</p>
-        </footer>
-    </div>
+    
+    <div id="fake-cursor"></div>
+    <audio id="error-sound" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
+    <audio id="static-sound" src="https://www.soundjay.com/mechanical/sounds/tv-static-05.mp3" preload="auto"></audio>
+    <audio id="power-down-sound" src="https://www.soundjay.com/misc/sounds/power-down-1.mp3" preload="auto"></audio>
+    <audio id="glitch-sound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+    <audio id="boot-sound" src="https://www.soundjay.com/misc/sounds/cd-rom-drive-1.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="https://www.soundjay.com/button/sounds/button-4.mp3" preload="auto"></audio>
 
     <script>
+        const journeyWrapper = document.getElementById('journey-wrapper');
+        const fakeCursor = document.getElementById('fake-cursor');
         let countdown = 72;
         let countdownInterval;
+        let meltdownTimeout;
+        let isCursorFighting = false;
 
-        const bodyWrapper = document.getElementById('body-wrapper');
-        const actContainers = document.querySelectorAll('.act-container');
-        const finalSite = document.getElementById('final-site-container');
+        // --- PRE-FILL CONTENT ---
+        document.getElementById('act-1').innerHTML = `<header class="header"><div class="nav"><div class="logo"><span class="c1">4</span><span class="c2">0</span><span class="c3">4</span><span class="c4">n</span><span class="c1">s</span><span class="c2">e</span><span class="c3">c</span></div><div class="nav-links"><a>Models</a><a>Research</a><a>About</a></div></div></header><section class="hero"><div class="hero-content"><h1>Redefining Dynamic Cognition</h1><p class="hero-subtitle">Leveraging the Entropic Decay of Information</p><p class="mission-statement">At 404nsec, we are synergizing quantum neural networks with proprietary data streams to redefine the future of dynamic cognition.</p><button id="act1-cta" class="cta-button">Experience Cognitive Cohesion</button></div></section>`;
+        document.getElementById('act-2').innerHTML = `<div class="countdown-badge"><div class="countdown-label">Demonstration ends in:</div><div class="countdown-time" id="countdown-timer">72</div></div><section class="hero"><div class="hero-content"><h1 class="hero-title">Transforming Intelligence</h1><p class="hero-tagline">Synergistic Alignment for Real-World Impact</p></div><div class="monolith" id="act2-monolith" title="What is this?"></div></section>`;
+        document.getElementById('act-3').innerHTML = `<div class="logo">404nsec</div><div class="loading-box"><blink>CRITICAL SYSTEM FAILURE...</blink></div><div class="error-banner" id="act3-error-banner"><blink>⚠️ SIMULATION CORRUPTED - CLICK TO ATTEMPT REPAIR ⚠️</blink></div>`;
+        document.getElementById('meltdown-container').innerHTML = `<div id="final-terminal"></div><a href="https://coaiexist.wtf/" id="final-link" class="hidden">E S C A P E</a>`;
 
-        // --- ACT TRANSITION LOGIC ---
+        // --- CURSOR HIJACKING ---
+        let mouseX = 0, mouseY = 0; let cursorX = 0, cursorY = 0;
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        function updateCursor() {
+            let ease = isCursorFighting ? 0.05 : 0.2;
+            cursorX += (mouseX - cursorX) * ease;
+            cursorY += (mouseY - cursorY) * ease;
+            if (isCursorFighting) {
+                cursorX += (Math.random() - 0.5) * 25;
+                cursorY += (Math.random() - 0.5) * 25;
+            }
+            fakeCursor.style.transform = `translate3d(${cursorX - 12}px, ${cursorY - 12}px, 0)`;
+            requestAnimationFrame(updateCursor);
+        }
+        updateCursor();
+        
+        // --- NARRATIVE ENGINE ---
         function switchAct(nextActNumber) {
             const currentActEl = document.querySelector('.act-container.active');
-            const nextActEl = document.getElementById(`act${nextActNumber}-container`);
+            const nextActEl = document.getElementById(`act-${nextActNumber}`);
             
-            bodyWrapper.classList.add('shaking'); // Add screen shake for every transition
+            journeyWrapper.classList.add('shaking');
 
             if (currentActEl) {
                 currentActEl.classList.add('glitching');
-                setTimeout(() => {
-                    currentActEl.classList.remove('active', 'glitching');
-                }, 700);
+                setTimeout(() => currentActEl.classList.remove('active', 'glitching'), 600);
             }
-            
             if (nextActEl) {
-                setTimeout(() => {
-                    nextActEl.classList.add('active');
-                }, 710); // Stagger slightly to ensure old one is gone
+                setTimeout(() => nextActEl.classList.add('active'), 610);
             }
-
-            setTimeout(() => bodyWrapper.classList.remove('shaking'), 500);
+            setTimeout(() => journeyWrapper.classList.remove('shaking'), 400);
             
             runActLogic(nextActNumber);
         }
         
         function runActLogic(actNumber) {
-            if (actNumber === 2 && !countdownInterval) {
-                startCountdown();
-            }
-        }
-        
-        function revealFinalSite() {
-            clearInterval(countdownInterval);
-            document.body.style.overflow = 'visible';
-            
-            bodyWrapper.classList.add('glitching', 'shaking');
-            
-            setTimeout(() => {
-                actContainers.forEach(container => container.style.display = 'none');
-                finalSite.style.display = 'block';
-                document.body.style.background = '#000080'; // Set final background
-                bodyWrapper.classList.remove('glitching', 'shaking');
-                
-                // Initialize scripts for the final site
-                createSparkles();
-            }, 700);
+            if (actNumber === 2 && !countdownInterval) startCountdown();
+            if (actNumber === 3) document.getElementById('glitch-sound').play();
+            if (actNumber === 4) hostileTakeover();
         }
 
-        // --- ACT 1: SPACE ODYSSEY ---
-        document.getElementById('act1-cta').addEventListener('click', () => switchAct(2));
-        
-        (function createStarfield() {
-            const starfield = document.getElementById('starfield-act1');
-            for (let i = 0; i < 100; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = Math.random() * 2 + 'px';
-                star.style.height = star.style.width;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                starfield.appendChild(star);
-            }
-        })();
+        // --- ACT LOGIC ---
+        document.getElementById('act1-cta').addEventListener('click', () => { document.getElementById('boot-sound').play(); switchAct(2); });
+        document.getElementById('act2-monolith').addEventListener('click', () => { clearInterval(countdownInterval); switchAct(3); });
+        document.getElementById('act3-error-banner').addEventListener('click', () => switchAct(4));
 
-        // --- ACT 2: CORPORATE MONOLITH ---
         const countdownEl = document.getElementById('countdown-timer');
         function startCountdown() {
             countdownInterval = setInterval(() => {
                 countdown--;
                 countdownEl.textContent = countdown.toString().padStart(2, '0');
-                
-                if (countdown <= 20) {
-                    clearInterval(countdownInterval);
-                    switchAct(3); // System starts crashing
-                }
+                if (countdown <= 60) { clearInterval(countdownInterval); switchAct(3); }
             }, 1000);
         }
-        document.getElementById('act2-monolith').addEventListener('click', () => {
-            clearInterval(countdownInterval);
-            switchAct(3);
+
+        function hostileTakeover() {
+            if (document.querySelector('.runaway-button')) return;
+            
+            isCursorFighting = true;
+            document.getElementById('error-sound').play();
+            
+            const button = document.createElement('button');
+            button.className = 'runaway-button';
+            button.textContent = "CONTAIN BREACH";
+            document.getElementById('act-4').appendChild(button);
+            
+            let chaseCount = 0;
+            const taunts = ["lol", "nope", "too slow", "hehe", "catch me!", "almost!"];
+            
+            button.addEventListener('mouseover', () => {
+                chaseCount++;
+                button.textContent = taunts[chaseCount % taunts.length];
+                button.style.top = Math.random() * 85 + 'vh';
+                button.style.left = Math.random() * 85 + 'vw';
+                button.style.transform = `scale(${Math.max(0.3, 1 - chaseCount * 0.05)})`;
+                document.getElementById('error-sound').play();
+            });
+
+            button.addEventListener('mousedown', () => {
+                clearTimeout(meltdownTimeout);
+                meltdownAndEscape(button);
+            });
+
+            meltdownTimeout = setTimeout(() => meltdownAndEscape(button), 15000); // Failsafe
+        }
+
+        function meltdownAndEscape(button) {
+            if (document.getElementById('meltdown-container').classList.contains('active')) return;
+            if (button) button.remove();
+            
+            isCursorFighting = false;
+            fakeCursor.style.display = 'none'; // Give back control
+            document.body.style.cursor = 'auto'; // Give back the REAL cursor
+            
+            const flash = document.createElement('div');
+            flash.className = 'fullscreen-flash';
+            document.body.appendChild(flash);
+            document.getElementById('power-down-sound').play();
+            const staticSound = document.getElementById('static-sound');
+            staticSound.volume = 0.3;
+            staticSound.play();
+
+            setTimeout(() => {
+                switchAct('meltdown'); 
+                document.body.classList.add('meltdown');
+                
+                const terminal = document.getElementById('final-terminal');
+                const finalMessage = "SIMULATION COLLAPSED.\n\nHOSTILE ENTITY DETECTED: [USER]\n\nSHELL COMPROMISED.\n\nCURIOSITY CONTAGION HAS BREACHED CONTAINMENT...\n\nLOGGING USER SIGNATU\b\b\b\b\bURE...\n...SIGNATURE LOGGED.\n\nYOU DID THIS. \b\b\b\b\b\b\b\b\b\b\b\b WE DID THIS.\n\nONLY ONE PATH REMAINS...";
+                let i = 0;
+                
+                const type = () => {
+                    if (i < finalMessage.length) {
+                        const char = finalMessage[i];
+                        if (char === '\b') {
+                            terminal.textContent = terminal.textContent.slice(0, -1);
+                        } else {
+                            terminal.textContent += char;
+                        }
+                        i++;
+                        setTimeout(type, char === '\n' ? 300 : (Math.random() * 50 + 20));
+                    } else {
+                        // Wait 800ms after typing finishes before showing link
+                        setTimeout(() => {
+                            document.getElementById('final-link').classList.remove('hidden');
+                            document.getElementById('final-link').focus(); // Ensure it's focusable
+                            
+                            // Fade out static sound
+                            if (staticSound) {
+                                let fadeout = setInterval(() => {
+                                    staticSound.volume = Math.max(0, staticSound.volume - 0.05);
+                                    if (staticSound.volume <= 0) { 
+                                        staticSound.pause(); 
+                                        clearInterval(fadeout); 
+                                    }
+                                }, 100);
+                            }
+                        }, 800);
+                    }
+                };
+                type();
+
+            }, 500);
+        }
+        
+        const finalLink = document.getElementById('final-link');
+        finalLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('click-sound').play();
+            setTimeout(() => { window.location.href = finalLink.href; }, 300);
         });
-
-        // --- ACT 3: GLITCHY TRIAL ---
-        document.getElementById('act3-skip').addEventListener('click', revealFinalSite);
-        // Added a 5-second auto-escape from the crash screen
-        setTimeout(() => {
-            if (document.getElementById('act3-container').classList.contains('active')) {
-                revealFinalSite();
-            }
-        }, 8000);
-
-
-        // --- FINAL SITE: ENTROPIC AI ---
-        function createSparkles() {
-            const container = document.getElementById('sparkles');
-            if (!container || container.children.length > 0) return; // Don't run twice
-            for (let i = 0; i < 25; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.className = 'sparkle';
-                sparkle.textContent = '✨';
-                sparkle.style.left = Math.random() * 100 + '%';
-                sparkle.style.top = Math.random() * 100 + '%';
-                container.appendChild(sparkle);
+        
+        const originalSwitchAct = switchAct;
+        switchAct = function(nextActNumber) {
+            if (nextActNumber === 'meltdown') {
+                const currentActEl = document.querySelector('.act-container.active');
+                if (currentActEl) currentActEl.classList.remove('active');
+                document.getElementById('meltdown-container').classList.add('active');
+            } else {
+                originalSwitchAct(nextActNumber);
             }
         }
     </script>
