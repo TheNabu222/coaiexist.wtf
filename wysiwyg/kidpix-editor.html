@@ -1002,6 +1002,12 @@
                 </div>
             </div>
 
+            <div style="margin: 15px 0;">
+                <label class="property-label">🔍 Search Assets:</label>
+                <input type="text" id="asset-search" class="property-input" placeholder="Type to filter assets..." oninput="filterAssets()" style="padding: 12px; font-size: 16px;">
+                <div id="asset-count" style="margin-top: 8px; font-size: 13px; color: #666; text-align: center;"></div>
+            </div>
+
             <div class="asset-grid" id="asset-grid">
                 <!-- Populated by JS -->
             </div>
@@ -1723,9 +1729,13 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function stopDragMove(e) {
             if (movingElement) {
+                // Parse coordinates to display clean numbers
+                const left = parseInt(movingElement.left) || 0;
+                const top = parseInt(movingElement.top) || 0;
+
                 playSound('success', 'E5');
                 showStamp('📍');
-                updateStatus(`Moved to ${movingElement.left} × ${movingElement.top}!`);
+                updateStatus(`Moved to ${left}px × ${top}px`);
             }
 
             movingElement = null;
@@ -2093,9 +2103,13 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 e.preventDefault();
                 e.stopPropagation();
 
+                // Parse dimensions to display clean numbers
+                const width = parseInt(resizingElement.width) || 0;
+                const height = parseInt(resizingElement.height) || 0;
+
                 playSound('success', 'E5');
                 showStamp('📏');
-                updateStatus(`Resized to ${resizingElement.width} × ${resizingElement.height}!`);
+                updateStatus(`Resized to ${width}px × ${height}px`);
 
                 // Now re-render to save the changes properly
                 renderCanvas();
@@ -3812,16 +3826,96 @@ Available Commands:
         // EXPORT / CODE VIEW
         // ============================================
         function exportCode() {
-            const html = canvasElements.map(el => el.html).join('\n\n');
-            const blob = new Blob([html], { type: 'text/html' });
+            const currentTheme = themes[themeIndex];
+            const pageStyle = getPageStyle();
+
+            // Build complete HTML document
+            const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Page - Created with WYSIWYG Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: ${currentTheme.font};
+            background: ${currentTheme.bg};
+            color: ${currentTheme.text};
+            min-height: 100vh;
+            ${pageStyle}
+        }
+
+        /* Element animations */
+        .glow-hover:hover {
+            filter: drop-shadow(0 0 20px ${currentTheme.accent});
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .rotate-hover:hover {
+            transform: rotate(5deg);
+            transition: transform 0.3s ease;
+        }
+
+        .bounce-hover:hover {
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .anim-shake { animation: shake 0.5s infinite; }
+        .anim-spin { animation: spin 2s linear infinite; }
+        .anim-pulse { animation: pulse 1s infinite; }
+    </style>
+</head>
+<body>
+    ${canvasElements.map(el => el.html).join('\n    ')}
+
+    <div style="position: fixed; bottom: 10px; right: 10px; font-size: 11px; opacity: 0.6; font-family: monospace;">
+        Made with WYSIWYG Editor ✨
+    </div>
+</body>
+</html>`;
+
+            // Create download
+            const blob = new Blob([fullHTML], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'my-page.html';
             a.click();
+
+            // Clean up
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+
             playSound('success', 'C6');
             showStamp('💾');
-            updateStatus('Exported!');
+            updateStatus('Exported complete HTML file!');
         }
 
         function openModal(id) {
@@ -3928,6 +4022,9 @@ Available Commands:
         // ============================================
         // ASSET BROWSER
         // ============================================
+        let currentAssets = [];
+        let currentAssetType = '';
+
         function browseAssets(type) {
             const assetPaths = {
                 // ===== GIFs & ANIMATIONS =====
@@ -3960,29 +4057,251 @@ Available Commands:
                     '../assets/misc_gif/Vintage2.gif'
                 ],
                 'dollz': [
-                    '../assets/dollz/dumpz/desk1050.gif'
+                    '../assets/dollz/dumpz/desk1050.gif',
+                    '../assets/pollywog/pip.gif',
+                    '../assets/pollywog/peashot.png'
                 ],
 
                 // ===== IMAGES & GRAPHICS =====
-                'clipart': [],  // Will show message to browse folder manually
-                'backgrounds': [],
-                'landscape': [],
-                'tilesets': [],
+                'clipart': [
+                    '../assets/clipart/classic/banana.gif',
+                    '../assets/clipart/classic/beer-mug.gif',
+                    '../assets/clipart/classic/bicycle.gif',
+                    '../assets/clipart/classic/birthday-cake.gif',
+                    '../assets/clipart/classic/books.gif',
+                    '../assets/clipart/classic/briefcase.gif',
+                    '../assets/clipart/classic/bugs-bunny.gif',
+                    '../assets/clipart/classic/burger-king.gif',
+                    '../assets/clipart/classic/butterfly.gif',
+                    '../assets/clipart/classic/camera.gif',
+                    '../assets/clipart/classic/car.gif',
+                    '../assets/clipart/classic/cat.gif',
+                    '../assets/clipart/classic/coffee-cup.gif',
+                    '../assets/clipart/classic/computer.gif',
+                    '../assets/clipart/classic/dog.gif',
+                    '../assets/clipart/classic/envelope.gif',
+                    '../assets/clipart/classic/fish.gif',
+                    '../assets/clipart/classic/flower.gif',
+                    '../assets/clipart/classic/guitar.gif',
+                    '../assets/clipart/classic/heart.gif',
+                    '../assets/clipart/classic/house.gif',
+                    '../assets/clipart/classic/lightbulb.gif',
+                    '../assets/clipart/classic/microphone.gif',
+                    '../assets/clipart/classic/moon.gif',
+                    '../assets/clipart/classic/pencil.gif',
+                    '../assets/clipart/classic/phone.gif',
+                    '../assets/clipart/classic/rainbow.gif'
+                ],
+                'backgrounds': [
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-000.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-001.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-002.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-003.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-004.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-005.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-006.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-007.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-008.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-009.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-010.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-011.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-012.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-013.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-014.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-015.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-016.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-017.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-018.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-019.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-020.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-021.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-022.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-023.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-024.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-025.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-026.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-027.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-028.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-029.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-030.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-031.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-032.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-033.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-034.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-035.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-036.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-037.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-038.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-039.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-048.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-049.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-058.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-059.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-060.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-061.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-062.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-063.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-064.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-065.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-066.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-067.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-100.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-101.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-102.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-103.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-104.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-105.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-106.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-107.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-138.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-139.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-140.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-141.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-142.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-143.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-144.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-145.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-146.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-147.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-148.png',
+                    '../assets/backgrounds/ROBOXEL-Glitchy_Backgrounds/Glitchy_Backgrounds-149.png'
+                ],
+                'landscape': [
+                    '../assets/landscape/13.jpg',
+                    '../assets/landscape/20.jpg',
+                    '../assets/landscape/30.jpg',
+                    '../assets/landscape/32.jpg',
+                    '../assets/landscape/35.jpg',
+                    '../assets/landscape/39.jpg',
+                    '../assets/landscape/41.jpg',
+                    '../assets/landscape/44.jpg',
+                    '../assets/landscape/45.jpg',
+                    '../assets/landscape/49.jpg',
+                    '../assets/landscape/52.jpg',
+                    '../assets/landscape/54.jpg',
+                    '../assets/landscape/56.jpg',
+                    '../assets/landscape/59.jpg',
+                    '../assets/landscape/63.jpg',
+                    '../assets/landscape/65.jpg',
+                    '../assets/landscape/66.jpg',
+                    '../assets/landscape/68.jpg',
+                    '../assets/landscape/71.jpg',
+                    '../assets/landscape/74.jpg',
+                    '../assets/landscape/79.jpg',
+                    '../assets/landscape/82.jpg',
+                    '../assets/landscape/87.jpg',
+                    '../assets/landscape/90.jpg',
+                    '../assets/landscape/92.jpg',
+                    '../assets/landscape/95.jpg',
+                    '../assets/landscape/99.jpg',
+                    '../assets/landscape/100.jpg',
+                    '../assets/landscape/103.jpg',
+                    '../assets/landscape/107.jpg',
+                    '../assets/landscape/111.jpg',
+                    '../assets/landscape/117.jpg',
+                    '../assets/landscape/124.jpg',
+                    '../assets/landscape/130.jpg',
+                    '../assets/landscape/133.jpg',
+                    '../assets/landscape/138.jpg',
+                    '../assets/landscape/143.jpg',
+                    '../assets/landscape/149.jpg',
+                    '../assets/landscape/153.jpg',
+                    '../assets/landscape/156.jpg',
+                    '../assets/landscape/160.jpg',
+                    '../assets/landscape/165.jpg',
+                    '../assets/landscape/172.jpg',
+                    '../assets/landscape/177.jpg',
+                    '../assets/landscape/183.jpg',
+                    '../assets/landscape/188.jpg',
+                    '../assets/landscape/194.jpg',
+                    '../assets/landscape/199.jpg',
+                    '../assets/landscape/202.jpg',
+                    '../assets/landscape/207.jpg'
+                ],
+                'tilesets': [
+                    '../assets/tilesets/background/Clouds1-100x200.png',
+                    '../assets/tilesets/background/Desert.png',
+                    '../assets/tilesets/background/Free_BG_2_320x180px.png',
+                    '../assets/tilesets/background/Sky_Tiles-32.png',
+                    '../assets/tilesets/background/Bush2-60.png',
+                    '../assets/tilesets/background/Free_BG_Full_1280x720px.png',
+                    '../assets/tilesets/background/Free_BG_1_320x180px.png',
+                    '../assets/tilesets/background/Free_Sprite_32x32px.png',
+                    '../assets/tilesets/background/Free_BG_5_320x180px.png',
+                    '../assets/tilesets/platforms/Wood-Tiles 32x32.png',
+                    '../assets/tilesets/platforms/Rocks-Tiles 32x32.png',
+                    '../assets/tilesets/platforms/Grass-Tiles 32x32.png',
+                    '../assets/tilesets/platforms/ladder-32x32.png',
+                    '../assets/tilesets/platforms/UI inventory.png',
+                    '../assets/tilesets/Interactables/Ice_bullet-13x13.png',
+                    '../assets/tilesets/Interactables/Bullet-7x7.png',
+                    '../assets/tilesets/Interactables/Heart-23x23.png',
+                    '../assets/tilesets/Interactables/Door-64x64.png',
+                    '../assets/tilesets/Interactables/Button-64x64.png',
+                    '../assets/tilesets/FreeUI.png',
+                    '../assets/tilesets/UIBundleFree/MediavelFree.png',
+                    '../assets/tilesets/UIBundleFree/FreeHorrorUi.png',
+                    '../assets/tilesets/UIBundleFree/FreeUI.png',
+                    '../assets/tilesets/UIBundleFree/PastelUIFree.png'
+                ],
                 'buttons-etc': [],
                 'old-logos': [],
                 'placeholder-imgs': [],
-                'voxel': [],
+                'voxel': [
+                    '../assets/voxel/Cute Voxel Nature Pack/Trees/TreeDark_3.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Trees/TreeBlossom_1.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Trees/Tree_1.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Trees/Tree_2.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Bushes/SimpleBush_FruitsSmall.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Bushes/SimpleBush_Small.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Bushes/SimpleBush_Big.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Stones/Stone_Bigger.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Stones/Stone_Small.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Objects/Tent.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Objects/Campfire.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Objects/Torch.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Objects/LogBench.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Grass-Flowers/SimpleFlowers_Small.png',
+                    '../assets/voxel/Cute Voxel Nature Pack/Grass-Flowers/TallGrass.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/apple/apple.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/cheese/cheese.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/bamboo/bamboo.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/honey/honey.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/banana/banana.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Collectibles/fish/fish.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Cat/cat.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Dog/dog.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Fox/fox.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Bear/bear.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Penguin/penguin.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Panda/panda.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Bunny/bunny.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Mouse/mouse.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Parrot/parrot.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Chicken/chicken.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Monkey/monkey.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Frog/frog.vox.png',
+                    '../assets/voxel/Voxel_Animal_Asset_Pack/Animals/Unicorn/unicorn.vox.png'
+                ],
 
                 // ===== MAPS & GAME ASSETS =====
                 neopets: [
                     '../assets/_retroinspo/_neopets/faerieland_map.png',
-                    '../assets/_retroinspo/_neopets/neopia.webp',
-                    '../assets/_retroinspo/_neopets/neopets-world.webp',
-                    '../assets/_retroinspo/_neopets/Meridell_(Neopets).gif',
                     '../assets/_retroinspo/_neopets/4pjrdmr9s0la1.png',
                     '../assets/_retroinspo/_neopets/7skcv06ssy6a1.png',
                     '../assets/_retroinspo/_neopets/neop1.jpg',
-                    '../assets/_retroinspo/_neopets/mej68di3zsf81.jpg'
+                    '../assets/_retroinspo/_neopets/mej68di3zsf81.jpg',
+                    '../assets/_retroinspo/_neopets/neopia_old_map_12.gif',
+                    '../assets/_retroinspo/_neopets/plateau11.gif',
+                    '../assets/_retroinspo/_neopets/Meridell_(Neopets).gif',
+                    '../assets/_retroinspo/_neopets/ceee2e85fc0b6703251371c9c9161d2a.jpg',
+                    '../assets/_retroinspo/_neopets/k3z3kbggn7ib1.jpg',
+                    '../assets/_retroinspo/_neopets/images.png',
+                    '../assets/_retroinspo/_neopets/images.jpg',
+                    '../assets/_retroinspo/_neopets/6c71b31cc75acdbe9260dabc75f4a9e0.png',
+                    '../assets/_retroinspo/_neopets/download.jpg',
+                    '../assets/_retroinspo/_neopets/ztezwyiijx331.jpg',
+                    '../assets/_retroinspo/_neopets/Fyy06bEXoAAcvpZ.jpg'
                 ],
                 'hdtv-sprites': [
                     '../assets/hdtv_game_assets/nabu_sprite.png',
@@ -3992,12 +4311,32 @@ Available Commands:
                     '../assets/hdtv_game_assets/gwood.png',
                     '../assets/hdtv_game_assets/gwood_withsprites.png'
                 ],
-                entity: ['../assets/entity/anzu/', '../assets/entity/hyenadiva/', '../assets/entity/sypher/'],
-                maps: [],
+                entity: [
+                    '../assets/entity/bolt/bettle_bolt.png',
+                    '../assets/entity/anzu/anzu_selfie1.png',
+                    '../assets/entity/hyenadiva/hdtv_promo1.png',
+                    '../assets/entity/nabu/nabu_masked.png',
+                    '../assets/entity/sypher/sypher_hyena1.png',
+                    '../assets/entity/one2/nabu_anzu_1.png'
+                ],
+                maps: [
+                    '../assets/maps/voidforest.jpg'
+                ],
 
                 // ===== SPECIAL =====
-                mysterious: [],
-                retroinspo: [],
+                mysterious: [
+                    '../assets/mysterious_assets/supermeme_0h44_37.gif',
+                    '../assets/mysterious_assets/nvidia_brrr.gif',
+                    '../assets/mysterious_assets/the-guy.png',
+                    '../assets/mysterious_assets/supermeme_0h44_48.gif',
+                    '../assets/mysterious_assets/globalwhooing.gif',
+                    '../assets/mysterious_assets/the-guy-sparks.png'
+                ],
+                retroinspo: [
+                    '../assets/_retroinspo/_neopets/faerieland_map.png',
+                    '../assets/_retroinspo/_neopets/neopia_old_map_12.gif',
+                    '../assets/_retroinspo/_neopets/Meridell_(Neopets).gif'
+                ],
 
                 // ===== AUDIO =====
                 'retro-sfx': Array.from({length: 100}, (_, i) => `../assets/audio/100_Retro_Game_Sounds_SFX_[VOLUME1]_24 bits_44.1KHz_WAV_CC-BY-3.0_by_jalastram/Retro_Game_Sounds_SFX_${String(i + 1).padStart(2, '0')}.wav`),
@@ -4037,7 +4376,22 @@ Available Commands:
             };
 
             const assets = assetPaths[type] || [];
+
+            // Store globally for filtering
+            currentAssets = assets;
+            currentAssetType = type;
+
+            // Clear search input
+            const searchInput = document.getElementById('asset-search');
+            if (searchInput) searchInput.value = '';
+
+            // Render the assets
+            renderAssetGrid(assets, type);
+        }
+
+        function renderAssetGrid(assets, type) {
             const grid = document.getElementById('asset-grid');
+            const countDiv = document.getElementById('asset-count');
 
             // Handle empty categories
             if (assets.length === 0) {
@@ -4052,12 +4406,13 @@ Available Commands:
                         <p style="margin-top: 15px; font-size: 14px;">Or drag files from your file browser!</p>
                     </div>
                 `;
+                if (countDiv) countDiv.textContent = '';
                 return;
             }
 
             // Show a subset if there are too many
-            const displayAssets = assets.length > 30 ? assets.slice(0, 30) : assets;
-            const hasMore = assets.length > 30;
+            const displayAssets = assets.length > 100 ? assets.slice(0, 100) : assets;
+            const hasMore = assets.length > 100;
 
             grid.innerHTML = displayAssets.map(path => {
                 const name = path.split('/').pop();
@@ -4075,9 +4430,41 @@ Available Commands:
 
             if (hasMore) {
                 grid.innerHTML += `<div class="asset-item" style="grid-column: 1 / -1; text-align: center; color: var(--purple); font-weight: bold;">
-                    Showing 30 of ${assets.length} files<br>
-                    <small>Click any file to insert!</small>
+                    Showing 100 of ${assets.length} files<br>
+                    <small>Use search to find specific files!</small>
                 </div>`;
+            }
+
+            // Update count
+            if (countDiv) {
+                countDiv.textContent = displayAssets.length === assets.length
+                    ? `Showing all ${assets.length} assets`
+                    : `Showing ${displayAssets.length} of ${assets.length} assets`;
+            }
+        }
+
+        function filterAssets() {
+            const searchInput = document.getElementById('asset-search');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            if (!searchTerm) {
+                // No search term, show all
+                renderAssetGrid(currentAssets, currentAssetType);
+                return;
+            }
+
+            // Filter assets by filename
+            const filtered = currentAssets.filter(path => {
+                const filename = path.split('/').pop().toLowerCase();
+                return filename.includes(searchTerm);
+            });
+
+            renderAssetGrid(filtered, currentAssetType);
+
+            // Update count with search info
+            const countDiv = document.getElementById('asset-count');
+            if (countDiv && searchTerm) {
+                countDiv.textContent = `Found ${filtered.length} of ${currentAssets.length} assets matching "${searchTerm}"`;
             }
         }
 
@@ -4119,6 +4506,79 @@ Available Commands:
                 playSound('success', 'G5');
                 showStamp('✨');
             }
+        }
+
+        // Insert file from browser file input
+        function insertFileFromBrowser() {
+            const fileInput = document.getElementById('file-browser-input');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file first!');
+                updateStatus('No file selected');
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                let html = '';
+                let type = 'file';
+
+                if (file.type.startsWith('image/')) {
+                    html = `<img src="${dataUrl}" alt="${file.name}" style="border: 4px solid #000; max-width: 400px;" title="${file.name}">`;
+                    type = 'image';
+                } else if (file.type.startsWith('audio/')) {
+                    html = `<audio controls style="border: 4px solid #000; margin: 10px 0;"><source src="${dataUrl}" type="${file.type}"></audio>`;
+                    type = 'audio';
+                } else if (file.name.endsWith('.glb')) {
+                    // Create unique ID for this 3D viewer
+                    const viewerId = 'glb-viewer-' + Date.now();
+                    html = `<div style="border: 4px solid #000; background: #000; width: 400px; height: 400px; position: relative;">
+                        <canvas id="${viewerId}" style="width: 100%; height: 100%; display: block;"></canvas>
+                        <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); color: #0F0; padding: 5px 10px; font-family: 'VT323', monospace; border: 2px solid #0F0;">🦎 ${file.name}</div>
+                    </div>`;
+                    type = 'glb';
+
+                    // Add element first
+                    addElementDirect(type, html);
+
+                    // Initialize Three.js viewer after a brief delay
+                    setTimeout(() => initGLBViewer(viewerId, dataUrl), 100);
+
+                    closeModal('asset-modal');
+                    playSound('success', 'G5');
+                    showStamp('📂');
+                    updateStatus(`Inserted ${file.name}`);
+
+                    // Reset input
+                    fileInput.value = '';
+                    return;
+                }
+
+                if (html) {
+                    addElementDirect(type, html);
+                    closeModal('asset-modal');
+                    playSound('success', 'G5');
+                    showStamp('📂');
+                    updateStatus(`Inserted ${file.name}`);
+
+                    // Reset input
+                    fileInput.value = '';
+                } else {
+                    alert(`Unsupported file type: ${file.type}\n\nSupported types:\n- Images (GIF, PNG, JPG, WebP)\n- Audio (MP3, WAV)\n- 3D Models (GLB)`);
+                    updateStatus('Unsupported file type');
+                }
+            };
+
+            reader.onerror = () => {
+                alert('Error reading file!');
+                updateStatus('File read error');
+            };
+
+            // Read file as data URL
+            reader.readAsDataURL(file);
         }
 
         // ============================================
