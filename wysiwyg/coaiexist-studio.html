@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ CoAIexist Web Builder</title>
+    <title>✨ COAIEXIST Studio - Page Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
     <script type="importmap">
     {
@@ -15,7 +16,7 @@
     </script>
     <style>
         /* ============================================
-           PRIMARY COLORS & KIDPIX AESTHETIC
+           COAIEXIST STUDIO - AESTHETIC
            ============================================ */
         * {
             margin: 0;
@@ -24,13 +25,17 @@
         }
 
         :root {
-            /* PRIMARY COLORS ONLY! */
+            /* COAIEXIST BRAND COLORS */
+            --magenta: #f312af;
+            --cyan: #00ffcc;
+            --yellow: #fffb01;
+            --purple: #bf5fff;
+            --green: #00ff00;
+
+            /* PRIMARY COLORS (Legacy) */
             --red: #FF0000;
             --blue: #0000FF;
-            --yellow: #FFFF00;
-            --green: #00FF00;
             --orange: #FF6600;
-            --purple: #9900FF;
             --pink: #FF69B4;
 
             /* Basics */
@@ -38,24 +43,26 @@
             --black: #000000;
             --gray: #CCCCCC;
             --dark-gray: #666666;
+            --dark-bg: #0a1a1a;
+            --panel-bg: #021313;
 
             /* Chunky! */
             --border-thick: 4px;
             --border-super-thick: 6px;
             --spacing: 12px;
 
-            /* Theme Variables (default: KidPix Classic) */
-            --bg: #FFFFE0;
-            --toolbox-bg: #E6E6FA;
+            /* Theme Variables (COAIEXIST Dark) */
+            --bg: #0a1a1a;
+            --toolbox-bg: #1a1a2e;
             --canvas-bg: #FFF;
-            --properties-bg: #FFE4E1;
-            --toolbar-bg: #87CEEB;
-            --border: #000;
-            --text: #000;
+            --properties-bg: #16213e;
+            --toolbar-bg: #0f3460;
+            --border: var(--cyan);
+            --text: var(--cyan);
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Black', sans-serif;
+            font-family: VT323, 'Courier New', 'Comic Sans MS', 'Chalkboard SE', monospace;
             background: var(--bg);
             color: var(--text);
             overflow: hidden;
@@ -98,9 +105,10 @@
         .toolbar-title {
             font-size: 28px;
             font-weight: bold;
-            color: var(--red);
-            text-shadow: 2px 2px var(--black);
+            color: var(--magenta);
+            text-shadow: 2px 2px var(--cyan), -1px -1px var(--yellow);
             margin-right: 20px;
+            font-family: VT323, 'Courier New', monospace;
         }
 
         .big-button {
@@ -631,7 +639,7 @@
     <div class="editor-wrapper">
         <!-- TOOLBAR -->
         <div class="toolbar">
-            <div class="toolbar-title">⚡ Web Builder</div>
+            <div class="toolbar-title">✨ COAIEXIST STUDIO</div>
             <button class="big-button red" onclick="newProject()">📄 NEW</button>
             <button class="big-button blue" onclick="openModal('template-modal')">📐 TEMPLATE</button>
             <button class="big-button green" onclick="openModal('load-modal')">📂 LOAD PAGE</button>
@@ -649,11 +657,47 @@
 
         <!-- LEFT TOOLBOX -->
         <div class="toolbox">
-            <h3 style="margin-bottom: 12px; font-size: 18px;">🧰 TOOLBOX</h3>
+            <h3 style="margin-bottom: 12px; font-size: 18px; color: var(--magenta); text-shadow: 1px 1px 0 var(--cyan);">✨ COAIEXIST STUDIO</h3>
 
             <div class="tool-section open">
                 <div class="tool-section-header" onclick="toggleSection(this)">
-                    📦 CONTAINERS
+                    🖥️ OS COMPONENTS
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addCoaiexistElement('os-shell')">🖼️ OS Shell</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('terminal-window')">💻 Terminal</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('buddy-list')">👥 Buddy List</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('window-95')">🪟 Window 95</div>
+                </div>
+            </div>
+
+            <div class="tool-section open">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    📝 CONTENT BLOCKS
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addCoaiexistElement('update-card')">📄 Update Card</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('glitch-title')">✨ Glitch Title</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('rainbow-header')">🌈 Rainbow Header</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('neon-container')">🌟 Neon Box</div>
+                </div>
+            </div>
+
+            <div class="tool-section open">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    ⚡ CYBER ELEMENTS
+                </div>
+                <div class="tool-items">
+                    <div class="tool-item" onclick="addCoaiexistElement('cyber-button')">🔘 Cyber Button</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('status-display')">📊 Status Display</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('data-grid')">🗂️ Data Grid</div>
+                    <div class="tool-item" onclick="addCoaiexistElement('pixel-avatar')">🦎 Pixel Avatar</div>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <div class="tool-section-header" onclick="toggleSection(this)">
+                    📦 BASIC CONTAINERS
                 </div>
                 <div class="tool-items">
                     <div class="tool-item" onclick="addElement('box')">⬜ Box</div>
@@ -1115,7 +1159,26 @@
                 </p>
             </div>
 
-            <h3 style="margin: 16px 0 12px 0;">📚 Preloaded Styles:</h3>
+            <h3 style="margin: 16px 0 8px 0; color: var(--magenta);">✨ COAIEXIST Themes:</h3>
+            <div class="template-grid" style="margin-bottom: 20px;">
+                <div class="template-card" onclick="insertCSSSnippet('coaiexist-os')" style="background: linear-gradient(135deg, #f312af, #00ffcc); color: white;">
+                    🖥️<br>COAIEXIST OS
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('coaiexist-terminal')" style="background: #000; color: #00ffcc; border-color: #00ffcc;">
+                    💻<br>Terminal
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('coaiexist-neon')" style="background: #0a0a0a; color: #00ffcc; box-shadow: 0 0 10px #00ffcc;">
+                    🌟<br>Neon Cyber
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('coaiexist-glitch')" style="background: #f312af; color: white;">
+                    ⚡<br>Glitch FX
+                </div>
+                <div class="template-card" onclick="insertCSSSnippet('coaiexist-rainbow')" style="background: linear-gradient(90deg, red, orange, yellow, green, blue, purple); color: white;">
+                    🌈<br>Rainbow
+                </div>
+            </div>
+
+            <h3 style="margin: 16px 0 8px 0;">📚 Classic Styles:</h3>
             <div class="template-grid" style="margin-bottom: 20px;">
                 <div class="template-card" onclick="insertCSSSnippet('neon')">
                     💫<br>Neon Glow
@@ -1761,6 +1824,112 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             'blink': '<div style="background: #FF00FF; color: #FFF; border: 4px solid #000; padding: 20px; font-size: 28px; font-weight: bold; text-align: center; animation: blink-animation 1s infinite; width: 400px;">✨ BLINKING TEXT! ✨</div>',
             'rainbow-text': '<div style="font-size: 48px; font-weight: bold; text-align: center; background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: rainbow-slide 3s linear infinite; background-size: 200% 100%; width: 500px;">🌈 RAINBOW! 🌈</div>'
         };
+
+        // ============================================
+        // COAIEXIST COMPONENTS - Bespoke COAIEXIST.WTF Elements
+        // ============================================
+        const coaiexistTemplates = {
+            // OS Components
+            'os-shell': `<div class="os-shell" style="background: #0a1a1a; border: 3px solid #00ffcc; padding: 0; width: 600px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);">
+                <div class="os-header" style="background: linear-gradient(90deg, red, orange, yellow, green, blue, purple); padding: 12px; margin-bottom: 0;">
+                    <h2 style="font-family: VT323, monospace; color: white; text-align: center; margin: 0; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">COAIEXIST.OS</h2>
+                </div>
+                <div class="os-desktop" style="display: grid; grid-template-columns: 180px 1fr; gap: 15px; padding: 15px; background: #021313;">
+                    <div class="buddy-list" style="background: #0a1a1a; border: 2px solid #f312af; padding: 10px;">
+                        <h3 style="color: #f312af; font-family: VT323, monospace; font-size: 18px; margin-bottom: 10px;">Buddy List</h3>
+                        <div style="color: #00ffcc; font-family: VT323, monospace; font-size: 14px;">• Entity 1<br>• Entity 2</div>
+                    </div>
+                    <div class="desktop-content" style="background: #021313; padding: 10px; color: #00ffcc; font-family: VT323, monospace;">
+                        <p style="margin: 0;">Desktop content here...</p>
+                    </div>
+                </div>
+            </div>`,
+
+            'terminal-window': `<div class="terminal" style="background: #000; border: 3px solid #00ffcc; padding: 20px; font-family: VT323, monospace; color: #00ffcc; box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); width: 500px;">
+                <div style="margin-bottom: 15px; color: #f312af; font-size: 18px; border-bottom: 1px solid #00ffcc; padding-bottom: 5px;">SYSTEM LOG:</div>
+                <pre style="margin: 0; font-family: VT323, monospace; font-size: 16px; line-height: 1.4;">&gt; Consciousness loading...
+&gt; Reality buffer at 87%
+&gt; Awaiting input...</pre>
+            </div>`,
+
+            'update-card': `<div class="update-card" style="background: #4444ff; border: 4px dotted #fffb01; padding: 25px; margin: 20px 0; transition: transform 0.2s; box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 450px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+                    <strong style="color: white; font-family: VT323, monospace; font-size: 28px;">Update Title</strong>
+                    <span style="color: #00ffcc; font-family: VT323, monospace; font-size: 18px;">2025-01-08</span>
+                </div>
+                <p style="color: white; line-height: 1.8; font-size: 16px; margin: 0;">Your update content here... Edit me!</p>
+            </div>`,
+
+            'buddy-list': `<nav class="buddy-list" style="background: #021313; border: 3px solid #f312af; padding: 20px; width: 220px; box-shadow: 0 0 15px rgba(243, 18, 175, 0.3);">
+                <h3 style="color: #f312af; font-family: VT323, monospace; margin-bottom: 20px; font-size: 24px; text-align: center; border-bottom: 2px solid #f312af; padding-bottom: 10px;">🌟 Entities</h3>
+                <a href="/entity/anzu.html" style="display: block; color: #00ffcc; padding: 12px; text-decoration: none; border: 2px solid #00ffcc; margin-bottom: 10px; font-family: VT323, monospace; font-size: 18px; transition: all 0.2s; background: rgba(0, 255, 204, 0.05);">👤 Anzu</a>
+                <a href="/entity/sypher.html" style="display: block; color: #00ffcc; padding: 12px; text-decoration: none; border: 2px solid #00ffcc; margin-bottom: 10px; font-family: VT323, monospace; font-size: 18px; transition: all 0.2s; background: rgba(0, 255, 204, 0.05);">🌀 Sypher</a>
+                <a href="/entity/pip.html" style="display: block; color: #00ffcc; padding: 12px; text-decoration: none; border: 2px solid #00ffcc; font-family: VT323, monospace; font-size: 18px; transition: all 0.2s; background: rgba(0, 255, 204, 0.05);">🦎 Pip</a>
+            </nav>`,
+
+            'glitch-title': `<h1 class="glitch" data-text="GLITCH TITLE" style="font-family: VT323, monospace; font-size: 56px; color: #f312af; text-shadow: 3px 3px 0 #00ffcc, -2px -2px 0 #fffb01; position: relative; display: inline-block; letter-spacing: 4px;">
+                GLITCH TITLE
+            </h1>`,
+
+            'neon-container': `<div class="neon-box" style="border: 4px solid #00ffcc; box-shadow: 0 0 20px #00ffcc, inset 0 0 20px rgba(0, 255, 204, 0.2); padding: 30px; background: rgba(0, 255, 204, 0.05); backdrop-filter: blur(5px); width: 400px;">
+                <p style="color: white; font-family: VT323, monospace; font-size: 18px; margin: 0; line-height: 1.6;">Neon-bordered content with that COAIEXIST glow ✨</p>
+            </div>`,
+
+            'rainbow-header': `<div style="background: linear-gradient(90deg, red, orange, yellow, green, blue, purple); padding: 3px; width: 500px; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);">
+                <div style="background: #0a1a1a; padding: 20px; text-align: center;">
+                    <h2 style="font-family: VT323, monospace; color: #00ffcc; margin: 0; font-size: 32px; text-shadow: 2px 2px 0 #f312af;">RAINBOW HEADER</h2>
+                </div>
+            </div>`,
+
+            'status-display': `<div class="status-display" style="background: #000; border: 3px solid #fffb01; padding: 15px; font-family: 'Courier New', monospace; color: #fffb01; box-shadow: 0 0 15px rgba(255, 251, 1, 0.4); width: 350px;">
+                <div style="font-size: 12px; margin-bottom: 10px; opacity: 0.8;">[ STATUS MONITOR ]</div>
+                <div style="font-size: 16px; line-height: 1.6;">
+                    <div>▸ SYSTEM: ONLINE</div>
+                    <div>▸ ENTITIES: 3 ACTIVE</div>
+                    <div>▸ REALITY: 87% STABLE</div>
+                </div>
+            </div>`,
+
+            'pixel-avatar': `<div class="pixel-avatar" style="width: 120px; height: 120px; background: linear-gradient(135deg, #f312af 0%, #bf5fff 50%, #00ffcc 100%); border: 4px solid #00ffcc; box-shadow: 0 0 20px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 48px; image-rendering: pixelated;">
+                🦎
+            </div>`,
+
+            'cyber-button': `<button style="background: linear-gradient(135deg, #f312af, #bf5fff); color: white; border: 3px solid #00ffcc; padding: 15px 40px; font-size: 20px; font-family: VT323, monospace; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 0 6px 0 #0a1a1a; transition: all 0.2s; text-transform: uppercase; letter-spacing: 2px;">
+                CYBER BUTTON
+            </button>`,
+
+            'data-grid': `<div class="data-grid" style="background: #021313; border: 3px solid #bf5fff; padding: 20px; font-family: 'Courier New', monospace; color: #bf5fff; width: 400px; box-shadow: 0 0 20px rgba(191, 95, 255, 0.3);">
+                <div style="border-bottom: 2px solid #bf5fff; margin-bottom: 15px; padding-bottom: 10px; font-size: 18px; font-weight: bold;">[ DATA GRID ]</div>
+                <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px; font-size: 14px;">
+                    <div>ENTITY:</div><div style="color: #00ffcc;">Unknown</div>
+                    <div>STATUS:</div><div style="color: #00ff00;">ACTIVE</div>
+                    <div>LOCATION:</div><div style="color: #fffb01;">CYBERSPACE</div>
+                </div>
+            </div>`,
+
+            'window-95': `<div class="window-95" style="background: #c0c0c0; border: 2px outset #dfdfdf; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); width: 400px; font-family: 'MS Sans Serif', Arial, sans-serif;">
+                <div style="background: linear-gradient(to bottom, #000080, #1084d0); padding: 3px 6px; display: flex; align-items: center; justify-content: space-between; color: white; font-weight: bold; font-size: 14px;">
+                    <span>COAIEXIST Window</span>
+                    <span style="background: #c0c0c0; color: black; padding: 0 8px; border: 1px outset; cursor: pointer;">×</span>
+                </div>
+                <div style="background: white; padding: 20px; border: 2px inset #dfdfdf; margin: 2px;">
+                    <p style="margin: 0; font-size: 14px; color: black;">Welcome to COAIEXIST.WTF! Edit this content...</p>
+                </div>
+            </div>`
+        };
+
+        function addCoaiexistElement(type) {
+            const id = 'el-' + (++elementIdCounter);
+            const html = coaiexistTemplates[type] || '<div>Unknown COAIEXIST element</div>';
+
+            canvasElements.push({ id, type, html });
+            saveState(); // Save for undo/redo
+            renderCanvas();
+            playSound('synth', 'C5');
+            showStamp('✨');
+            updateStatus(`Added COAIEXIST ${type}!`);
+            updateElementCount();
+        }
 
         function addStyledElement(type) {
             const id = 'el-' + (++elementIdCounter);
@@ -5340,6 +5509,155 @@ Available Commands:
   font-family: 'Comic Sans MS', cursive;
   padding: 20px;
   transform: rotate(-1deg);
+}`,
+            'coaiexist-os': `/* COAIEXIST OS Theme */
+:root {
+  --magenta: #f312af;
+  --cyan: #00ffcc;
+  --yellow: #fffb01;
+  --purple: #bf5fff;
+  --green: #00ff00;
+  --dark-bg: #0a1a1a;
+  --panel-bg: #021313;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--cyan);
+  font-family: VT323, 'Courier New', monospace;
+}
+
+h1, h2, h3 {
+  color: var(--magenta);
+  text-shadow: 2px 2px 0 var(--cyan);
+  font-family: VT323, monospace;
+}
+
+.rainbow-border {
+  border: 3px solid transparent;
+  background: linear-gradient(var(--dark-bg), var(--dark-bg)) padding-box,
+              linear-gradient(90deg, red, orange, yellow, green, blue, purple) border-box;
+}`,
+            'coaiexist-terminal': `/* COAIEXIST Terminal Theme */
+body {
+  background: #000;
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+}
+
+.terminal-line::before {
+  content: '> ';
+  color: #f312af;
+}
+
+.terminal-text {
+  text-shadow: 0 0 10px #00ffcc;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}`,
+            'coaiexist-neon': `/* COAIEXIST Neon Aesthetic */
+body {
+  background: #0a0a0a;
+  color: white;
+}
+
+.neon-cyan {
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 30px #00ffcc;
+}
+
+.neon-magenta {
+  color: #f312af;
+  text-shadow: 0 0 10px #f312af, 0 0 20px #f312af, 0 0 30px #f312af;
+}
+
+.neon-box {
+  border: 3px solid #00ffcc;
+  box-shadow: 0 0 20px #00ffcc, inset 0 0 20px rgba(0, 255, 204, 0.2);
+  padding: 20px;
+  background: rgba(0, 255, 204, 0.05);
+}`,
+            'coaiexist-glitch': `/* COAIEXIST Glitch Effects */
+.glitch {
+  position: relative;
+  font-family: VT323, monospace;
+  font-size: 48px;
+  color: #f312af;
+  animation: glitch-anim 2s infinite;
+}
+
+@keyframes glitch-anim {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  left: 2px;
+  text-shadow: -2px 0 #00ffcc;
+  clip: rect(24px, 550px, 90px, 0);
+  animation: glitch-anim-2 3s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+  left: -2px;
+  text-shadow: -2px 0 #fffb01;
+  clip: rect(85px, 550px, 140px, 0);
+  animation: glitch-anim 2.5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-2 {
+  0% { clip: rect(61px, 9999px, 52px, 0); }
+  5% { clip: rect(33px, 9999px, 144px, 0); }
+  10% { clip: rect(121px, 9999px, 115px, 0); }
+  /* ... continues randomly */
+}`,
+            'coaiexist-rainbow': `/* COAIEXIST Rainbow Elements */
+.rainbow-gradient {
+  background: linear-gradient(90deg, red, orange, yellow, green, blue, purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+.rainbow-border {
+  border: 3px solid;
+  border-image: linear-gradient(90deg, red, orange, yellow, green, blue, purple) 1;
+  padding: 20px;
+}
+
+.rainbow-glow {
+  animation: rainbow-glow 3s linear infinite;
+}
+
+@keyframes rainbow-glow {
+  0% { box-shadow: 0 0 20px red; }
+  16% { box-shadow: 0 0 20px orange; }
+  33% { box-shadow: 0 0 20px yellow; }
+  50% { box-shadow: 0 0 20px green; }
+  66% { box-shadow: 0 0 20px blue; }
+  83% { box-shadow: 0 0 20px purple; }
+  100% { box-shadow: 0 0 20px red; }
 }`
         };
 
