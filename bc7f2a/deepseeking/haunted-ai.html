@@ -444,5 +444,12 @@
             toggleSection('section4'); // Show the correct salt section first
         });
     </script>
+      <div id="taskbar"></div>
+<script>
+  (async () => {
+    const res = await fetch('/admin/navbars/terminal-nav.html', {cache: 'no-store'});
+    document.getElementById('taskbar').innerHTML = await res.text();
+  })();
+</script>
 </body>
 </html>
