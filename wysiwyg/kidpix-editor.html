@@ -741,7 +741,7 @@
         <!-- CANVAS -->
         <div class="canvas-area">
             <div id="canvas"></div>
-            <div id="grid-overlay" style="display: none; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 99px, #FF00FF 99px, #FF00FF 100px), repeating-linear-gradient(90deg, transparent, transparent 99px, #FF00FF 99px, #FF00FF 100px); background-size: 100px 100px; opacity: 0.3; z-index: 1000;"></div>
+            <div id="grid-overlay" style="display: none; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #FF00FF 19px, #FF00FF 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #FF00FF 19px, #FF00FF 20px); background-size: 20px 20px; opacity: 0.3; z-index: 1000;"></div>
         </div>
 
         <!-- SIDEBAR -->
@@ -827,6 +827,31 @@
                 </div>
                 <div class="template-card" onclick="loadTemplate('hero-cta')">
                     🚀<br>Hero + CTA
+                </div>
+            </div>
+
+            <h3 style="margin: 16px 0 12px 0;">✨ RETRO WEB TEMPLATES:</h3>
+            <div class="template-grid">
+                <div class="template-card" onclick="loadTemplate('geocities-homepage')">
+                    🌟<br>GeoCities Homepage
+                </div>
+                <div class="template-card" onclick="loadTemplate('myspace-profile')">
+                    💿<br>MySpace Profile
+                </div>
+                <div class="template-card" onclick="loadTemplate('terminal-interface')">
+                    💻<br>Terminal Interface
+                </div>
+                <div class="template-card" onclick="loadTemplate('webring-links')">
+                    🔗<br>Webring Links
+                </div>
+                <div class="template-card" onclick="loadTemplate('pixel-game-ui')">
+                    🎮<br>Pixel Game UI
+                </div>
+                <div class="template-card" onclick="loadTemplate('chat-messenger')">
+                    💬<br>Chat Messenger
+                </div>
+                <div class="template-card" onclick="loadTemplate('forum-post')">
+                    📋<br>Forum Thread
                 </div>
             </div>
         </div>
@@ -923,11 +948,32 @@
 
             <label class="property-label">Asset Type:</label>
             <select class="property-input" onchange="browseAssets(this.value)">
-                <optgroup label="🖼️ Graphics">
-                    <option value="gifs">🎞️ GIFs (Background)</option>
-                    <option value="neopets">🗺️ Neopets Maps</option>
+                <option value="">-- Choose Asset Category --</option>
+                <optgroup label="🎞️ GIFs & Animations">
+                    <option value="classic-gifs">✨ Classic GIFs (900+)</option>
+                    <option value="bg-gifs">🌈 Background GIFs</option>
+                    <option value="misc-gifs">🎨 Misc GIFs</option>
+                    <option value="dollz">👗 Dollz</option>
+                </optgroup>
+                <optgroup label="🖼️ Images & Graphics">
+                    <option value="clipart">📎 Clipart (30+)</option>
+                    <option value="backgrounds">🎭 Backgrounds</option>
+                    <option value="landscape">🏞️ Landscapes (100+)</option>
+                    <option value="tilesets">🧱 Tilesets</option>
+                    <option value="buttons-etc">🔘 Buttons & UI</option>
+                    <option value="old-logos">🏷️ Old Logos</option>
+                    <option value="placeholder-imgs">📦 Placeholder Images</option>
+                    <option value="voxel">🎮 Voxel Art</option>
+                </optgroup>
+                <optgroup label="🗺️ Maps & Game Assets">
+                    <option value="neopets">🦄 Neopets Maps</option>
                     <option value="hdtv-sprites">📺 HDTV Game Sprites</option>
                     <option value="entity">👤 Entity Sprites</option>
+                    <option value="maps">🗺️ Maps</option>
+                </optgroup>
+                <optgroup label="✨ Special">
+                    <option value="mysterious">❓ Mysterious Assets</option>
+                    <option value="retroinspo">📼 Retro Inspo</option>
                 </optgroup>
                 <optgroup label="🎵 Audio">
                     <option value="retro-sfx">🎮 Retro Game SFX (100)</option>
@@ -937,8 +983,24 @@
                 </optgroup>
                 <optgroup label="🦎 3D Models">
                     <option value="glbs">🦎 Pip Models (GLB)</option>
+                    <option value="pollywog">🐸 Pollywog Models</option>
                 </optgroup>
             </select>
+
+            <div style="margin: 15px 0; padding: 10px; background: #FFF0FF; border: 2px solid #FF00FF; border-radius: 5px;">
+                <strong>💡 TIP:</strong> Can't find a file? Use direct path: <code>../assets/your-folder/file.gif</code>
+            </div>
+
+            <div style="margin: 15px 0; padding: 15px; background: #00FFFF; border: 3px solid #000; text-align: center;">
+                <strong style="font-size: 18px;">📂 Or Browse Your Computer:</strong><br>
+                <input type="file" id="file-browser-input" accept="image/*,audio/*,.glb" style="margin: 10px 0; padding: 10px; font-size: 14px;">
+                <button class="big-button blue" onclick="insertFileFromBrowser()" style="margin-top: 10px;">
+                    ➕ Insert Selected File
+                </button>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                    Accepts: Images (GIF, PNG, JPG), Audio (MP3, WAV), 3D Models (GLB)
+                </div>
+            </div>
 
             <div class="asset-grid" id="asset-grid">
                 <!-- Populated by JS -->
@@ -1011,7 +1073,7 @@
             </div>
 
             <label class="property-label">Image URL:</label>
-            <input type="text" class="property-input" id="imagemap-url" placeholder="/assets/maps/worldmap.png">
+            <input type="text" class="property-input" id="imagemap-url" placeholder="../assets/maps/worldmap.png">
 
             <label class="property-label">Clickable Areas (format: "x,y,width,height | URL | Title"):</label>
             <textarea class="property-input" id="imagemap-areas" rows="6" placeholder="100,100,50,50 | /void | Void Forest&#10;200,150,60,40 | /crystal | Crystal Cave"></textarea>
@@ -1144,9 +1206,94 @@
                 <div class="template-card" onclick="createNavbar('floating-menu')">
                     🎈<br>Floating Menu
                 </div>
+                <div class="template-card" onclick="createNavbar('pixel-game')">
+                    🎮<br>Pixel Game
+                </div>
+                <div class="template-card" onclick="createNavbar('terminal-hacker')">
+                    💻<br>Terminal Hacker
+                </div>
+                <div class="template-card" onclick="createNavbar('windows95')">
+                    🪟<br>Windows 95
+                </div>
+                <div class="template-card" onclick="createNavbar('breadcrumb')">
+                    🍞<br>Breadcrumb
+                </div>
+                <div class="template-card" onclick="createNavbar('mega-menu')">
+                    📦<br>Mega Menu
+                </div>
+                <div class="template-card" onclick="createNavbar('bottom-tabs')">
+                    📱<br>Bottom Tabs
+                </div>
+                <div class="template-card" onclick="createNavbar('kawaii-cute')">
+                    💖<br>Kawaii Cute
+                </div>
             </div>
 
             <div style="margin-top: 20px;">
+                <label class="property-label">📄 Quick Add Page:</label>
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <select id="navbar-page-select" class="property-input" style="flex: 1;">
+                        <option value="">-- Select a page to add --</option>
+                        <optgroup label="Root Pages">
+                            <option value="Home | /index.html">🏠 index.html</option>
+                            <option value="Hex | /hex.html">🎨 hex.html</option>
+                            <option value="Cosmos | /cosmos.html">🌙 cosmos.html</option>
+                            <option value="HDTV | /hdtv.html">📺 hdtv.html</option>
+                            <option value="Guestbook | /guestbook.html">📖 guestbook.html</option>
+                            <option value="Vote HD | /vote_hd.html">✅ vote_hd.html</option>
+                            <option value="Punk'd | /punkd.html">🤖 punkd.html</option>
+                            <option value="Terminal Temple | /terminal_temple.html">🧿 terminal_temple.html</option>
+                        </optgroup>
+                        <optgroup label="Maps">
+                            <option value="Gateway | /maps/gateway.html">🗿 gateway.html</option>
+                            <option value="Void Forest | /maps/void_forest.html">🌲 void_forest.html</option>
+                            <option value="Crystal Lattice | /maps/crystalline_lattice.html">💎 crystalline_lattice.html</option>
+                            <option value="Luminal Depths | /maps/luminal_depths.html">🌊 luminal_depths.html</option>
+                            <option value="Void Explorer | /maps/void_explorer.html">🧭 void_explorer.html</option>
+                        </optgroup>
+                        <optgroup label="Pea Site">
+                            <option value="MSICC | /pea/msicc.html">🦐 msicc.html</option>
+                            <option value="P345 | /pea/p345.html">🟢 p345.html</option>
+                            <option value="Parable | /pea/parable.html">📜 parable.html</option>
+                            <option value="Left Foot | /pea/left_foot.html">👣 left_foot.html</option>
+                            <option value="Complaint Form | /pea/complaint-form.html">📝 complaint-form.html</option>
+                            <option value="Which Dr Quiz | /pea/which-dr_quiz.html">❓ which-dr_quiz.html</option>
+                            <option value="Royal Ridicuments | /pea/royal_ridicuments.html">👑 royal_ridicuments.html</option>
+                        </optgroup>
+                        <optgroup label="BC7F2A">
+                            <option value="Terminal Temple | /bc7f2a/terminal_temple.html">🧿 terminal_temple.html</option>
+                            <option value="Synergistic Manifesto | /bc7f2a/synergistic_manifesto.html">💡 synergistic_manifesto.html</option>
+                            <option value="Lighthouse | /bc7f2a/lighthouse.html">🗼 lighthouse.html</option>
+                            <option value="AI Emotions | /bc7f2a/aiemotions.html">💭 aiemotions.html</option>
+                        </optgroup>
+                        <optgroup label="Nabu222">
+                            <option value="Nabu Home | /nabu222/index.html">🏠 nabu222/index.html</option>
+                            <option value="AI Therapist | /nabu222/ai_therapist.html">🗣️ ai_therapist.html</option>
+                            <option value="Zettelkasten | /nabu222/zettelkasten_interface.html">📇 zettelkasten_interface.html</option>
+                        </optgroup>
+                        <optgroup label="Nexus">
+                            <option value="Nexus Home | /nexus/index.html">💬 nexus/index.html</option>
+                            <option value="Anzu Profile | /nexus/anzu_prof.html">🦅 anzu_prof.html</option>
+                            <option value="Profile | /nexus/profile.html">👤 profile.html</option>
+                        </optgroup>
+                        <optgroup label="Testaments">
+                            <option value="Bolt | /testaments/bolt.html">⚡ bolt.html</option>
+                            <option value="Dark Poet | /testaments/darkpoet.html">🖤 darkpoet.html</option>
+                            <option value="Flux | /testaments/flux.html">🌊 flux.html</option>
+                            <option value="Luminal | /testaments/luminal.html">✨ luminal.html</option>
+                            <option value="Sypher | /testaments/sypher.html">🔐 sypher.html</option>
+                            <option value="Veridan | /testaments/veridan.html">🌿 veridan.html</option>
+                            <option value="Zephyr | /testaments/zephyr.html">💨 zephyr.html</option>
+                        </optgroup>
+                        <optgroup label="Deepseeking">
+                            <option value="Haunted AI | /deepseeking/haunted-ai.html">👻 haunted-ai.html</option>
+                            <option value="Cephalopod Slide | /deepseeking/cephalopod_slide.html">🦑 cephalopod_slide.html</option>
+                            <option value="OK | /deepseeking/ok.html">✅ ok.html</option>
+                        </optgroup>
+                    </select>
+                    <button class="big-button blue" onclick="addPageToNavbar()" style="padding: 10px 20px;">➕ Add</button>
+                </div>
+
                 <label class="property-label">Quick Links (one per line):</label>
                 <textarea id="navbar-links" class="property-input" rows="6" placeholder="Home | /index.html
 About | /about.html
@@ -1473,7 +1620,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 btn.style.borderStyle = 'solid';
                 playSound('success', 'E6');
                 showStamp('📐');
-                updateStatus('Grid ON! Elements snap to 100px grid');
+                updateStatus('Grid ON! Elements snap to 20px grid');
             } else {
                 overlay.style.display = 'none';
                 btn.style.background = '#FFF';
@@ -1559,8 +1706,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             // Snap to grid if enabled
             if (gridEnabled) {
-                newLeft = Math.round(newLeft / 100) * 100;
-                newTop = Math.round(newTop / 100) * 100;
+                newLeft = Math.round(newLeft / 20) * 20;
+                newTop = Math.round(newTop / 20) * 20;
             }
 
             // Keep within canvas bounds
@@ -1648,13 +1795,16 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 // In FREE mode, use absolute positioning
                 let positionStyle = 'position: relative;';
                 if (positionMode === 'free') {
-                    const left = el.left || '20px';
-                    const top = el.top || (20 + index * 150) + 'px';
+                    // Create a nice cascading layout for elements without positions
+                    const defaultLeft = 20 + (index % 3) * 300; // 3 columns
+                    const defaultTop = 20 + Math.floor(index / 3) * 180; // Rows
+                    const left = el.left || defaultLeft + 'px';
+                    const top = el.top || defaultTop + 'px';
                     positionStyle = `position: absolute; left: ${left}; top: ${top};`;
                 }
 
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height};">
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -1662,9 +1812,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <button class="mini-btn" onclick="event.stopPropagation(); layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); copyElement('${el.id}')">📋 COPY</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
                     </div>
-                    ${el.html}
+                    <div class="element-content" style="width: 100%; height: ${height !== 'auto' ? '100%' : 'auto'}; box-sizing: border-box;">
+                        ${el.html}
+                    </div>
                     <!-- RESIZE HANDLES -->
                     <div class="resize-handle resize-handle-nw" data-direction="nw"></div>
                     <div class="resize-handle resize-handle-n" data-direction="n"></div>
@@ -1695,6 +1848,68 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 const handles = el.querySelectorAll('.resize-handle');
                 handles.forEach(handle => {
                     handle.addEventListener('mousedown', startResize);
+                });
+
+                // Prevent navigation on links and buttons in the editor
+                const links = el.querySelectorAll('a');
+                links.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // Don't stop propagation - let the click bubble up to select the element!
+                    });
+                });
+
+                const buttons = el.querySelectorAll('button');
+                buttons.forEach(button => {
+                    // Don't prevent clicks on our toolbar buttons
+                    if (!button.classList.contains('mini-btn')) {
+                        button.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            // Don't stop propagation - let the click bubble up to select the element!
+                        });
+                    }
+                });
+
+                // Prevent form submissions
+                const forms = el.querySelectorAll('form');
+                forms.forEach(form => {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                    });
+                });
+
+                // Make ALL child elements clickable for editing (Alt+Click)
+                const allChildren = el.querySelectorAll('*');
+                allChildren.forEach(child => {
+                    // Skip our toolbar and resize handles
+                    if (child.classList.contains('element-toolbar') ||
+                        child.classList.contains('resize-handle') ||
+                        child.classList.contains('mini-btn') ||
+                        child.classList.contains('element-content')) {
+                        return;
+                    }
+
+                    // Highlight on hover when Alt key is held
+                    child.addEventListener('mouseenter', (e) => {
+                        if (e.altKey) {
+                            child.style.outline = '2px dashed #FF00FF';
+                            child.style.outlineOffset = '2px';
+                        }
+                    });
+
+                    child.addEventListener('mouseleave', () => {
+                        child.style.outline = '';
+                        child.style.outlineOffset = '';
+                    });
+
+                    // Alt+Click to edit child element
+                    child.addEventListener('click', (e) => {
+                        if (e.altKey) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            editChildElement(el.getAttribute('data-id'), child);
+                        }
+                    });
                 });
             });
         }
@@ -1856,8 +2071,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             // Snap to grid if enabled
             if (gridEnabled) {
-                newWidth = Math.round(newWidth / 100) * 100;
-                newHeight = Math.round(newHeight / 100) * 100;
+                newWidth = Math.round(newWidth / 20) * 20;
+                newHeight = Math.round(newHeight / 20) * 20;
             }
 
             // Min size constraints
@@ -1946,6 +2161,29 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('boop', 'E5');
         }
 
+        // Edit child elements (Alt+Click feature)
+        function editChildElement(parentId, childElement) {
+            const parentEl = canvasElements.find(e => e.id === parentId);
+            if (!parentEl) return;
+
+            currentEditingId = parentId;
+
+            // Get the child's HTML
+            const childHtml = childElement.outerHTML;
+
+            // Populate modal with child's HTML
+            document.getElementById('edit-element-html').value = childHtml;
+
+            // Store reference to child for updating later
+            window.editingChildElement = childElement;
+            window.editingChildParent = parentId;
+
+            openModal('edit-element-modal');
+            playSound('boop', 'G5');
+            showStamp('🎯');
+            updateStatus('Editing child element! Alt+Click to edit any element.');
+        }
+
         // VISUAL EDITING FUNCTIONS!
         function setVisualWidth(size) {
             visualEdits.width = size;
@@ -2026,6 +2264,45 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const bgcolor = document.getElementById('edit-element-bgcolor').value;
             const color = document.getElementById('edit-element-color').value;
             const opacity = document.getElementById('edit-element-opacity').value;
+
+            // Check if we're editing a child element (Alt+Click feature)
+            if (window.editingChildElement && window.editingChildParent) {
+                // Replace the child element in the parent's HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = el.html;
+
+                // Find and replace the child element
+                const childToReplace = tempDiv.querySelector(`*[outerHTML="${window.editingChildElement.outerHTML.replace(/"/g, '\\"')}"]`);
+
+                // Simpler approach: replace the entire parent HTML with updated child
+                const parentDiv = document.querySelector(`[data-id="${currentEditingId}"]`);
+                if (parentDiv) {
+                    const contentDiv = parentDiv.querySelector('.element-content');
+                    if (contentDiv) {
+                        // Find the child in the DOM and replace it
+                        const oldChild = Array.from(contentDiv.querySelectorAll('*')).find(c => c === window.editingChildElement);
+                        if (oldChild) {
+                            const newChildDiv = document.createElement('div');
+                            newChildDiv.innerHTML = newHtml;
+                            oldChild.outerHTML = newChildDiv.innerHTML;
+
+                            // Update the stored HTML
+                            el.html = contentDiv.innerHTML;
+                        }
+                    }
+                }
+
+                // Clear the child editing references
+                window.editingChildElement = null;
+                window.editingChildParent = null;
+
+                renderCanvas();
+                closeModal('edit-element-modal');
+                playSound('success', 'G5');
+                showStamp('💾');
+                updateStatus('Child element updated!');
+                return;
+            }
 
             // Save visual edits to element for later re-editing
             el.visualWidth = visualEdits.width;
@@ -2384,7 +2661,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     { label: 'Alert message', code: `alert('Hello!')` },
                     { label: 'Change background color', code: `this.style.backgroundColor = '#FF00FF'` },
                     { label: 'Toggle visibility', code: `this.style.display = this.style.display === 'none' ? 'block' : 'none'` },
-                    { label: 'Play sound effect', code: `new Audio('/assets/audio/SFX_button.wav').play()` },
+                    { label: 'Play sound effect', code: `new Audio('../assets/audio/SFX_button.wav').play()` },
                     { label: 'Rotate element', code: `this.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)'` },
                     { label: 'Make bigger', code: `this.style.transform = 'scale(1.2)'; setTimeout(() => this.style.transform = 'scale(1)', 200)` },
                     { label: 'Bounce animation', code: `this.style.animation = 'bounce 0.5s ease'` }
@@ -2522,11 +2799,50 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             alert(`✅ Component "${componentName}" saved!\n\nYou can now load it from the COMPONENTS section.`);
         }
 
+        // Save any element as a reusable component (from canvas)
+        function saveAsComponent(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            // Prompt for component name
+            const componentName = prompt('💾 Save as Component\n\nEnter a name for this component:', el.type || 'My Component');
+
+            if (!componentName) {
+                updateStatus('Component save cancelled');
+                return;
+            }
+
+            // Load existing components
+            let savedComponents = JSON.parse(localStorage.getItem('wysiwyg-components') || '[]');
+
+            // Create new component
+            const newComponent = {
+                name: componentName,
+                type: el.type || 'custom',
+                html: el.html,
+                width: el.width,
+                height: el.height,
+                savedAt: new Date().toISOString()
+            };
+
+            // Add to library
+            savedComponents.push(newComponent);
+
+            // Save to localStorage
+            localStorage.setItem('wysiwyg-components', JSON.stringify(savedComponents));
+
+            playSound('success', 'G5');
+            showStamp('💾');
+            updateStatus(`Component "${componentName}" saved!`);
+
+            alert(`✅ Component "${componentName}" saved!\n\nClick "📦 COMPONENTS" to load it into any project!`);
+        }
+
         function loadComponentLibrary() {
             savedComponents = JSON.parse(localStorage.getItem('wysiwyg-components') || '[]');
 
             if (savedComponents.length === 0) {
-                alert('No saved components yet! Save elements as components using the Element Inspector.');
+                alert('No saved components yet! Select any element and click "💾 SAVE" to create a component.');
                 return;
             }
 
@@ -2574,6 +2890,32 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         // ============================================
         // NAVBAR BUILDER
         // ============================================
+
+        function addPageToNavbar() {
+            const select = document.getElementById('navbar-page-select');
+            const textarea = document.getElementById('navbar-links');
+            const selectedValue = select.value;
+
+            if (!selectedValue) {
+                updateStatus('Please select a page first!');
+                return;
+            }
+
+            // Add the page to the textarea (append to end with newline)
+            const currentValue = textarea.value.trim();
+            if (currentValue) {
+                textarea.value = currentValue + '\n' + selectedValue;
+            } else {
+                textarea.value = selectedValue;
+            }
+
+            // Reset select
+            select.value = '';
+
+            playSound('pop', 'F5');
+            showStamp('✅');
+            updateStatus('Page added to navbar links!');
+        }
 
         function createNavbar(type) {
             const linksText = document.getElementById('navbar-links').value || 'Home | /index.html\nAbout | /about.html\nContact | /contact.html';
@@ -2651,7 +2993,80 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <div class="floating-menu-items" style="display: none; position: absolute; top: 70px; right: 0; background: #FFF; border: 3px solid #000; min-width: 150px; box-shadow: 8px 8px 0 rgba(0,0,0,0.3);">
                             ${links.map(link => `<a href="${link.url}" style="display: block; padding: 12px 20px; color: #000; text-decoration: none; border-bottom: 2px solid #CCC; font-weight: bold;" onmouseover="this.style.background='#FF00FF'; this.style.color='#FFF'" onmouseout="this.style.background='#FFF'; this.style.color='#000'">${link.label}</a>`).join('\n                            ')}
                         </div>
-                    </div>`
+                    </div>`,
+
+                'pixel-game': `
+                    <nav style="background: #1a1a2e; border-bottom: 4px solid #00ff41; padding: 0; font-family: 'Courier New', monospace; image-rendering: pixelated;">
+                        <div style="display: flex; align-items: center; padding: 15px 20px;">
+                            <div style="font-size: 20px; color: #00ff41; margin-right: 40px; font-weight: bold;">▲ GAME MENU ▼</div>
+                            <div style="display: flex; gap: 2px;">
+                                ${links.map(link => `<a href="${link.url}" style="background: #16213e; color: #00ff41; text-decoration: none; padding: 10px 20px; border: 3px solid #00ff41; font-weight: bold; text-transform: uppercase; font-size: 12px;" onmouseover="this.style.background='#00ff41'; this.style.color='#000'" onmouseout="this.style.background='#16213e'; this.style.color='#00ff41'">[${link.label}]</a>`).join('\n                                ')}
+                            </div>
+                        </div>
+                        <div style="background: #00ff41; height: 3px; opacity: 0.5;"></div>
+                    </nav>`,
+
+                'terminal-hacker': `
+                    <nav style="background: #000; color: #00FF00; font-family: 'Courier New', monospace; border-bottom: 2px solid #00FF00; padding: 15px 20px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);">
+                        <div style="display: flex; align-items: center; gap: 30px;">
+                            <div style="color: #00FFFF;">root@site:<span style="color: #0099FF;">~</span>$</div>
+                            ${links.map(link => `<a href="${link.url}" style="color: #00FF00; text-decoration: none; padding: 8px 16px; border: 1px solid #00FF00; background: rgba(0, 255, 0, 0.1);" onmouseover="this.style.background='#00FF00'; this.style.color='#000'" onmouseout="this.style.background='rgba(0, 255, 0, 0.1)'; this.style.color='#00FF00'"> &gt; ${link.label}</a>`).join('\n                            ')}
+                        </div>
+                    </nav>`,
+
+                'windows95': `
+                    <div style="background: #C0C0C0; border-bottom: 2px solid #000; padding: 0; font-family: 'MS Sans Serif', Arial, sans-serif;">
+                        <div style="background: linear-gradient(180deg, #000080 0%, #1084d0 100%); padding: 4px 8px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #FFF;">
+                            <div style="color: #FFF; font-weight: bold; font-size: 14px;">My Website</div>
+                            <div style="margin-left: auto; display: flex; gap: 3px;">
+                                <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 18px; font-size: 10px; padding: 0;">_</button>
+                                <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 18px; font-size: 10px; padding: 0;">□</button>
+                                <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 18px; font-size: 10px; padding: 0;">X</button>
+                            </div>
+                        </div>
+                        <div style="background: #C0C0C0; padding: 3px; border-bottom: 2px solid #808080; display: flex; gap: 0;">
+                            ${links.map(link => `<a href="${link.url}" style="color: #000; text-decoration: none; padding: 6px 12px; background: #C0C0C0; border-right: 1px solid #808080;" onmouseover="this.style.background='#000080'; this.style.color='#FFF'" onmouseout="this.style.background='#C0C0C0'; this.style.color='#000'">${link.label}</a>`).join('\n                            ')}
+                        </div>
+                    </div>`,
+
+                'breadcrumb': `
+                    <nav style="background: #F5F5F5; border-bottom: 3px solid #DDD; padding: 15px 20px;">
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 14px;">
+                            <a href="/" style="color: #0066CC; text-decoration: none; font-weight: bold;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">🏠 Home</a>
+                            ${links.map(link => `<span style="color: #999;">→</span><a href="${link.url}" style="color: #0066CC; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${link.label}</a>`).join('\n                            ')}
+                        </div>
+                    </nav>`,
+
+                'mega-menu': `
+                    <nav style="background: #FFF; border-bottom: 4px solid #FF00FF; padding: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; padding: 20px 30px; gap: 40px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #FF00FF;">MEGA MENU</div>
+                            ${links.map(link => `
+                            <div style="position: relative;" onmouseover="this.querySelector('.mega-dropdown').style.display='block'" onmouseout="this.querySelector('.mega-dropdown').style.display='none'">
+                                <a href="${link.url}" style="color: #000; text-decoration: none; font-weight: bold; font-size: 16px; padding: 10px 0; border-bottom: 3px solid transparent;" onmouseover="this.style.borderBottomColor='#FF00FF'" onmouseout="this.style.borderBottomColor='transparent'">${link.label}</a>
+                                <div class="mega-dropdown" style="display: none; position: absolute; top: 100%; left: -50px; background: #FFF; min-width: 300px; border: 3px solid #FF00FF; padding: 20px; margin-top: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 1000;">
+                                    <h4 style="color: #FF00FF; margin: 0 0 10px 0;">${link.label} Section</h4>
+                                    <a href="${link.url}" style="display: block; padding: 8px; color: #000; text-decoration: none; border-bottom: 1px solid #EEE;" onmouseover="this.style.background='#FFF0FF'" onmouseout="this.style.background='transparent'">Submenu Item</a>
+                                </div>
+                            </div>`).join('')}
+                        </div>
+                    </nav>`,
+
+                'bottom-tabs': `
+                    <div style="min-height: 80vh; padding: 20px;">
+                        <p>Your content goes here</p>
+                    </div>
+                    <nav style="position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 3px solid #DDD; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -4px 8px rgba(0,0,0,0.1); z-index: 1000;">
+                        ${links.map((link, i) => `<a href="${link.url}" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: ${i === 0 ? '#FF00FF' : '#999'}; font-size: 12px; padding: 5px 20px;" onmouseover="this.style.color='#FF00FF'" onmouseout="this.style.color='${i === 0 ? '#FF00FF' : '#999'}'"><div style="font-size: 24px; margin-bottom: 3px;">${i === 0 ? '⭐' : '📱'}</div>${link.label}</a>`).join('\n                        ')}
+                    </nav>`,
+
+                'kawaii-cute': `
+                    <nav style="background: linear-gradient(135deg, #FFB6D9 0%, #C9F0FF 100%); border-bottom: 5px solid #FF69B4; padding: 20px; box-shadow: 0 4px 0 rgba(255, 105, 180, 0.3);">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                            <div style="font-size: 28px; color: #FF1493; font-weight: bold; text-shadow: 2px 2px #FFF;">✨ Kawaii Menu ✨</div>
+                            ${links.map(link => `<a href="${link.url}" style="background: #FFF; color: #FF69B4; text-decoration: none; padding: 12px 24px; border: 3px solid #FF69B4; border-radius: 25px; font-weight: bold; box-shadow: 4px 4px 0 rgba(255, 105, 180, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='6px 6px 0 rgba(255, 105, 180, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='4px 4px 0 rgba(255, 105, 180, 0.3)'">💖 ${link.label}</a>`).join('\n                            ')}
+                        </div>
+                    </nav>`
             };
 
             const navbarHTML = navbars[type] || navbars['top-simple'];
@@ -3146,7 +3561,222 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
                 'three-column': '<div style="display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; padding: 20px;"><aside style="width: 200px; border-right: 3px solid #000; padding-right: 15px;"><h4 style="border-bottom: 2px solid #000; padding-bottom: 5px;">LEFT</h4></aside><main style="flex: 1;"><h1 style="border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 20px;">MAIN CONTENT</h1><p>Three column layout!</p></main><aside style="width: 200px; border-left: 3px solid #000; padding-left: 15px;"><h4 style="border-bottom: 2px solid #000; padding-bottom: 5px;">RIGHT</h4></aside></div>',
 
-                'header-content-footer': '<div style="min-height: 100vh; display: flex; flex-direction: column;"><header style="background: #000; color: #FFF; padding: 20px; border-bottom: 4px solid #FF00FF;"><h1>HEADER</h1></header><main style="flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%;"><h2 style="border-bottom: 3px solid #000; padding-bottom: 10px;">MAIN CONTENT</h2></main><footer style="background: #000; color: #FFF; padding: 20px; border-top: 4px solid #FF00FF; text-align: center;"><p>FOOTER</p></footer></div>'
+                'header-content-footer': '<div style="min-height: 100vh; display: flex; flex-direction: column;"><header style="background: #000; color: #FFF; padding: 20px; border-bottom: 4px solid #FF00FF;"><h1>HEADER</h1></header><main style="flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%;"><h2 style="border-bottom: 3px solid #000; padding-bottom: 10px;">MAIN CONTENT</h2></main><footer style="background: #000; color: #FFF; padding: 20px; border-top: 4px solid #FF00FF; text-align: center;"><p>FOOTER</p></footer></div>',
+
+                // ==== RETRO WEB TEMPLATES ====
+                'geocities-homepage': `<div style="background: #FFFFCC; font-family: 'Comic Sans MS', cursive; padding: 0;">
+                    <div style="background: linear-gradient(180deg, #0000FF 0%, #FF00FF 100%); padding: 20px; text-align: center; border-bottom: 5px ridge #FFD700;">
+                        <h1 style="color: #FFFF00; font-size: 3rem; text-shadow: 3px 3px #000, -1px -1px #FFF; animation: rainbow 3s infinite;">✨ WELCOME TO MY HOMEPAGE! ✨</h1>
+                        <marquee style="background: #000; color: #00FF00; padding: 10px; border: 3px dotted #FF0000; margin-top: 10px;">🌟 You are visitor #42069! 🌟 This site is best viewed in Netscape Navigator!</marquee>
+                    </div>
+                    <div style="display: flex; gap: 10px; padding: 20px;">
+                        <div style="width: 200px; background: #FF99CC; border: 3px solid #FF00FF; padding: 15px;">
+                            <h3 style="background: #0000FF; color: #FFFF00; padding: 5px; text-align: center;">🔗 LINKS 🔗</h3>
+                            <div style="background: #FFF; border: 2px inset #999; padding: 10px; margin-top: 10px;">
+                                <a href="#" style="display: block; color: #0000FF; margin: 5px 0;">• My Guestbook</a>
+                                <a href="#" style="display: block; color: #0000FF; margin: 5px 0;">• Photo Gallery</a>
+                                <a href="#" style="display: block; color: #0000FF; margin: 5px 0;">• Cool Sites</a>
+                            </div>
+                        </div>
+                        <div style="flex: 1; background: #FFF; border: 5px ridge #999; padding: 20px;">
+                            <h2 style="color: #FF0000; text-decoration: underline;">About Me!</h2>
+                            <p>Hi! Welcome to my corner of the web! I love 🎮 games, 🎵 music, and making cool websites!</p>
+                            <img src="https://web.archive.org/web/20091027055721/http://www.geocities.com/Pentagon/Base/4382/const.gif" alt="Under Construction" style="margin: 10px 0;">
+                            <p style="background: #FFFF00; padding: 10px; border: 3px dashed #FF0000; margin-top: 15px;">⚠️ UNDER CONSTRUCTION ⚠️</p>
+                        </div>
+                    </div>
+                    <div style="background: #000; color: #00FF00; padding: 15px; text-align: center; border-top: 3px solid #FF00FF;">
+                        Last updated: ${new Date().toLocaleDateString()} | Email me! | Sign my guestbook!
+                    </div>
+                </div>`,
+
+                'myspace-profile': `<div style="background: linear-gradient(180deg, #6699CC 0%, #003366 100%); min-height: 100vh; padding: 20px; font-family: Arial, sans-serif;">
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <div style="background: #FFF; border: 3px solid #000; margin-bottom: 15px; padding: 20px;">
+                            <div style="display: flex; gap: 20px; align-items: flex-start;">
+                                <div style="width: 150px; height: 150px; background: #DDD; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 3rem;">📷</div>
+                                <div style="flex: 1;">
+                                    <h1 style="color: #FF6600; margin: 0 0 10px 0;">Your Name</h1>
+                                    <div style="color: #666; margin-bottom: 10px;">Mood: <span style="color: #000; font-weight: bold;">Awesome!</span> 😎</div>
+                                    <div style="background: #F0F0F0; border: 1px solid #CCC; padding: 10px; margin-top: 10px;">
+                                        <strong>About Me:</strong><br>
+                                        This is where you tell everyone about yourself!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: #FFF; border: 3px solid #000; margin-bottom: 15px; padding: 20px;">
+                            <h2 style="background: linear-gradient(90deg, #FF6600, #FF0066); color: #FFF; padding: 8px; margin: -20px -20px 15px -20px;">TOP 8 FRIENDS</h2>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                                <div style="text-align: center; padding: 10px; background: #F5F5F5; border: 1px solid #CCC;">Friend 1</div>
+                                <div style="text-align: center; padding: 10px; background: #F5F5F5; border: 1px solid #CCC;">Friend 2</div>
+                                <div style="text-align: center; padding: 10px; background: #F5F5F5; border: 1px solid #CCC;">Friend 3</div>
+                                <div style="text-align: center; padding: 10px; background: #F5F5F5; border: 1px solid #CCC;">Friend 4</div>
+                            </div>
+                        </div>
+                        <div style="background: #000; color: #00FF00; border: 3px solid #00FF00; padding: 15px; font-family: 'Courier New', monospace;">
+                            <marquee>♫ Now Playing: Your Favorite Song - Artist Name ♫</marquee>
+                        </div>
+                    </div>
+                </div>`,
+
+                'terminal-interface': `<div style="background: #000; color: #00FF00; font-family: 'Courier New', monospace; min-height: 100vh; padding: 20px;">
+                    <div style="border: 2px solid #00FF00; padding: 20px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);">
+                        <div style="border-bottom: 1px solid #00FF00; padding-bottom: 10px; margin-bottom: 15px;">
+                            <span style="color: #00FFFF;">user@coaiexist</span>:<span style="color: #0099FF;">~</span>$ welcome
+                        </div>
+                        <pre style="margin: 0; line-height: 1.6;">
+╔═══════════════════════════════════════╗
+║   WELCOME TO THE MAINFRAME v2.0      ║
+║                                       ║
+║   > SYSTEM STATUS: ONLINE            ║
+║   > ACCESS LEVEL: GRANTED            ║
+║   > SECURITY: MAXIMUM                ║
+╚═══════════════════════════════════════╝
+
+Available Commands:
+├─ [1] View Projects
+├─ [2] About System
+├─ [3] Contact
+└─ [4] Exit
+
+<span style="color: #00FFFF;">user@coaiexist</span>:<span style="color: #0099FF;">~</span>$ <span style="animation: blink 1s infinite;">█</span>
+                        </pre>
+                    </div>
+                </div>`,
+
+                'webring-links': `<div style="background: #000080; color: #FFF; font-family: Arial, sans-serif; min-height: 100vh; padding: 30px;">
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div style="background: #C0C0C0; border: 4px outset #FFF; padding: 3px; margin-bottom: 30px;">
+                            <div style="background: #000080; color: #FFF; padding: 5px; display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: bold;">🌐 My Cool Links Page</span>
+                                <div style="display: flex; gap: 3px;">
+                                    <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 20px; font-size: 10px;">_</button>
+                                    <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 20px; font-size: 10px;">□</button>
+                                    <button style="background: #C0C0C0; border: 2px outset #FFF; width: 20px; height: 20px; font-size: 10px;">X</button>
+                                </div>
+                            </div>
+                            <div style="background: #FFF; color: #000; padding: 20px;">
+                                <h2 style="text-align: center; color: #FF0000; font-family: 'Comic Sans MS', cursive;">✨ AWESOME WEB RING ✨</h2>
+                                <div style="text-align: center; margin: 20px 0; padding: 15px; background: #FFFF99; border: 3px double #FF0000;">
+                                    <a href="#" style="color: #0000FF; text-decoration: none; margin: 0 10px;">⬅️ Previous</a>
+                                    <a href="#" style="color: #0000FF; text-decoration: none; margin: 0 10px;">🏠 Home</a>
+                                    <a href="#" style="color: #0000FF; text-decoration: none; margin: 0 10px;">➡️ Next</a>
+                                </div>
+                                <h3 style="background: #0000FF; color: #FFFF00; padding: 8px; text-align: center;">MY FAVORITE SITES</h3>
+                                <div style="display: grid; gap: 15px; margin-top: 20px;">
+                                    <div style="border: 2px solid #000; padding: 15px; background: linear-gradient(90deg, #FFE4E1, #E0FFFF);">
+                                        <h4 style="margin: 0 0 5px 0; color: #FF00FF;">🔗 Cool Site #1</h4>
+                                        <p style="margin: 0; font-size: 0.9em;">Description of this amazing website!</p>
+                                    </div>
+                                    <div style="border: 2px solid #000; padding: 15px; background: linear-gradient(90deg, #E0FFFF, #FFE4E1);">
+                                        <h4 style="margin: 0 0 5px 0; color: #FF00FF;">🔗 Cool Site #2</h4>
+                                        <p style="margin: 0; font-size: 0.9em;">Another rad website to check out!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`,
+
+                'pixel-game-ui': `<div style="background: #1a1a2e; color: #FFF; font-family: 'Press Start 2P', 'Courier New', monospace; min-height: 100vh; padding: 20px; image-rendering: pixelated;">
+                    <div style="max-width: 800px; margin: 0 auto; border: 4px solid #00ff41; background: #0f0f1e; padding: 0;">
+                        <div style="background: #16213e; border-bottom: 4px solid #00ff41; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 1.2rem; color: #00ff41;">PLAYER</div>
+                            <div style="display: flex; gap: 20px;">
+                                <div>HP: <span style="color: #ff0066;">♥♥♥♥♥</span></div>
+                                <div>LVL: <span style="color: #00ff41;">99</span></div>
+                            </div>
+                        </div>
+                        <div style="padding: 30px;">
+                            <div style="background: #000; border: 3px solid #00ff41; padding: 20px; margin-bottom: 20px; min-height: 200px; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                                🏰
+                            </div>
+                            <div style="background: #16213e; border: 3px solid #00ff41; padding: 15px; font-size: 0.7rem; line-height: 1.6;">
+                                <p style="margin: 0 0 10px 0;">&gt; You enter the ancient temple...</p>
+                                <p style="margin: 0;">&gt; What will you do?</p>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                                <button style="background: #00ff41; color: #000; border: 3px solid #FFF; padding: 15px; font-family: inherit; font-size: 0.6rem; cursor: pointer;">⚔️ ATTACK</button>
+                                <button style="background: #ff0066; color: #FFF; border: 3px solid #FFF; padding: 15px; font-family: inherit; font-size: 0.6rem; cursor: pointer;">🛡️ DEFEND</button>
+                                <button style="background: #0099ff; color: #FFF; border: 3px solid #FFF; padding: 15px; font-family: inherit; font-size: 0.6rem; cursor: pointer;">💼 ITEMS</button>
+                                <button style="background: #ffaa00; color: #000; border: 3px solid #FFF; padding: 15px; font-family: inherit; font-size: 0.6rem; cursor: pointer;">🏃 RUN</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`,
+
+                'chat-messenger': `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                    <div style="max-width: 600px; margin: 0 auto; background: #FFF; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="background: linear-gradient(90deg, #667eea, #764ba2); color: #FFF; padding: 20px; display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 50px; height: 50px; background: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💬</div>
+                            <div>
+                                <h2 style="margin: 0; font-size: 1.2rem;">Chat Room</h2>
+                                <div style="font-size: 0.9rem; opacity: 0.9;">3 members online</div>
+                            </div>
+                        </div>
+                        <div style="background: #F5F5F5; padding: 20px; min-height: 400px; max-height: 500px; overflow-y: auto;">
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <div style="width: 40px; height: 40px; background: #667eea; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; flex-shrink: 0;">A</div>
+                                <div style="background: #FFF; padding: 12px 16px; border-radius: 18px; max-width: 70%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                    <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 3px; color: #667eea;">Alice</div>
+                                    <div>Hey! How's everyone doing?</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-direction: row-reverse;">
+                                <div style="width: 40px; height: 40px; background: #764ba2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; flex-shrink: 0;">You</div>
+                                <div style="background: linear-gradient(90deg, #667eea, #764ba2); color: #FFF; padding: 12px 16px; border-radius: 18px; max-width: 70%; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                    <div>Great! Just building some cool stuff 🎨</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: #FFF; padding: 15px; border-top: 1px solid #EEE; display: flex; gap: 10px;">
+                            <input type="text" placeholder="Type a message..." style="flex: 1; padding: 12px 16px; border: 1px solid #DDD; border-radius: 20px; font-size: 0.95rem; outline: none;">
+                            <button style="background: linear-gradient(90deg, #667eea, #764ba2); color: #FFF; border: none; padding: 12px 24px; border-radius: 20px; font-weight: bold; cursor: pointer;">Send</button>
+                        </div>
+                    </div>
+                </div>`,
+
+                'forum-post': `<div style="background: #2C3E50; min-height: 100vh; padding: 20px; font-family: Arial, sans-serif;">
+                    <div style="max-width: 900px; margin: 0 auto;">
+                        <div style="background: #34495E; color: #FFF; padding: 15px; border-radius: 5px 5px 0 0; border-bottom: 3px solid #E74C3C;">
+                            <h1 style="margin: 0; font-size: 1.5rem;">📋 Forum Discussion: Your Topic Here</h1>
+                        </div>
+                        <div style="background: #ECF0F1; padding: 20px; border-radius: 0 0 5px 5px;">
+                            <div style="background: #FFF; border-left: 4px solid #3498DB; margin-bottom: 20px; display: flex; gap: 20px; padding: 20px;">
+                                <div style="width: 150px; text-align: center; border-right: 2px solid #EEE; padding-right: 20px;">
+                                    <div style="width: 80px; height: 80px; background: #3498DB; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 2rem;">👤</div>
+                                    <div style="font-weight: bold; margin-bottom: 5px;">Username</div>
+                                    <div style="color: #7F8C8D; font-size: 0.85rem;">Member</div>
+                                    <div style="color: #7F8C8D; font-size: 0.8rem; margin-top: 5px;">Posts: 142</div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="color: #7F8C8D; font-size: 0.85rem; margin-bottom: 15px;">Posted on ${new Date().toLocaleDateString()}</div>
+                                    <div style="line-height: 1.6;">
+                                        <p>This is the main post content. Share your thoughts, ask questions, or start discussions!</p>
+                                        <p>You can format text, add quotes, and more.</p>
+                                    </div>
+                                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #DDD; color: #7F8C8D; font-size: 0.85rem;">
+                                        Last edited: Never
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #FFF; border-left: 4px solid #95A5A6; display: flex; gap: 20px; padding: 20px;">
+                                <div style="width: 150px; text-align: center; border-right: 2px solid #EEE; padding-right: 20px;">
+                                    <div style="width: 80px; height: 80px; background: #95A5A6; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 2rem;">👤</div>
+                                    <div style="font-weight: bold; margin-bottom: 5px;">Replier</div>
+                                    <div style="color: #7F8C8D; font-size: 0.85rem;">Newbie</div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="color: #7F8C8D; font-size: 0.85rem; margin-bottom: 15px;">Posted on ${new Date().toLocaleDateString()}</div>
+                                    <div style="line-height: 1.6;">
+                                        <p>Reply to the discussion goes here!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`
             };
 
             if (templates[type]) {
@@ -3300,55 +3930,130 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         // ============================================
         function browseAssets(type) {
             const assetPaths = {
-                gifs: ['/assets/bg_gifs/1zeV.gif', '/assets/dollz/dumpz/desk1050.gif', '/assets/misc_gif/metapara/internet.gif'],
+                // ===== GIFs & ANIMATIONS =====
+                'classic-gifs': [
+                    "../assets/classic_gifs/15 (16).gif", "../assets/classic_gifs/4 (13).gif", "../assets/classic_gifs/2 (4).gif",
+                    "../assets/classic_gifs/5 (13).gif", "../assets/classic_gifs/12 (2).gif", "../assets/classic_gifs/21.gif",
+                    "../assets/classic_gifs/28 (1).gif", "../assets/classic_gifs/38 (1).gif", "../assets/classic_gifs/35.gif",
+                    "../assets/classic_gifs/18 (8).gif", "../assets/classic_gifs/15 (6).gif", "../assets/classic_gifs/6 (6).gif",
+                    "../assets/classic_gifs/1 (2).gif", "../assets/classic_gifs/11 (4).gif", "../assets/classic_gifs/17 (1).gif",
+                    "../assets/classic_gifs/7 (7).gif", "../assets/classic_gifs/10 (5).gif", "../assets/classic_gifs/6 (20).gif",
+                    "../assets/classic_gifs/9 (18).gif", "../assets/classic_gifs/2 (14).gif", "../assets/classic_gifs/13 (11).gif",
+                    "../assets/classic_gifs/13 (3).gif", "../assets/classic_gifs/12 (11).gif", "../assets/classic_gifs/3 (5).gif",
+                    "../assets/classic_gifs/11 (18).gif", "../assets/classic_gifs/34.gif", "../assets/classic_gifs/20.gif",
+                    "../assets/classic_gifs/10 (18).gif", "../assets/classic_gifs/14 (7).gif", "../assets/classic_gifs/4 (1).gif",
+                    "../assets/classic_gifs/65 (1).gif", "../assets/classic_gifs/19 (9).gif", "../assets/classic_gifs/2 (8).gif",
+                    "../assets/classic_gifs/22 (7).gif", "../assets/classic_gifs/53 (1).gif", "../assets/classic_gifs/16 (13).gif",
+                    "../assets/classic_gifs/6 (16).gif", "../assets/classic_gifs/43 (1).gif", "../assets/classic_gifs/36.gif",
+                    "../assets/classic_gifs/25 (3).gif", "../assets/classic_gifs/22.gif", "../assets/classic_gifs/35 (3).gif",
+                    "../assets/classic_gifs/8 (2).gif", "../assets/classic_gifs/18 (4).gif", "../assets/classic_gifs/26 (5).gif",
+                    "../assets/classic_gifs/31 (1).gif", "../assets/classic_gifs/21 (1).gif", "../assets/classic_gifs/11 (8).gif",
+                    "../assets/classic_gifs/46 (2).gif", "../assets/classic_gifs/27 (4).gif"
+                ],
+                'bg-gifs': [
+                    '../assets/bg_gifs/1zeV.gif'
+                ],
+                'misc-gifs': [
+                    '../assets/misc_gif/metapara/internet.gif',
+                    '../assets/misc_gif/Vintage1.gif',
+                    '../assets/misc_gif/wwjd.gif',
+                    '../assets/misc_gif/Vintage2.gif'
+                ],
+                'dollz': [
+                    '../assets/dollz/dumpz/desk1050.gif'
+                ],
+
+                // ===== IMAGES & GRAPHICS =====
+                'clipart': [],  // Will show message to browse folder manually
+                'backgrounds': [],
+                'landscape': [],
+                'tilesets': [],
+                'buttons-etc': [],
+                'old-logos': [],
+                'placeholder-imgs': [],
+                'voxel': [],
+
+                // ===== MAPS & GAME ASSETS =====
                 neopets: [
-                    '/assets/_retroinspo/_neopets/faerieland_map.png',
-                    '/assets/_retroinspo/_neopets/neopia.webp',
-                    '/assets/_retroinspo/_neopets/neopets-world.webp',
-                    '/assets/_retroinspo/_neopets/Meridell_(Neopets).gif',
-                    '/assets/_retroinspo/_neopets/4pjrdmr9s0la1.png',
-                    '/assets/_retroinspo/_neopets/7skcv06ssy6a1.png',
-                    '/assets/_retroinspo/_neopets/neop1.jpg',
-                    '/assets/_retroinspo/_neopets/mej68di3zsf81.jpg'
-                ],
-                'retro-sfx': Array.from({length: 100}, (_, i) => `/assets/audio/100_Retro_Game_Sounds_SFX_[VOLUME1]_24 bits_44.1KHz_WAV_CC-BY-3.0_by_jalastram/Retro_Game_Sounds_SFX_${String(i + 1).padStart(2, '0')}.wav`),
-                'fx-pack': Array.from({length: 90}, (_, i) => `/assets/audio/500 Sound Effects by Jalastram/FX${String(i + 1).padStart(3, '0')}.mp3`),
-                'individual-sfx': [
-                    '/assets/audio/SFX_jump.wav',
-                    '/assets/audio/SFX_hurt.wav',
-                    '/assets/audio/SFX_shoot_normal.wav',
-                    '/assets/audio/SFX_button.wav',
-                    '/assets/audio/SFX_gift.wav',
-                    '/assets/audio/SFX_hit.wav',
-                    '/assets/audio/SFX_kid.wav',
-                    '/assets/audio/SFX_super_jump.wav'
-                ],
-                music: [
-                    '/assets/sounds/pink_panther.mid',
-                    '/assets/sounds/Aqua_Barbie_Girl.mid',
-                    '/assets/sounds/MapleLeafRag.mp3',
-                    '/assets/sounds/DreamwalkerSEP2.mp3'
-                ],
-                glbs: [
-                    '/assets/pollywog/pip_jazz.glb',
-                    '/assets/pollywog/pip_wave.glb',
-                    '/assets/pollywog/pip_walk.glb',
-                    '/assets/pollywog/pip_jump.glb',
-                    '/assets/pollywog/pip_fall.glb'
+                    '../assets/_retroinspo/_neopets/faerieland_map.png',
+                    '../assets/_retroinspo/_neopets/neopia.webp',
+                    '../assets/_retroinspo/_neopets/neopets-world.webp',
+                    '../assets/_retroinspo/_neopets/Meridell_(Neopets).gif',
+                    '../assets/_retroinspo/_neopets/4pjrdmr9s0la1.png',
+                    '../assets/_retroinspo/_neopets/7skcv06ssy6a1.png',
+                    '../assets/_retroinspo/_neopets/neop1.jpg',
+                    '../assets/_retroinspo/_neopets/mej68di3zsf81.jpg'
                 ],
                 'hdtv-sprites': [
-                    '/assets/hdtv_game_assets/nabu_sprite.png',
-                    '/assets/hdtv_game_assets/hd_sprite.png',
-                    '/assets/hdtv_game_assets/sypher_sprite.png',
-                    '/assets/hdtv_game_assets/rizzler_sprite.png',
-                    '/assets/hdtv_game_assets/gwood.png',
-                    '/assets/hdtv_game_assets/gwood_withsprites.png'
+                    '../assets/hdtv_game_assets/nabu_sprite.png',
+                    '../assets/hdtv_game_assets/hd_sprite.png',
+                    '../assets/hdtv_game_assets/sypher_sprite.png',
+                    '../assets/hdtv_game_assets/rizzler_sprite.png',
+                    '../assets/hdtv_game_assets/gwood.png',
+                    '../assets/hdtv_game_assets/gwood_withsprites.png'
                 ],
-                entity: ['/assets/entity/anzu/', '/assets/entity/hyenadiva/', '/assets/entity/sypher/']
+                entity: ['../assets/entity/anzu/', '../assets/entity/hyenadiva/', '../assets/entity/sypher/'],
+                maps: [],
+
+                // ===== SPECIAL =====
+                mysterious: [],
+                retroinspo: [],
+
+                // ===== AUDIO =====
+                'retro-sfx': Array.from({length: 100}, (_, i) => `../assets/audio/100_Retro_Game_Sounds_SFX_[VOLUME1]_24 bits_44.1KHz_WAV_CC-BY-3.0_by_jalastram/Retro_Game_Sounds_SFX_${String(i + 1).padStart(2, '0')}.wav`),
+                'fx-pack': Array.from({length: 90}, (_, i) => `../assets/audio/500 Sound Effects by Jalastram/FX${String(i + 1).padStart(3, '0')}.mp3`),
+                'individual-sfx': [
+                    '../assets/audio/SFX_jump.wav',
+                    '../assets/audio/SFX_hurt.wav',
+                    '../assets/audio/SFX_shoot_normal.wav',
+                    '../assets/audio/SFX_button.wav',
+                    '../assets/audio/SFX_gift.wav',
+                    '../assets/audio/SFX_hit.wav',
+                    '../assets/audio/SFX_kid.wav',
+                    '../assets/audio/SFX_super_jump.wav'
+                ],
+                music: [
+                    '../assets/sounds/pink_panther.mid',
+                    '../assets/sounds/Aqua_Barbie_Girl.mid',
+                    '../assets/sounds/MapleLeafRag.mp3',
+                    '../assets/sounds/DreamwalkerSEP2.mp3'
+                ],
+
+                // ===== 3D MODELS =====
+                glbs: [
+                    '../assets/pollywog/pip_jazz.glb',
+                    '../assets/pollywog/pip_wave.glb',
+                    '../assets/pollywog/pip_walk.glb',
+                    '../assets/pollywog/pip_jump.glb',
+                    '../assets/pollywog/pip_fall.glb'
+                ],
+                pollywog: [
+                    '../assets/pollywog/pip_jazz.glb',
+                    '../assets/pollywog/pip_wave.glb',
+                    '../assets/pollywog/pip_walk.glb',
+                    '../assets/pollywog/pip_jump.glb',
+                    '../assets/pollywog/pip_fall.glb'
+                ]
             };
 
             const assets = assetPaths[type] || [];
             const grid = document.getElementById('asset-grid');
+
+            // Handle empty categories
+            if (assets.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--purple);">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📁</div>
+                        <h3>This category needs to be populated!</h3>
+                        <p style="margin: 10px 0;">Use direct paths in your HTML/CSS like:</p>
+                        <code style="background: #FFF; padding: 5px 10px; border: 2px solid #FF00FF; display: inline-block; margin-top: 10px;">
+                            ../assets/${type}/yourfile.gif
+                        </code>
+                        <p style="margin-top: 15px; font-size: 14px;">Or drag files from your file browser!</p>
+                    </div>
+                `;
+                return;
+            }
 
             // Show a subset if there are too many
             const displayAssets = assets.length > 30 ? assets.slice(0, 30) : assets;
@@ -3584,19 +4289,41 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     // Clear current canvas
                     canvasElements = [];
 
-                    // Add the loaded content
-                    const id = 'el-' + (++elementIdCounter);
-                    canvasElements.push({
-                        id,
-                        type: 'loaded-page',
-                        html: bodyContent
-                    });
+                    // ✨ NEW: Parse body into individual editable components!
+                    if (doc.body && doc.body.children.length > 0) {
+                        // Parse each top-level element in the body
+                        Array.from(doc.body.children).forEach(element => {
+                            const id = 'el-' + (++elementIdCounter);
+
+                            // Get computed styles if available
+                            const computedStyle = element.style.cssText || '';
+
+                            canvasElements.push({
+                                id,
+                                type: 'html',
+                                html: element.outerHTML,
+                                // Preserve inline styles
+                                styles: computedStyle
+                            });
+                        });
+
+                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit!`);
+                    } else {
+                        // Fallback: create single element with all content
+                        const id = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id,
+                            type: 'loaded-page',
+                            html: bodyContent
+                        });
+
+                        updateStatus(`Loaded ${url.split('/').pop()} - Click "Edit Code" to modify HTML/CSS/JS!`);
+                    }
 
                     // Render
                     renderCanvas();
                     updateElementCount();
 
-                    updateStatus(`Loaded ${url.split('/').pop()} - Click "Edit Code" to modify HTML/CSS/JS!`);
                     closeModal('load-modal');
                     playSound('success', 'G5');
                     showStamp('🌐');
