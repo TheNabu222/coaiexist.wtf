@@ -384,6 +384,30 @@
             border-bottom: var(--border-thick) solid var(--black);
         }
 
+        /* Collapsible sections styling */
+        details.property-box summary.property-header {
+            list-style: none;
+            transition: background 0.2s;
+        }
+
+        details.property-box summary.property-header::-webkit-details-marker {
+            display: none;
+        }
+
+        details.property-box summary.property-header::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        details.property-box[open] summary.property-header::before {
+            transform: rotate(90deg);
+        }
+
+        details.property-box summary.property-header:hover {
+            background: var(--yellow);
+        }
+
         .property-content {
             padding: var(--spacing);
         }
@@ -3024,6 +3048,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
 
             document.getElementById('properties-container').innerHTML = `
+                <!-- Element Inspector - Always Open -->
                 <div class="property-box">
                     <div class="property-header">🔍 Element Inspector</div>
                     <div class="property-content">
@@ -3042,8 +3067,9 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     </div>
                 </div>
 
-                <div class="property-box">
-                    <div class="property-header">🎨 Style Properties</div>
+                <!-- Colors & Typography - Collapsible -->
+                <details class="property-box" open>
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🎨 Colors & Typography</summary>
                     <div class="property-content">
                         <label class="property-label">Background Color:</label>
                         <div style="display: flex; gap: 4px; margin-bottom: 8px;">
@@ -3080,6 +3106,21 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="'Times New Roman', serif">Times New Roman</option>
                         </select>
 
+                        <label class="property-label">Text Align:</label>
+                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
+                            <option value="">Default</option>
+                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
+                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
+                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
+                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
+                        </select>
+                    </div>
+                </details>
+
+                <!-- Layout & Spacing - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">📐 Layout & Spacing</summary>
+                    <div class="property-content">
                         <label class="property-label">Padding:</label>
                         <input type="text" class="property-input" value="${extractedProps.styles['padding'] || ''}"
                                onchange="updateElementStyle('${id}', 'padding', this.value)"
@@ -3114,20 +3155,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="grid" ${extractedProps.styles['display'] === 'grid' ? 'selected' : ''}>Grid</option>
                             <option value="none" ${extractedProps.styles['display'] === 'none' ? 'selected' : ''}>None (Hidden)</option>
                         </select>
-
-                        <label class="property-label">Text Align:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
-                            <option value="">Default</option>
-                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
-                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
-                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
-                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
-                        </select>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">Quick Colors</div>
+                <!-- Quick Colors - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🌈 Quick Colors</summary>
                     <div class="property-content">
                         <div class="color-grid">
                             <div class="color-box" style="background: #FF0000;" onclick="updateElementStyle('${id}', 'color', '#FF0000')"></div>
@@ -3140,10 +3173,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <div class="color-box" style="background: #000000;" onclick="updateElementStyle('${id}', 'color', '#000000')"></div>
                         </div>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">⚡ JavaScript Interactions</div>
+                <!-- JavaScript Interactions - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">⚡ JavaScript Interactions</summary>
                     <div class="property-content">
                         <button class="big-button purple" onclick="addInteraction('${id}', 'onclick')" style="width: 100%; margin-bottom: 8px;">
                             🖱️ Add Click Event
@@ -3155,10 +3189,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             🎬 Add Animation
                         </button>
                     </div>
-                </div>
+                </details>
 
+                <!-- Actions - Always Open -->
                 <div class="property-box">
-                    <div class="property-header">Actions</div>
+                    <div class="property-header">⚡ Actions</div>
                     <div class="property-content">
                         <button class="big-button green" onclick="saveAsComponent('${id}')" style="width: 100%; margin-bottom: 8px;">
                             💾 Save as Component
