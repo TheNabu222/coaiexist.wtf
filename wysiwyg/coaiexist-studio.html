@@ -384,6 +384,30 @@
             border-bottom: var(--border-thick) solid var(--black);
         }
 
+        /* Collapsible sections styling */
+        details.property-box summary.property-header {
+            list-style: none;
+            transition: background 0.2s;
+        }
+
+        details.property-box summary.property-header::-webkit-details-marker {
+            display: none;
+        }
+
+        details.property-box summary.property-header::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        details.property-box[open] summary.property-header::before {
+            transform: rotate(90deg);
+        }
+
+        details.property-box summary.property-header:hover {
+            background: var(--yellow);
+        }
+
         .property-content {
             padding: var(--spacing);
         }
@@ -650,6 +674,7 @@
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
+            <button class="big-button" onclick="applyThemeToPage()" style="background: linear-gradient(135deg, #f312af, #00ffcc); font-size: 14px; padding: 8px 12px;" title="Apply current theme to your page">⚡ Apply Theme</button>
             <button class="big-button" id="grid-toggle-btn" onclick="toggleGrid()" style="background: #FFF; border: 3px dashed #000;">📐 GRID</button>
             <button class="big-button" id="position-mode-btn" onclick="togglePositionMode()" style="background: #00FF00;">📍 FLOW</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
@@ -2109,6 +2134,31 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
         });
 
+        // Duplicate element instantly (no copy/paste needed)
+        function duplicateElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const newId = 'el-' + (++elementIdCounter);
+            const newEl = { ...el, id: newId };
+
+            // Offset position slightly if in free mode
+            if (positionMode === 'free') {
+                const currentLeft = parseInt(newEl.left) || 0;
+                const currentTop = parseInt(newEl.top) || 0;
+                newEl.left = (currentLeft + 20) + 'px';
+                newEl.top = (currentTop + 20) + 'px';
+            }
+
+            canvasElements.push(newEl);
+            saveState(); // Save for undo
+            renderCanvas();
+            playSound('pop', 'G5');
+            showStamp('✨');
+            updateStatus('Element duplicated!');
+            updateElementCount();
+        }
+
         function pasteElement() {
             if (!copiedElement) {
                 updateStatus('Nothing to paste!');
@@ -2267,6 +2317,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerForward('${el.id}')">🔼 FRONT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.editElement('${el.id}')">✏️ EDIT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.duplicateElement('${el.id}')" style="background: #00ff00; color: #000;">⚡ DUPLICATE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.copyElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.deleteElement('${el.id}')">🗑️ DELETE</button>
@@ -2998,6 +3049,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
 
             document.getElementById('properties-container').innerHTML = `
+                <!-- Element Inspector - Always Open -->
                 <div class="property-box">
                     <div class="property-header">🔍 Element Inspector</div>
                     <div class="property-content">
@@ -3016,8 +3068,9 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     </div>
                 </div>
 
-                <div class="property-box">
-                    <div class="property-header">🎨 Style Properties</div>
+                <!-- Colors & Typography - Collapsible -->
+                <details class="property-box" open>
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🎨 Colors & Typography</summary>
                     <div class="property-content">
                         <label class="property-label">Background Color:</label>
                         <div style="display: flex; gap: 4px; margin-bottom: 8px;">
@@ -3054,6 +3107,21 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="'Times New Roman', serif">Times New Roman</option>
                         </select>
 
+                        <label class="property-label">Text Align:</label>
+                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
+                            <option value="">Default</option>
+                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
+                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
+                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
+                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
+                        </select>
+                    </div>
+                </details>
+
+                <!-- Layout & Spacing - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">📐 Layout & Spacing</summary>
+                    <div class="property-content">
                         <label class="property-label">Padding:</label>
                         <input type="text" class="property-input" value="${extractedProps.styles['padding'] || ''}"
                                onchange="updateElementStyle('${id}', 'padding', this.value)"
@@ -3088,20 +3156,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="grid" ${extractedProps.styles['display'] === 'grid' ? 'selected' : ''}>Grid</option>
                             <option value="none" ${extractedProps.styles['display'] === 'none' ? 'selected' : ''}>None (Hidden)</option>
                         </select>
-
-                        <label class="property-label">Text Align:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
-                            <option value="">Default</option>
-                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
-                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
-                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
-                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
-                        </select>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">Quick Colors</div>
+                <!-- Quick Colors - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🌈 Quick Colors</summary>
                     <div class="property-content">
                         <div class="color-grid">
                             <div class="color-box" style="background: #FF0000;" onclick="updateElementStyle('${id}', 'color', '#FF0000')"></div>
@@ -3114,10 +3174,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <div class="color-box" style="background: #000000;" onclick="updateElementStyle('${id}', 'color', '#000000')"></div>
                         </div>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">⚡ JavaScript Interactions</div>
+                <!-- JavaScript Interactions - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">⚡ JavaScript Interactions</summary>
                     <div class="property-content">
                         <button class="big-button purple" onclick="addInteraction('${id}', 'onclick')" style="width: 100%; margin-bottom: 8px;">
                             🖱️ Add Click Event
@@ -3129,10 +3190,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             🎬 Add Animation
                         </button>
                     </div>
-                </div>
+                </details>
 
+                <!-- Actions - Always Open -->
                 <div class="property-box">
-                    <div class="property-header">Actions</div>
+                    <div class="property-header">⚡ Actions</div>
                     <div class="property-content">
                         <button class="big-button green" onclick="saveAsComponent('${id}')" style="width: 100%; margin-bottom: 8px;">
                             💾 Save as Component
@@ -5367,7 +5429,28 @@ Available Commands:
                     // Clear current canvas
                     canvasElements = [];
 
-                    // ✨ NEW: Parse body into individual editable components!
+                    // ✨ AUTO-INJECT CSS AND JS from loaded page
+                    // Add extracted CSS as a style element (so page looks correct)
+                    if (extractedCSS.trim()) {
+                        const cssId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: cssId,
+                            type: 'css',
+                            html: `<style>${extractedCSS}</style>`
+                        });
+                    }
+
+                    // Add extracted JS as a script element
+                    if (extractedJS.trim()) {
+                        const jsId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: jsId,
+                            type: 'js',
+                            html: `<script>${extractedJS}<\/script>`
+                        });
+                    }
+
+                    // ✨ Parse body into individual editable components!
                     if (doc.body && doc.body.children.length > 0) {
                         // Parse each top-level element in the body
                         Array.from(doc.body.children).forEach(element => {
@@ -5385,7 +5468,9 @@ Available Commands:
                             });
                         });
 
-                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit!`);
+                        const bodyCount = doc.body.children.length;
+                        const hasStyles = extractedCSS.trim() ? ' (with styles)' : '';
+                        updateStatus(`Loaded ${url.split('/').pop()} - ${bodyCount} components ready to edit${hasStyles}!`);
                     } else {
                         // Fallback: create single element with all content
                         const id = 'el-' + (++elementIdCounter);
@@ -5904,7 +5989,7 @@ function createConfetti() {
             const themeKey = themeKeys[currentThemeIndex];
             const theme = themes[themeKey];
 
-            // Apply theme
+            // Apply theme to editor
             const root = document.documentElement;
             Object.keys(theme).forEach(key => {
                 if (key !== 'name') {
@@ -5917,7 +6002,50 @@ function createConfetti() {
 
             playSound('success', 'C6');
             showStamp('🎨');
-            updateStatus(`Theme: ${theme.name}`);
+
+            // Show tooltip about applying to page
+            updateStatus(`Theme: ${theme.name} - Right-click for options!`);
+        }
+
+        // Export current theme as CSS
+        function exportThemeAsCSS() {
+            const themeKey = themeKeys[currentThemeIndex];
+            const theme = themes[themeKey];
+
+            let css = `/* ${theme.name} Theme */\n:root {\n`;
+            Object.keys(theme).forEach(key => {
+                if (key !== 'name') {
+                    css += `  ${key}: ${theme[key]};\n`;
+                }
+            });
+            css += '}\n\nbody {\n';
+            css += `  background: var(--bg);\n`;
+            css += `  color: var(--text);\n`;
+            css += '}';
+
+            return css;
+        }
+
+        // Apply current theme to the page being edited
+        function applyThemeToPage() {
+            const themeCSS = exportThemeAsCSS();
+
+            // Add theme CSS as a style element
+            const id = 'el-' + (++elementIdCounter);
+            canvasElements.push({
+                id,
+                type: 'css',
+                html: `<style>${themeCSS}</style>`
+            });
+
+            saveState();
+            renderCanvas();
+            updateElementCount();
+
+            playSound('success', 'G5');
+            showStamp('🎨');
+            const themeName = themes[themeKeys[currentThemeIndex]].name;
+            updateStatus(`${themeName} applied to page! Check CSS editor to customize.`);
         }
 
         function loadSavedTheme() {
