@@ -1527,6 +1527,136 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         let elementIdCounter = 0;
 
         // ============================================
+        // UNDO/REDO SYSTEM
+        // ============================================
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 50;
+
+        function saveState() {
+            // Remove any "future" history if we're not at the end
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+
+            // Deep clone the current state
+            const state = JSON.parse(JSON.stringify(canvasElements));
+            history.push(state);
+
+            // Limit history size
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                canvasElements = JSON.parse(JSON.stringify(history[historyIndex]));
+                renderCanvas();
+                playSound('pop', 'D5');
+                showStamp('⏪');
+                updateStatus(`Undo! (${historyIndex + 1}/${history.length} steps)`);
+            } else {
+                playSound('error', 'C4');
+                updateStatus('Nothing to undo!');
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                canvasElements = JSON.parse(JSON.stringify(history[historyIndex]));
+                renderCanvas();
+                playSound('pop', 'E5');
+                showStamp('⏩');
+                updateStatus(`Redo! (${historyIndex + 1}/${history.length} steps)`);
+            } else {
+                playSound('error', 'C4');
+                updateStatus('Nothing to redo!');
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Don't intercept keys if typing in input/textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                return;
+            }
+
+            // Ctrl+Z or Cmd+Z for undo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            }
+            // Ctrl+Shift+Z or Ctrl+Y for redo
+            else if ((e.ctrlKey || e.metaKey) && (e.shiftKey && e.key === 'z' || e.key === 'y')) {
+                e.preventDefault();
+                redo();
+            }
+            // Delete key to delete selected element
+            else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+                e.preventDefault();
+                deleteElement(selectedElement);
+            }
+            // Escape to deselect
+            else if (e.key === 'Escape') {
+                selectedElement = null;
+                document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+                updateStatus('Deselected');
+            }
+            // Arrow keys to nudge selected element
+            else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                nudgeElement(selectedElement, e.key, e.shiftKey);
+            }
+        });
+
+        // Nudge selected element with arrow keys
+        function nudgeElement(id, direction, shiftKey) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            // Parse current position
+            let left = parseInt(el.left) || 0;
+            let top = parseInt(el.top) || 0;
+
+            // Distance to move (10px normal, 1px with Shift for precision)
+            const distance = shiftKey ? 1 : 10;
+
+            // Update position
+            switch (direction) {
+                case 'ArrowUp':
+                    top -= distance;
+                    break;
+                case 'ArrowDown':
+                    top += distance;
+                    break;
+                case 'ArrowLeft':
+                    left -= distance;
+                    break;
+                case 'ArrowRight':
+                    left += distance;
+                    break;
+            }
+
+            // Keep within bounds
+            left = Math.max(0, left);
+            top = Math.max(0, top);
+
+            // Update element
+            el.left = left + 'px';
+            el.top = top + 'px';
+
+            renderCanvas();
+            selectElement(id);
+            playSound('boop', 'C5');
+            updateStatus(`Nudged to ${left}px × ${top}px`);
+        }
+
+        // ============================================
         // ELEMENT TEMPLATES
         // ============================================
         const elementTemplates = {
@@ -1553,6 +1683,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const html = elementTemplates[type] || '<div>Unknown element</div>';
 
             canvasElements.push({ id, type, html });
+            saveState(); // Save for undo/redo
             renderCanvas();
             playSound('pop', 'E5');
             showStamp('✨');
@@ -1603,6 +1734,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const html = styledElementTemplates[type] || '<div>Unknown styled element</div>';
 
             canvasElements.push({ id, type, html });
+            saveState(); // Save for undo/redo
             renderCanvas();
             playSound('success', 'G5');
             showStamp('🎨');
@@ -1733,6 +1865,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 const left = parseInt(movingElement.left) || 0;
                 const top = parseInt(movingElement.top) || 0;
 
+                saveState(); // Save for undo/redo
                 playSound('success', 'E5');
                 showStamp('📍');
                 updateStatus(`Moved to ${left}px × ${top}px`);
@@ -1920,6 +2053,20 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             editChildElement(el.getAttribute('data-id'), child);
                         }
                     });
+
+                    // Double-click to edit text inline
+                    const isTextElement = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'SPAN', 'A', 'BUTTON', 'LI', 'TD', 'TH', 'LABEL', 'DIV'].includes(child.tagName);
+                    if (isTextElement) {
+                        child.addEventListener('dblclick', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            makeTextEditable(el.getAttribute('data-id'), child);
+                        });
+
+                        // Visual hint on hover
+                        child.style.cursor = 'text';
+                        child.title = 'Double-click to edit text';
+                    }
                 });
             });
         }
@@ -2065,6 +2212,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             let newWidth = resizeStartWidth;
             let newHeight = resizeStartHeight;
 
+            // Check if element is a circle (needs aspect ratio maintained)
+            const contentDiv = resizingElementDiv.querySelector('.element-content');
+            const firstChild = contentDiv ? contentDiv.firstElementChild : null;
+            const isCircle = firstChild && firstChild.style.borderRadius === '50%';
+
             // Calculate new dimensions based on direction
             if (resizeDirection.includes('e')) {
                 newWidth = resizeStartWidth + deltaX;
@@ -2079,6 +2231,13 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 newHeight = resizeStartHeight - deltaY;
             }
 
+            // For circles, maintain aspect ratio (width = height)
+            if (isCircle) {
+                const avgSize = Math.max(newWidth, newHeight);
+                newWidth = avgSize;
+                newHeight = avgSize;
+            }
+
             // Snap to grid if enabled
             if (gridEnabled) {
                 newWidth = Math.round(newWidth / 20) * 20;
@@ -2088,6 +2247,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             // Min size constraints
             newWidth = Math.max(50, newWidth);
             newHeight = Math.max(30, newHeight);
+
+            // For circles, ensure they stay square
+            if (isCircle) {
+                newHeight = newWidth;
+            }
 
             // Update element size directly on the div (don't re-render during resize!)
             resizingElementDiv.style.width = newWidth + 'px';
@@ -2107,6 +2271,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 const width = parseInt(resizingElement.width) || 0;
                 const height = parseInt(resizingElement.height) || 0;
 
+                saveState(); // Save for undo/redo
                 playSound('success', 'E5');
                 showStamp('📏');
                 updateStatus(`Resized to ${width}px × ${height}px`);
@@ -2196,6 +2361,73 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             playSound('boop', 'G5');
             showStamp('🎯');
             updateStatus('Editing child element! Alt+Click to edit any element.');
+        }
+
+        // Inline text editing (Double-click feature)
+        function makeTextEditable(parentId, textElement) {
+            const parentEl = canvasElements.find(e => e.id === parentId);
+            if (!parentEl) return;
+
+            // Store original text and styling
+            const originalText = textElement.textContent;
+            const originalCursor = textElement.style.cursor;
+            const originalOutline = textElement.style.outline;
+
+            // Make element editable
+            textElement.contentEditable = 'true';
+            textElement.style.outline = '2px solid #00FFFF';
+            textElement.style.cursor = 'text';
+
+            // Focus and select all text
+            textElement.focus();
+            const range = document.createRange();
+            range.selectNodeContents(textElement);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            playSound('boop', 'F5');
+            updateStatus('Editing text... Press Enter or click outside to save');
+
+            // Save function
+            const saveEdit = () => {
+                textElement.contentEditable = 'false';
+                textElement.style.outline = originalOutline;
+                textElement.style.cursor = originalCursor;
+
+                // Update the parent element's HTML with new text
+                const parentDiv = document.querySelector(`[data-id="${parentId}"]`);
+                if (parentDiv) {
+                    const contentDiv = parentDiv.querySelector('.element-content');
+                    if (contentDiv) {
+                        parentEl.html = contentDiv.innerHTML;
+                    }
+                }
+
+                playSound('success', 'G5');
+                showStamp('✏️');
+                updateStatus('Text updated!');
+
+                // Re-render to save changes
+                renderCanvas();
+            };
+
+            // Save on blur
+            textElement.addEventListener('blur', saveEdit, { once: true });
+
+            // Save on Enter (but allow Shift+Enter for new lines)
+            const handleEnter = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    textElement.blur(); // Triggers save
+                }
+                if (e.key === 'Escape') {
+                    // Cancel edit
+                    textElement.textContent = originalText;
+                    textElement.blur();
+                }
+            };
+            textElement.addEventListener('keydown', handleEnter);
         }
 
         // VISUAL EDITING FUNCTIONS!
@@ -2384,6 +2616,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 el.html = tempDiv.innerHTML;
             }
 
+            saveState(); // Save for undo/redo
             renderCanvas();
             closeModal('edit-element-modal');
             playSound('success', 'G5');
@@ -2397,6 +2630,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             const newId = 'el-' + (++elementIdCounter);
             canvasElements.push({ id: newId, type: el.type, html: el.html });
+            saveState(); // Save for undo/redo
             renderCanvas();
             playSound('pop', 'A5');
             showStamp('📋');
@@ -2405,6 +2639,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function deleteElement(id) {
             canvasElements = canvasElements.filter(e => e.id !== id);
+            saveState(); // Save for undo/redo
             renderCanvas();
             playSound('boop', 'C4');
             showStamp('🗑️');
@@ -2658,7 +2893,29 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const firstChild = temp.firstElementChild;
 
             if (firstChild) {
-                firstChild.style[styleProp] = value;
+                // Smart color application: apply to both text and background for shapes
+                if (styleProp === 'color') {
+                    const isShape = firstChild.tagName === 'DIV' &&
+                                   (firstChild.style.borderRadius ||
+                                    firstChild.style.width ||
+                                    firstChild.style.height ||
+                                    firstChild.classList.contains('shape') ||
+                                    firstChild.classList.contains('circle') ||
+                                    firstChild.classList.contains('square'));
+
+                    if (isShape) {
+                        // For shapes, update background color
+                        firstChild.style.background = value;
+                        firstChild.style.backgroundColor = value;
+                    } else {
+                        // For text elements, update text color
+                        firstChild.style.color = value;
+                    }
+                } else {
+                    // For other properties, apply as-is
+                    firstChild.style[styleProp] = value;
+                }
+
                 el.html = temp.innerHTML;
                 renderCanvas();
                 selectElement(id);
@@ -2721,16 +2978,38 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             if (firstChild) {
                 if (eventType === 'onclick') {
                     firstChild.setAttribute('onclick', code);
+                    // Add visual indicator
+                    firstChild.style.cursor = 'pointer';
                 } else if (eventType === 'onhover') {
                     firstChild.setAttribute('onmouseover', code);
                     firstChild.setAttribute('onmouseout', `this.style = ''`);
                 }
 
                 el.html = temp.innerHTML;
+
+                // Store metadata about interactions
+                if (!el.interactions) el.interactions = [];
+                el.interactions.push({ type: eventType, added: new Date() });
+
                 renderCanvas();
                 selectElement(id);
                 playSound('success', 'A5');
                 showStamp('⚡');
+                updateStatus(`${eventType === 'onclick' ? 'Click' : 'Hover'} event added! ${eventType === 'onclick' ? 'Click the element to test it.' : 'Hover over the element to test it.'}`);
+
+                // Flash the element to show it was updated
+                setTimeout(() => {
+                    const elementDiv = document.querySelector(`[data-id="${id}"]`);
+                    if (elementDiv) {
+                        elementDiv.style.outline = '4px solid #00FFFF';
+                        setTimeout(() => {
+                            elementDiv.style.outline = '';
+                        }, 500);
+                    }
+                }, 100);
+
+                // Go back to properties
+                renderProperties(id);
             }
         }
 
@@ -2780,10 +3059,31 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 firstChild.style.animation = `${animName} 1s ease-in-out infinite`;
 
                 el.html = styleTag + temp.innerHTML;
+
+                // Store metadata about animations
+                if (!el.animations) el.animations = [];
+                el.animations.push({ name: animName, added: new Date() });
+
                 renderCanvas();
                 selectElement(id);
                 playSound('success', 'C6');
                 showStamp('🎬');
+                updateStatus(`Animation "${animName}" added! Watch it animate on the canvas.`);
+
+                // Flash the element to show it was updated
+                setTimeout(() => {
+                    const elementDiv = document.querySelector(`[data-id="${id}"]`);
+                    if (elementDiv) {
+                        const originalOutline = elementDiv.style.outline;
+                        elementDiv.style.outline = '4px solid #FF00FF';
+                        setTimeout(() => {
+                            elementDiv.style.outline = originalOutline;
+                        }, 800);
+                    }
+                }, 100);
+
+                // Go back to properties
+                renderProperties(id);
             }
         }
 
