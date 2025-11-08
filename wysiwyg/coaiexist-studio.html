@@ -2109,6 +2109,31 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
         });
 
+        // Duplicate element instantly (no copy/paste needed)
+        function duplicateElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const newId = 'el-' + (++elementIdCounter);
+            const newEl = { ...el, id: newId };
+
+            // Offset position slightly if in free mode
+            if (positionMode === 'free') {
+                const currentLeft = parseInt(newEl.left) || 0;
+                const currentTop = parseInt(newEl.top) || 0;
+                newEl.left = (currentLeft + 20) + 'px';
+                newEl.top = (currentTop + 20) + 'px';
+            }
+
+            canvasElements.push(newEl);
+            saveState(); // Save for undo
+            renderCanvas();
+            playSound('pop', 'G5');
+            showStamp('✨');
+            updateStatus('Element duplicated!');
+            updateElementCount();
+        }
+
         function pasteElement() {
             if (!copiedElement) {
                 updateStatus('Nothing to paste!');
@@ -2267,6 +2292,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerForward('${el.id}')">🔼 FRONT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.editElement('${el.id}')">✏️ EDIT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.duplicateElement('${el.id}')" style="background: #00ff00; color: #000;">⚡ DUPLICATE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.copyElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.deleteElement('${el.id}')">🗑️ DELETE</button>
@@ -5367,7 +5393,28 @@ Available Commands:
                     // Clear current canvas
                     canvasElements = [];
 
-                    // ✨ NEW: Parse body into individual editable components!
+                    // ✨ AUTO-INJECT CSS AND JS from loaded page
+                    // Add extracted CSS as a style element (so page looks correct)
+                    if (extractedCSS.trim()) {
+                        const cssId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: cssId,
+                            type: 'css',
+                            html: `<style>${extractedCSS}</style>`
+                        });
+                    }
+
+                    // Add extracted JS as a script element
+                    if (extractedJS.trim()) {
+                        const jsId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: jsId,
+                            type: 'js',
+                            html: `<script>${extractedJS}<\/script>`
+                        });
+                    }
+
+                    // ✨ Parse body into individual editable components!
                     if (doc.body && doc.body.children.length > 0) {
                         // Parse each top-level element in the body
                         Array.from(doc.body.children).forEach(element => {
@@ -5385,7 +5432,9 @@ Available Commands:
                             });
                         });
 
-                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit!`);
+                        const bodyCount = doc.body.children.length;
+                        const hasStyles = extractedCSS.trim() ? ' (with styles)' : '';
+                        updateStatus(`Loaded ${url.split('/').pop()} - ${bodyCount} components ready to edit${hasStyles}!`);
                     } else {
                         // Fallback: create single element with all content
                         const id = 'el-' + (++elementIdCounter);
