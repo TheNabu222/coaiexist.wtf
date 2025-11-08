@@ -89,6 +89,10 @@
             padding: var(--spacing);
             gap: var(--spacing);
             flex-wrap: wrap;
+            overflow-x: auto;
+            overflow-y: visible;
+            z-index: 100;
+            min-height: 60px;
         }
 
         .toolbar-title {
@@ -740,7 +744,7 @@
 
         <!-- CANVAS -->
         <div class="canvas-area">
-            <div id="canvas"></div>
+            <iframe id="canvas-frame" sandbox="allow-scripts allow-same-origin" style="width: 100%; height: 100%; border: none; background: var(--canvas-bg);"></iframe>
             <div id="grid-overlay" style="display: none; position: absolute; top: 20px; left: 20px; right: 20px; bottom: 20px; pointer-events: none; background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, #FF00FF 19px, #FF00FF 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, #FF00FF 19px, #FF00FF 20px); background-size: 20px 20px; opacity: 0.3; z-index: 1000;"></div>
         </div>
 
@@ -1098,6 +1102,19 @@
                 <button class="big-button" onclick="closeModal('css-modal')">✖️</button>
             </div>
 
+            <div style="background: #E6F7FF; border: 3px solid #0066CC; padding: 16px; margin: 16px 0; border-radius: 8px;">
+                <h3 style="margin: 0 0 8px 0; color: #0066CC;">✨ How CSS Works Now:</h3>
+                <p style="margin: 0; line-height: 1.5;">
+                    Your CSS is now <strong>isolated</strong> - it only affects your page content, not the editor!
+                    <br><br>
+                    <strong>📂 Load from Page</strong> - Automatically extract CSS from any website URL
+                    <br>
+                    <strong>📚 Preloaded Styles</strong> - Quick style snippets for common effects
+                    <br>
+                    <strong>✨ Apply CSS</strong> - Add your custom styles to the canvas
+                </p>
+            </div>
+
             <h3 style="margin: 16px 0 12px 0;">📚 Preloaded Styles:</h3>
             <div class="template-grid" style="margin-bottom: 20px;">
                 <div class="template-card" onclick="insertCSSSnippet('neon')">
@@ -1140,6 +1157,19 @@
             <div class="modal-header">
                 <div class="modal-title">⚡ JavaScript Editor</div>
                 <button class="big-button" onclick="closeModal('js-modal')">✖️</button>
+            </div>
+
+            <div style="background: #FFF4E6; border: 3px solid #FF9933; padding: 16px; margin: 16px 0; border-radius: 8px;">
+                <h3 style="margin: 0 0 8px 0; color: #CC6600;">⚡ How JavaScript Works Now:</h3>
+                <p style="margin: 0; line-height: 1.5;">
+                    Your JavaScript runs in an <strong>isolated canvas</strong> - safe and separate from the editor!
+                    <br><br>
+                    <strong>📂 Load from Page</strong> - Extract scripts from any website URL
+                    <br>
+                    <strong>📚 Preloaded Scripts</strong> - Common interactive features ready to use
+                    <br>
+                    <strong>⚡ Apply JS</strong> - Add your custom interactions to the page
+                </p>
             </div>
 
             <h3 style="margin: 16px 0 12px 0;">📚 Preloaded Scripts:</h3>
@@ -1604,7 +1634,10 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             // Escape to deselect
             else if (e.key === 'Escape') {
                 selectedElement = null;
-                document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+                const canvasDoc = getCanvasDoc();
+                if (canvasDoc) {
+                    canvasDoc.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+                }
                 updateStatus('Deselected');
             }
             // Arrow keys to nudge selected element
@@ -1822,7 +1855,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             // Get current position
             const rect = elementDiv.getBoundingClientRect();
-            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            const iframe = document.getElementById('canvas-frame');
+            const canvasRect = iframe.getBoundingClientRect();
             moveStartLeft = rect.left - canvasRect.left;
             moveStartTop = rect.top - canvasRect.top;
 
@@ -1876,9 +1910,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             document.removeEventListener('mouseup', stopDragMove);
 
             // Reset cursor
-            document.querySelectorAll('.canvas-element').forEach(el => {
-                el.style.cursor = 'move';
-            });
+            const canvasDoc = getCanvasDoc();
+            if (canvasDoc) {
+                canvasDoc.querySelectorAll('.canvas-element').forEach(el => {
+                    el.style.cursor = 'move';
+                });
+            }
         }
 
         // ============================================
@@ -1929,8 +1966,115 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             selectElement(newId);
         }
 
+        // Helper to get iframe canvas document
+        function getCanvasDoc() {
+            const iframe = document.getElementById('canvas-frame');
+            return iframe ? (iframe.contentDocument || iframe.contentWindow.document) : null;
+        }
+
+        // Get canvas-specific styles to inject into iframe
+        function getCanvasStyles() {
+            return `
+                .canvas-element {
+                    border: 3px solid transparent;
+                    margin: 10px;
+                    padding: 0;
+                    transition: border-color 0.2s;
+                    position: relative;
+                }
+                .canvas-element:hover {
+                    border-color: var(--cyan, #00FFFF);
+                }
+                .canvas-element.selected {
+                    border-color: var(--magenta, #FF00FF);
+                    box-shadow: 0 0 15px var(--magenta, #FF00FF);
+                }
+                .element-toolbar {
+                    display: none;
+                    position: absolute;
+                    top: -35px;
+                    left: 0;
+                    background: rgba(0,0,0,0.9);
+                    padding: 4px;
+                    gap: 4px;
+                    z-index: 1000;
+                    flex-wrap: wrap;
+                }
+                .canvas-element:hover .element-toolbar {
+                    display: flex;
+                }
+                .mini-btn {
+                    background: var(--yellow, #FFFF00);
+                    border: 2px solid var(--black, #000);
+                    color: var(--black, #000);
+                    padding: 4px 8px;
+                    font-family: 'Comic Sans MS', sans-serif;
+                    font-size: 11px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    white-space: nowrap;
+                }
+                .mini-btn:hover {
+                    background: var(--orange, #FF6600);
+                }
+                .resize-handle {
+                    position: absolute;
+                    width: 10px;
+                    height: 10px;
+                    background: var(--magenta, #FF00FF);
+                    border: 1px solid white;
+                    display: none;
+                }
+                .canvas-element:hover .resize-handle {
+                    display: block;
+                }
+                .resize-handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
+                .resize-handle-n  { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
+                .resize-handle-ne { top: -5px; right: -5px; cursor: ne-resize; }
+                .resize-handle-e  { top: 50%; right: -5px; margin-top: -5px; cursor: e-resize; }
+                .resize-handle-se { bottom: -5px; right: -5px; cursor: se-resize; }
+                .resize-handle-s  { bottom: -5px; left: 50%; margin-left: -5px; cursor: s-resize; }
+                .resize-handle-sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+                .resize-handle-w  { top: 50%; left: -5px; margin-top: -5px; cursor: w-resize; }
+            `;
+        }
+
         function renderCanvas() {
-            const canvas = document.getElementById('canvas');
+            // Get iframe and its document
+            const iframe = document.getElementById('canvas-frame');
+            if (!iframe) {
+                console.error('Canvas iframe not found!');
+                return;
+            }
+
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+            // Initialize iframe document if needed
+            if (!iframeDoc.body || !iframeDoc.head.querySelector('style')) {
+                iframeDoc.open();
+                iframeDoc.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body {
+                                margin: 0;
+                                padding: 20px;
+                                background: var(--canvas-bg, #FFF);
+                                font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial Black', sans-serif;
+                                min-height: 100vh;
+                            }
+                            ${getCanvasStyles()}
+                        </style>
+                    </head>
+                    <body id="canvas-body">
+                    </body>
+                    </html>
+                `);
+                iframeDoc.close();
+            }
+
+            const canvas = iframeDoc.getElementById('canvas-body');
             canvas.innerHTML = canvasElements.map((el, index) => {
                 const width = el.width || 'auto';
                 const height = el.height || 'auto';
@@ -1947,16 +2091,16 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
 
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
-                        <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); layerForward('${el.id}')">🔼 FRONT</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); layerBack('${el.id}')">🔽 BACK</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); editElement('${el.id}')">✏️ EDIT</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); copyElement('${el.id}')">📋 COPY</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
-                        <button class="mini-btn" onclick="event.stopPropagation(); deleteElement('${el.id}')">🗑️ DELETE</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.layerForward('${el.id}')">🔼 FRONT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.layerBack('${el.id}')">🔽 BACK</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.editElement('${el.id}')">✏️ EDIT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.copyElement('${el.id}')">📋 COPY</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.deleteElement('${el.id}')">🗑️ DELETE</button>
                     </div>
                     <div class="element-content" style="width: 100%; height: ${height !== 'auto' ? '100%' : 'auto'}; box-sizing: border-box;">
                         ${el.html}
@@ -2050,7 +2194,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         if (e.altKey) {
                             e.preventDefault();
                             e.stopPropagation();
-                            editChildElement(el.getAttribute('data-id'), child);
+                            window.parent.editChildElement(el.getAttribute('data-id'), child);
                         }
                     });
 
@@ -2060,7 +2204,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         child.addEventListener('dblclick', (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            makeTextEditable(el.getAttribute('data-id'), child);
+                            window.parent.makeTextEditable(el.getAttribute('data-id'), child);
                         });
 
                         // Visual hint on hover
@@ -2289,8 +2433,13 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         }
 
         function selectElement(id) {
-            document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
-            document.querySelector(`[data-id="${id}"]`).classList.add('selected');
+            const canvasDoc = getCanvasDoc();
+            if (!canvasDoc) return;
+
+            canvasDoc.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
+            const selectedEl = canvasDoc.querySelector(`[data-id="${id}"]`);
+            if (selectedEl) selectedEl.classList.add('selected');
+
             selectedElement = id;
             renderProperties(id);
             playSound('boop', 'C5');
