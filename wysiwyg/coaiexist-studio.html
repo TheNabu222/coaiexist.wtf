@@ -1812,12 +1812,118 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
                 updateStatus('Deselected');
             }
+            // Ctrl+C to copy selected element
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedElement) {
+                e.preventDefault();
+                copyElement(selectedElement);
+            }
+            // Ctrl+D to duplicate selected element
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedElement) {
+                e.preventDefault();
+                duplicateElement(selectedElement);
+            }
             // Arrow keys to nudge selected element
             else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 nudgeElement(selectedElement, e.key, e.shiftKey);
             }
+            // ? key to show keyboard shortcuts
+            else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+                e.preventDefault();
+                showKeyboardShortcuts();
+            }
         });
+
+        // Show keyboard shortcuts overlay
+        function showKeyboardShortcuts() {
+            const existing = document.getElementById('shortcuts-overlay');
+            if (existing) {
+                existing.remove();
+                return; // Toggle off
+            }
+
+            const overlay = document.createElement('div');
+            overlay.id = 'shortcuts-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.2s;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: linear-gradient(135deg, #0a1a1a 0%, #021313 100%);
+                    border: 4px solid #00ffcc;
+                    box-shadow: 0 0 40px rgba(0, 255, 204, 0.8);
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    font-family: 'VT323', monospace;
+                    color: #00ffcc;
+                ">
+                    <h2 style="text-align: center; font-size: 32px; margin: 0 0 30px 0; color: #00ffcc;">
+                        ⌨️ KEYBOARD SHORTCUTS
+                    </h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 18px;">
+                        <div>
+                            <h3 style="color: #f312af; margin: 0 0 10px 0;">✏️ EDITING</h3>
+                            <div style="line-height: 2;">
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+Z</kbd> Undo<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+Y</kbd> Redo<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+C</kbd> Copy<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+V</kbd> Paste<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+D</kbd> Duplicate<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Delete</kbd> Delete<br>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="color: #fffb01; margin: 0 0 10px 0;">🎯 NAVIGATION</h3>
+                            <div style="line-height: 2;">
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Esc</kbd> Deselect<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">↑↓←→</kbd> Move 10px<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Shift+↑↓←→</kbd> Move 1px<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">?</kbd> Show this help<br>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button onclick="document.getElementById('shortcuts-overlay').remove()" style="
+                            background: #f312af;
+                            color: white;
+                            border: 3px solid #00ffcc;
+                            padding: 12px 30px;
+                            font-size: 20px;
+                            font-family: 'VT323', monospace;
+                            cursor: pointer;
+                            border-radius: 8px;
+                            box-shadow: 0 0 20px rgba(243, 18, 175, 0.5);
+                        ">
+                            GOT IT!
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; color: #888; font-size: 14px;">
+                        Press Esc or click anywhere to close
+                    </div>
+                </div>
+            `;
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            });
+
+            document.body.appendChild(overlay);
+            playSound('success', 'G5');
+        }
 
         // Nudge selected element with arrow keys
         function nudgeElement(id, direction, shiftKey) {
@@ -2208,7 +2314,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             copiedElement = { ...el }; // Clone the element
             playSound('pop', 'F5');
             showStamp('📋');
-            updateStatus('Element copied! Use Ctrl+V to paste');
+            updateStatus('✅ Copied! Press Ctrl+V to paste or Ctrl+D to duplicate');
         }
 
         // Listen for Ctrl+V / Cmd+V
@@ -2239,7 +2345,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             renderCanvas();
             playSound('pop', 'G5');
             showStamp('✨');
-            updateStatus('Element duplicated!');
+            updateStatus('✅ Duplicated! (Tip: Use Ctrl+D for quick duplicate)');
             updateElementCount();
         }
 
@@ -2651,6 +2757,105 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         }
 
         // ============================================
+        // QUICK ACTIONS - One-click utilities!
+        // ============================================
+
+        function centerElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = '50%';
+            el.top = '50%';
+            el.style = (el.style || '') + ' transform: translate(-50%, -50%); margin: 0 auto;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'G5');
+            showStamp('⬛');
+            updateStatus('Element centered!');
+        }
+
+        function makeFullWidth(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.width = '100%';
+            el.left = '0';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'G5');
+            showStamp('↔️');
+            updateStatus('Element set to full width!');
+        }
+
+        function alignLeft(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = '0';
+            el.style = (el.style || '') + ' text-align: left;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('boop', 'E5');
+            showStamp('←');
+            updateStatus('Aligned left!');
+        }
+
+        function alignRight(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = 'auto';
+            el.right = '0';
+            el.style = (el.style || '') + ' text-align: right; margin-left: auto;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('boop', 'E5');
+            showStamp('→');
+            updateStatus('Aligned right!');
+        }
+
+        function resetPosition(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            delete el.left;
+            delete el.top;
+            delete el.right;
+            delete el.bottom;
+            el.style = (el.style || '').replace(/transform:[^;]+;?/g, '').replace(/margin:[^;]+;?/g, '');
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('pop', 'C5');
+            showStamp('🔄');
+            updateStatus('Position reset!');
+        }
+
+        function fitContent(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.width = 'auto';
+            el.height = 'auto';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'F5');
+            showStamp('📏');
+            updateStatus('Size set to fit content!');
+        }
+
+        // ============================================
         // RESIZE FUNCTIONALITY - Drag to resize!
         // ============================================
         let resizingElement = null;
@@ -2786,6 +2991,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             selectedElement = id;
             renderProperties(id);
             playSound('boop', 'C5');
+            updateStatus('Selected! Press Del to delete, Ctrl+C to copy, Ctrl+D to duplicate, Arrow keys to move');
         }
 
         let currentEditingId = null;
@@ -3312,6 +3518,33 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                         <button class="big-button orange" onclick="addAnimation('${id}')" style="width: 100%; margin-bottom: 8px;">
                             🎬 Add Animation
                         </button>
+                    </div>
+                </details>
+
+                <!-- Quick Actions - Collapsible -->
+                <details class="property-box" open>
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">⚡ Quick Actions</summary>
+                    <div class="property-content">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <button class="big-button" onclick="centerElement('${id}')" style="background: #00ffcc; color: #000;">
+                                ⬛ Center
+                            </button>
+                            <button class="big-button" onclick="makeFullWidth('${id}')" style="background: #00ffcc; color: #000;">
+                                ↔️ Full Width
+                            </button>
+                            <button class="big-button" onclick="alignLeft('${id}')" style="background: #f312af; color: #fff;">
+                                ← Align Left
+                            </button>
+                            <button class="big-button" onclick="alignRight('${id}')" style="background: #f312af; color: #fff;">
+                                → Align Right
+                            </button>
+                            <button class="big-button" onclick="resetPosition('${id}')" style="background: #fffb01; color: #000;">
+                                🔄 Reset Pos
+                            </button>
+                            <button class="big-button" onclick="fitContent('${id}')" style="background: #fffb01; color: #000;">
+                                📏 Fit Content
+                            </button>
+                        </div>
                     </div>
                 </details>
 
