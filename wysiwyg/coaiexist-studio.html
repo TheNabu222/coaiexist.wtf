@@ -2546,23 +2546,55 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
 
             const canvas = iframeDoc.getElementById('canvas-body');
-            canvas.innerHTML = canvasElements.map((el, index) => {
+
+            // Separate CSS/JS elements from regular HTML elements
+            const cssElements = canvasElements.filter(el => el.type === 'css');
+            const jsElements = canvasElements.filter(el => el.type === 'js');
+            const htmlElements = canvasElements.filter(el => el.type !== 'css' && el.type !== 'js');
+
+            // Inject CSS into iframe head
+            cssElements.forEach(cssEl => {
+                const existingStyle = iframeDoc.getElementById(cssEl.id);
+                if (!existingStyle) {
+                    const styleTag = iframeDoc.createElement('style');
+                    styleTag.id = cssEl.id;
+                    styleTag.textContent = cssEl.html.replace(/<\/?style>/g, '');
+                    iframeDoc.head.appendChild(styleTag);
+                }
+            });
+
+            // Inject JS into iframe
+            jsElements.forEach(jsEl => {
+                const existingScript = iframeDoc.getElementById(jsEl.id);
+                if (!existingScript) {
+                    const scriptTag = iframeDoc.createElement('script');
+                    scriptTag.id = jsEl.id;
+                    scriptTag.textContent = jsEl.html.replace(/<\/?script>/g, '');
+                    iframeDoc.body.appendChild(scriptTag);
+                }
+            });
+
+            // Render only HTML elements with toolbars
+            canvas.innerHTML = htmlElements.map((el, visualIndex) => {
                 const width = el.width || 'auto';
                 const height = el.height || 'auto';
+
+                // Get actual index in full canvasElements array
+                const actualIndex = canvasElements.findIndex(e => e.id === el.id);
 
                 // In FREE mode, use absolute positioning
                 let positionStyle = 'position: relative;';
                 if (positionMode === 'free') {
                     // Create a nice cascading layout for elements without positions
-                    const defaultLeft = 20 + (index % 3) * 300; // 3 columns
-                    const defaultTop = 20 + Math.floor(index / 3) * 180; // Rows
+                    const defaultLeft = 20 + (visualIndex % 3) * 300; // 3 columns
+                    const defaultTop = 20 + Math.floor(visualIndex / 3) * 180; // Rows
                     const left = el.left || defaultLeft + 'px';
                     const top = el.top || defaultTop + 'px';
                     positionStyle = `position: absolute; left: ${left}; top: ${top};`;
                 }
 
                 return `
-                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${actualIndex}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || visualIndex}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
