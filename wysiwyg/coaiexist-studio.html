@@ -2480,6 +2480,24 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 .canvas-element.flow-mode .resize-handle {
                     display: none !important; /* Never show in flow mode */
                 }
+
+                /* Flow mode drag feedback */
+                .canvas-element.flow-mode {
+                    cursor: grab;
+                    transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+                }
+                .canvas-element.flow-mode:active {
+                    cursor: grabbing;
+                }
+                .canvas-element.flow-mode.dragging {
+                    opacity: 0.5;
+                    transform: scale(0.98);
+                    box-shadow: 0 5px 20px rgba(0, 255, 204, 0.4);
+                }
+                .canvas-element.flow-mode.drag-over {
+                    border-top: 4px solid #00ffcc !important;
+                    box-shadow: 0 -5px 10px rgba(0, 255, 204, 0.3);
+                }
                 .resize-handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
                 .resize-handle-n  { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
                 .resize-handle-ne { top: -5px; right: -5px; cursor: ne-resize; }
@@ -2543,7 +2561,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
 
                 return `
-                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="false" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -2571,14 +2589,20 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             `;
             }).join('');
 
-            // Add drag-to-move event listeners (FREE mode only)
+            // Add drag-to-move event listeners
             const elements = canvas.querySelectorAll('.canvas-element');
             elements.forEach(el => {
-                if (positionMode === 'free') {
+                if (positionMode === 'flow') {
+                    // In FLOW mode, add drag-and-drop for reordering
+                    el.addEventListener('dragstart', handleDragStart);
+                    el.addEventListener('dragover', handleDragOver);
+                    el.addEventListener('dragleave', handleDragLeave);
+                    el.addEventListener('drop', handleDrop);
+                    el.addEventListener('dragend', handleDragEnd);
+                } else {
                     // In FREE mode, add mousedown for drag-to-move
                     el.addEventListener('mousedown', startDragMove);
                 }
-                // Flow mode uses UP/DOWN buttons for reordering, no drag needed
 
                 // Add resize handle listeners
                 const handles = el.querySelectorAll('.resize-handle');
@@ -2669,7 +2693,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function handleDragStart(e) {
             draggedElement = this;
-            this.style.opacity = '0.5';
+            this.classList.add('dragging');
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', this.innerHTML);
         }
@@ -2679,13 +2703,24 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 e.preventDefault();
             }
             e.dataTransfer.dropEffect = 'move';
+
+            // Add visual feedback
+            this.classList.add('drag-over');
+
             return false;
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
         }
 
         function handleDrop(e) {
             if (e.stopPropagation) {
                 e.stopPropagation();
             }
+
+            // Remove drag-over styling
+            this.classList.remove('drag-over');
 
             if (draggedElement !== this) {
                 const draggedId = draggedElement.getAttribute('data-id');
@@ -2698,16 +2733,26 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 const [removed] = canvasElements.splice(draggedIndex, 1);
                 canvasElements.splice(targetIndex, 0, removed);
 
+                saveState();
                 renderCanvas();
                 playSound('pop', 'E5');
                 showStamp('🔄');
+                updateStatus('✅ Reordered! Drag to reorder elements in flow mode');
             }
 
             return false;
         }
 
         function handleDragEnd(e) {
-            this.style.opacity = '1';
+            this.classList.remove('dragging');
+
+            // Clean up any lingering drag-over states
+            const canvas = getCanvasDoc();
+            if (canvas) {
+                canvas.querySelectorAll('.drag-over').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+            }
         }
 
         // Move up/down functions
