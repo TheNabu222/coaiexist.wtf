@@ -384,6 +384,30 @@
             border-bottom: var(--border-thick) solid var(--black);
         }
 
+        /* Collapsible sections styling */
+        details.property-box summary.property-header {
+            list-style: none;
+            transition: background 0.2s;
+        }
+
+        details.property-box summary.property-header::-webkit-details-marker {
+            display: none;
+        }
+
+        details.property-box summary.property-header::before {
+            content: '▶ ';
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        details.property-box[open] summary.property-header::before {
+            transform: rotate(90deg);
+        }
+
+        details.property-box summary.property-header:hover {
+            background: var(--yellow);
+        }
+
         .property-content {
             padding: var(--spacing);
         }
@@ -650,6 +674,7 @@
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
+            <button class="big-button" onclick="applyThemeToPage()" style="background: linear-gradient(135deg, #f312af, #00ffcc); font-size: 14px; padding: 8px 12px;" title="Apply current theme to your page">⚡ Apply Theme</button>
             <button class="big-button" id="grid-toggle-btn" onclick="toggleGrid()" style="background: #FFF; border: 3px dashed #000;">📐 GRID</button>
             <button class="big-button" id="position-mode-btn" onclick="togglePositionMode()" style="background: #00FF00;">📍 FLOW</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
@@ -1612,6 +1637,90 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             setTimeout(() => stamp.remove(), 500);
         }
 
+        // Show helper message for page editing
+        function showHelperMessage() {
+            // Remove any existing helper
+            const existing = document.getElementById('helper-overlay');
+            if (existing) existing.remove();
+
+            const helper = document.createElement('div');
+            helper.id = 'helper-overlay';
+            helper.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #0a1a1a 0%, #021313 100%);
+                    border: 4px solid #00ffcc;
+                    box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.1);
+                    padding: 30px 40px;
+                    border-radius: 12px;
+                    z-index: 999999;
+                    text-align: center;
+                    font-family: 'VT323', monospace;
+                    color: #00ffcc;
+                    max-width: 500px;
+                    animation: helperPulse 0.3s ease-out;
+                ">
+                    <div style="font-size: 32px; margin-bottom: 15px;">✨ PAGE LOADED ✨</div>
+                    <div style="font-size: 20px; line-height: 1.6; margin-bottom: 20px; color: #fff;">
+                        <div style="margin: 10px 0;">
+                            <span style="color: #00ffcc;">👆 HOVER</span> over any element to see options
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <span style="color: #f312af;">🖱️ CLICK</span> to select an element
+                        </div>
+                        <div style="margin: 10px 0;">
+                            <span style="color: #fffb01;">✏️ DOUBLE-CLICK</span> text to edit inline
+                        </div>
+                    </div>
+                    <div style="font-size: 16px; color: #888; margin-top: 15px;">
+                        (Auto-closing in <span id="helper-countdown">5</span>s)
+                    </div>
+                </div>
+            `;
+
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes helperPulse {
+                    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+                    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(helper);
+
+            // Countdown timer
+            let countdown = 5;
+            const countdownEl = document.getElementById('helper-countdown');
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdownEl) countdownEl.textContent = countdown;
+                if (countdown <= 0) clearInterval(countdownInterval);
+            }, 1000);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (helper.parentNode) {
+                    helper.style.transition = 'opacity 0.3s, transform 0.3s';
+                    helper.style.opacity = '0';
+                    helper.style.transform = 'translate(-50%, -50%) scale(0.95)';
+                    setTimeout(() => helper.remove(), 300);
+                }
+            }, 5000);
+
+            // Click anywhere to dismiss
+            helper.addEventListener('click', () => {
+                clearInterval(countdownInterval);
+                helper.style.transition = 'opacity 0.2s';
+                helper.style.opacity = '0';
+                setTimeout(() => helper.remove(), 200);
+            });
+        }
+
         // ============================================
         // STATE
         // ============================================
@@ -1703,12 +1812,118 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
                 updateStatus('Deselected');
             }
+            // Ctrl+C to copy selected element
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedElement) {
+                e.preventDefault();
+                copyElement(selectedElement);
+            }
+            // Ctrl+D to duplicate selected element
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedElement) {
+                e.preventDefault();
+                duplicateElement(selectedElement);
+            }
             // Arrow keys to nudge selected element
             else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 nudgeElement(selectedElement, e.key, e.shiftKey);
             }
+            // ? key to show keyboard shortcuts
+            else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+                e.preventDefault();
+                showKeyboardShortcuts();
+            }
         });
+
+        // Show keyboard shortcuts overlay
+        function showKeyboardShortcuts() {
+            const existing = document.getElementById('shortcuts-overlay');
+            if (existing) {
+                existing.remove();
+                return; // Toggle off
+            }
+
+            const overlay = document.createElement('div');
+            overlay.id = 'shortcuts-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.2s;
+            `;
+
+            overlay.innerHTML = `
+                <div style="
+                    background: linear-gradient(135deg, #0a1a1a 0%, #021313 100%);
+                    border: 4px solid #00ffcc;
+                    box-shadow: 0 0 40px rgba(0, 255, 204, 0.8);
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 600px;
+                    font-family: 'VT323', monospace;
+                    color: #00ffcc;
+                ">
+                    <h2 style="text-align: center; font-size: 32px; margin: 0 0 30px 0; color: #00ffcc;">
+                        ⌨️ KEYBOARD SHORTCUTS
+                    </h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 18px;">
+                        <div>
+                            <h3 style="color: #f312af; margin: 0 0 10px 0;">✏️ EDITING</h3>
+                            <div style="line-height: 2;">
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+Z</kbd> Undo<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+Y</kbd> Redo<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+C</kbd> Copy<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+V</kbd> Paste<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Ctrl+D</kbd> Duplicate<br>
+                                <kbd style="background: #00ffcc; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Delete</kbd> Delete<br>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="color: #fffb01; margin: 0 0 10px 0;">🎯 NAVIGATION</h3>
+                            <div style="line-height: 2;">
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Esc</kbd> Deselect<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">↑↓←→</kbd> Move 10px<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">Shift+↑↓←→</kbd> Move 1px<br>
+                                <kbd style="background: #fffb01; color: #000; padding: 4px 8px; border-radius: 4px; font-weight: bold;">?</kbd> Show this help<br>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button onclick="document.getElementById('shortcuts-overlay').remove()" style="
+                            background: #f312af;
+                            color: white;
+                            border: 3px solid #00ffcc;
+                            padding: 12px 30px;
+                            font-size: 20px;
+                            font-family: 'VT323', monospace;
+                            cursor: pointer;
+                            border-radius: 8px;
+                            box-shadow: 0 0 20px rgba(243, 18, 175, 0.5);
+                        ">
+                            GOT IT!
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; color: #888; font-size: 14px;">
+                        Press Esc or click anywhere to close
+                    </div>
+                </div>
+            `;
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            });
+
+            document.body.appendChild(overlay);
+            playSound('success', 'G5');
+        }
 
         // Nudge selected element with arrow keys
         function nudgeElement(id, direction, shiftKey) {
@@ -2099,7 +2314,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             copiedElement = { ...el }; // Clone the element
             playSound('pop', 'F5');
             showStamp('📋');
-            updateStatus('Element copied! Use Ctrl+V to paste');
+            updateStatus('✅ Copied! Press Ctrl+V to paste or Ctrl+D to duplicate');
         }
 
         // Listen for Ctrl+V / Cmd+V
@@ -2108,6 +2323,31 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 pasteElement();
             }
         });
+
+        // Duplicate element instantly (no copy/paste needed)
+        function duplicateElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            const newId = 'el-' + (++elementIdCounter);
+            const newEl = { ...el, id: newId };
+
+            // Offset position slightly if in free mode
+            if (positionMode === 'free') {
+                const currentLeft = parseInt(newEl.left) || 0;
+                const currentTop = parseInt(newEl.top) || 0;
+                newEl.left = (currentLeft + 20) + 'px';
+                newEl.top = (currentTop + 20) + 'px';
+            }
+
+            canvasElements.push(newEl);
+            saveState(); // Save for undo
+            renderCanvas();
+            playSound('pop', 'G5');
+            showStamp('✨');
+            updateStatus('✅ Duplicated! (Tip: Use Ctrl+D for quick duplicate)');
+            updateElementCount();
+        }
 
         function pasteElement() {
             if (!copiedElement) {
@@ -2148,43 +2388,82 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     border: 3px solid transparent;
                     margin: 10px;
                     padding: 0;
-                    transition: border-color 0.2s;
+                    transition: all 0.2s;
                     position: relative;
+                    cursor: pointer;
+                    background: rgba(0, 255, 255, 0.02);
                 }
                 .canvas-element:hover {
-                    border-color: var(--cyan, #00FFFF);
+                    border-color: #00FFFF !important;
+                    background: rgba(0, 255, 255, 0.08) !important;
+                    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
                 }
                 .canvas-element.selected {
-                    border-color: var(--magenta, #FF00FF);
-                    box-shadow: 0 0 15px var(--magenta, #FF00FF);
+                    border-color: #f312af !important;
+                    box-shadow: 0 0 20px rgba(243, 18, 175, 0.6) !important;
+                    background: rgba(243, 18, 175, 0.05) !important;
+                }
+                .canvas-element::before {
+                    content: '👆 Click to select, Double-click text to edit';
+                    position: absolute;
+                    top: -25px;
+                    left: 0;
+                    background: rgba(0, 255, 255, 0.9);
+                    color: #000;
+                    padding: 4px 8px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    border-radius: 3px;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.2s;
+                    white-space: nowrap;
+                    z-index: 9999;
+                }
+                .canvas-element:hover::before {
+                    opacity: 1;
                 }
                 .element-toolbar {
-                    display: none;
-                    position: absolute;
-                    top: -35px;
-                    left: 0;
-                    background: rgba(0,0,0,0.9);
-                    padding: 4px;
-                    gap: 4px;
-                    z-index: 1000;
-                    flex-wrap: wrap;
-                }
-                .canvas-element:hover .element-toolbar {
                     display: flex;
+                    position: absolute;
+                    top: -40px;
+                    left: 0;
+                    background: rgba(0,0,0,0.95);
+                    padding: 6px;
+                    gap: 4px;
+                    z-index: 10000;
+                    flex-wrap: wrap;
+                    border: 2px solid #00FFFF;
+                    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.2s;
+                }
+                /* Show toolbar on HOVER */
+                .canvas-element:hover .element-toolbar {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                /* Show toolbar when element is SELECTED */
+                .canvas-element.selected .element-toolbar {
+                    opacity: 1;
+                    pointer-events: auto;
                 }
                 .mini-btn {
-                    background: var(--yellow, #FFFF00);
-                    border: 2px solid var(--black, #000);
-                    color: var(--black, #000);
-                    padding: 4px 8px;
+                    background: #FFFF00;
+                    border: 2px solid #000;
+                    color: #000;
+                    padding: 6px 10px;
                     font-family: 'Comic Sans MS', sans-serif;
                     font-size: 11px;
                     font-weight: bold;
                     cursor: pointer;
                     white-space: nowrap;
+                    transition: all 0.1s;
                 }
                 .mini-btn:hover {
-                    background: var(--orange, #FF6600);
+                    background: #FF6600;
+                    transform: scale(1.05);
                 }
                 .resize-handle {
                     position: absolute;
@@ -2194,8 +2473,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     border: 1px solid white;
                     display: none;
                 }
-                .canvas-element:hover .resize-handle {
+                /* Only show resize handles in FREE mode, not FLOW mode */
+                .canvas-element.free-mode:hover .resize-handle {
                     display: block;
+                }
+                .canvas-element.flow-mode .resize-handle {
+                    display: none !important; /* Never show in flow mode */
                 }
                 .resize-handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
                 .resize-handle-n  { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
@@ -2260,13 +2543,14 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
 
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="false" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerForward('${el.id}')">🔼 FRONT</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.layerBack('${el.id}')">🔽 BACK</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.editElement('${el.id}')">✏️ EDIT</button>
+                        <button class="mini-btn" onclick="event.stopPropagation(); parent.duplicateElement('${el.id}')" style="background: #00ff00; color: #000;">⚡ DUPLICATE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.copyElement('${el.id}')">📋 COPY</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.saveAsComponent('${el.id}')" style="background: #00FFFF;">💾 SAVE</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.deleteElement('${el.id}')">🗑️ DELETE</button>
@@ -2287,18 +2571,14 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             `;
             }).join('');
 
-            // Add drag and drop event listeners
+            // Add drag-to-move event listeners (FREE mode only)
             const elements = canvas.querySelectorAll('.canvas-element');
             elements.forEach(el => {
-                if (positionMode === 'flow') {
-                    el.addEventListener('dragstart', handleDragStart);
-                    el.addEventListener('dragover', handleDragOver);
-                    el.addEventListener('drop', handleDrop);
-                    el.addEventListener('dragend', handleDragEnd);
-                } else {
+                if (positionMode === 'free') {
                     // In FREE mode, add mousedown for drag-to-move
                     el.addEventListener('mousedown', startDragMove);
                 }
+                // Flow mode uses UP/DOWN buttons for reordering, no drag needed
 
                 // Add resize handle listeners
                 const handles = el.querySelectorAll('.resize-handle');
@@ -2477,6 +2757,105 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         }
 
         // ============================================
+        // QUICK ACTIONS - One-click utilities!
+        // ============================================
+
+        function centerElement(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = '50%';
+            el.top = '50%';
+            el.style = (el.style || '') + ' transform: translate(-50%, -50%); margin: 0 auto;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'G5');
+            showStamp('⬛');
+            updateStatus('Element centered!');
+        }
+
+        function makeFullWidth(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.width = '100%';
+            el.left = '0';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'G5');
+            showStamp('↔️');
+            updateStatus('Element set to full width!');
+        }
+
+        function alignLeft(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = '0';
+            el.style = (el.style || '') + ' text-align: left;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('boop', 'E5');
+            showStamp('←');
+            updateStatus('Aligned left!');
+        }
+
+        function alignRight(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.left = 'auto';
+            el.right = '0';
+            el.style = (el.style || '') + ' text-align: right; margin-left: auto;';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('boop', 'E5');
+            showStamp('→');
+            updateStatus('Aligned right!');
+        }
+
+        function resetPosition(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            delete el.left;
+            delete el.top;
+            delete el.right;
+            delete el.bottom;
+            el.style = (el.style || '').replace(/transform:[^;]+;?/g, '').replace(/margin:[^;]+;?/g, '');
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('pop', 'C5');
+            showStamp('🔄');
+            updateStatus('Position reset!');
+        }
+
+        function fitContent(id) {
+            const el = canvasElements.find(e => e.id === id);
+            if (!el) return;
+
+            el.width = 'auto';
+            el.height = 'auto';
+
+            saveState();
+            renderCanvas();
+            selectElement(id);
+            playSound('success', 'F5');
+            showStamp('📏');
+            updateStatus('Size set to fit content!');
+        }
+
+        // ============================================
         // RESIZE FUNCTIONALITY - Drag to resize!
         // ============================================
         let resizingElement = null;
@@ -2612,6 +2991,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             selectedElement = id;
             renderProperties(id);
             playSound('boop', 'C5');
+            updateStatus('Selected! Press Del to delete, Ctrl+C to copy, Ctrl+D to duplicate, Arrow keys to move');
         }
 
         let currentEditingId = null;
@@ -2998,6 +3378,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
 
             document.getElementById('properties-container').innerHTML = `
+                <!-- Element Inspector - Always Open -->
                 <div class="property-box">
                     <div class="property-header">🔍 Element Inspector</div>
                     <div class="property-content">
@@ -3016,8 +3397,9 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     </div>
                 </div>
 
-                <div class="property-box">
-                    <div class="property-header">🎨 Style Properties</div>
+                <!-- Colors & Typography - Collapsible -->
+                <details class="property-box" open>
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🎨 Colors & Typography</summary>
                     <div class="property-content">
                         <label class="property-label">Background Color:</label>
                         <div style="display: flex; gap: 4px; margin-bottom: 8px;">
@@ -3054,6 +3436,21 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="'Times New Roman', serif">Times New Roman</option>
                         </select>
 
+                        <label class="property-label">Text Align:</label>
+                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
+                            <option value="">Default</option>
+                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
+                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
+                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
+                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
+                        </select>
+                    </div>
+                </details>
+
+                <!-- Layout & Spacing - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">📐 Layout & Spacing</summary>
+                    <div class="property-content">
                         <label class="property-label">Padding:</label>
                         <input type="text" class="property-input" value="${extractedProps.styles['padding'] || ''}"
                                onchange="updateElementStyle('${id}', 'padding', this.value)"
@@ -3088,20 +3485,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <option value="grid" ${extractedProps.styles['display'] === 'grid' ? 'selected' : ''}>Grid</option>
                             <option value="none" ${extractedProps.styles['display'] === 'none' ? 'selected' : ''}>None (Hidden)</option>
                         </select>
-
-                        <label class="property-label">Text Align:</label>
-                        <select class="property-input" onchange="updateElementStyle('${id}', 'text-align', this.value)">
-                            <option value="">Default</option>
-                            <option value="left" ${extractedProps.styles['text-align'] === 'left' ? 'selected' : ''}>Left</option>
-                            <option value="center" ${extractedProps.styles['text-align'] === 'center' ? 'selected' : ''}>Center</option>
-                            <option value="right" ${extractedProps.styles['text-align'] === 'right' ? 'selected' : ''}>Right</option>
-                            <option value="justify" ${extractedProps.styles['text-align'] === 'justify' ? 'selected' : ''}>Justify</option>
-                        </select>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">Quick Colors</div>
+                <!-- Quick Colors - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">🌈 Quick Colors</summary>
                     <div class="property-content">
                         <div class="color-grid">
                             <div class="color-box" style="background: #FF0000;" onclick="updateElementStyle('${id}', 'color', '#FF0000')"></div>
@@ -3114,10 +3503,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             <div class="color-box" style="background: #000000;" onclick="updateElementStyle('${id}', 'color', '#000000')"></div>
                         </div>
                     </div>
-                </div>
+                </details>
 
-                <div class="property-box">
-                    <div class="property-header">⚡ JavaScript Interactions</div>
+                <!-- JavaScript Interactions - Collapsible -->
+                <details class="property-box">
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">⚡ JavaScript Interactions</summary>
                     <div class="property-content">
                         <button class="big-button purple" onclick="addInteraction('${id}', 'onclick')" style="width: 100%; margin-bottom: 8px;">
                             🖱️ Add Click Event
@@ -3129,10 +3519,38 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                             🎬 Add Animation
                         </button>
                     </div>
-                </div>
+                </details>
 
+                <!-- Quick Actions - Collapsible -->
+                <details class="property-box" open>
+                    <summary class="property-header" style="cursor: pointer; user-select: none;">⚡ Quick Actions</summary>
+                    <div class="property-content">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <button class="big-button" onclick="centerElement('${id}')" style="background: #00ffcc; color: #000;">
+                                ⬛ Center
+                            </button>
+                            <button class="big-button" onclick="makeFullWidth('${id}')" style="background: #00ffcc; color: #000;">
+                                ↔️ Full Width
+                            </button>
+                            <button class="big-button" onclick="alignLeft('${id}')" style="background: #f312af; color: #fff;">
+                                ← Align Left
+                            </button>
+                            <button class="big-button" onclick="alignRight('${id}')" style="background: #f312af; color: #fff;">
+                                → Align Right
+                            </button>
+                            <button class="big-button" onclick="resetPosition('${id}')" style="background: #fffb01; color: #000;">
+                                🔄 Reset Pos
+                            </button>
+                            <button class="big-button" onclick="fitContent('${id}')" style="background: #fffb01; color: #000;">
+                                📏 Fit Content
+                            </button>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Actions - Always Open -->
                 <div class="property-box">
-                    <div class="property-header">Actions</div>
+                    <div class="property-header">⚡ Actions</div>
                     <div class="property-content">
                         <button class="big-button green" onclick="saveAsComponent('${id}')" style="width: 100%; margin-bottom: 8px;">
                             💾 Save as Component
@@ -5367,7 +5785,28 @@ Available Commands:
                     // Clear current canvas
                     canvasElements = [];
 
-                    // ✨ NEW: Parse body into individual editable components!
+                    // ✨ AUTO-INJECT CSS AND JS from loaded page
+                    // Add extracted CSS as a style element (so page looks correct)
+                    if (extractedCSS.trim()) {
+                        const cssId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: cssId,
+                            type: 'css',
+                            html: `<style>${extractedCSS}</style>`
+                        });
+                    }
+
+                    // Add extracted JS as a script element
+                    if (extractedJS.trim()) {
+                        const jsId = 'el-' + (++elementIdCounter);
+                        canvasElements.push({
+                            id: jsId,
+                            type: 'js',
+                            html: `<script>${extractedJS}<\/script>`
+                        });
+                    }
+
+                    // ✨ Parse body into individual editable components!
                     if (doc.body && doc.body.children.length > 0) {
                         // Parse each top-level element in the body
                         Array.from(doc.body.children).forEach(element => {
@@ -5385,7 +5824,9 @@ Available Commands:
                             });
                         });
 
-                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit!`);
+                        const bodyCount = doc.body.children.length;
+                        const hasStyles = extractedCSS.trim() ? ' (with styles)' : '';
+                        updateStatus(`Loaded ${url.split('/').pop()} - ${bodyCount} components ready to edit${hasStyles}!`);
                     } else {
                         // Fallback: create single element with all content
                         const id = 'el-' + (++elementIdCounter);
@@ -5401,6 +5842,9 @@ Available Commands:
                     // Render
                     renderCanvas();
                     updateElementCount();
+
+                    // Show helper message to guide user on how to edit
+                    showHelperMessage();
 
                     closeModal('load-modal');
                     playSound('success', 'G5');
@@ -5904,7 +6348,7 @@ function createConfetti() {
             const themeKey = themeKeys[currentThemeIndex];
             const theme = themes[themeKey];
 
-            // Apply theme
+            // Apply theme to editor
             const root = document.documentElement;
             Object.keys(theme).forEach(key => {
                 if (key !== 'name') {
@@ -5917,7 +6361,50 @@ function createConfetti() {
 
             playSound('success', 'C6');
             showStamp('🎨');
-            updateStatus(`Theme: ${theme.name}`);
+
+            // Show tooltip about applying to page
+            updateStatus(`Theme: ${theme.name} - Right-click for options!`);
+        }
+
+        // Export current theme as CSS
+        function exportThemeAsCSS() {
+            const themeKey = themeKeys[currentThemeIndex];
+            const theme = themes[themeKey];
+
+            let css = `/* ${theme.name} Theme */\n:root {\n`;
+            Object.keys(theme).forEach(key => {
+                if (key !== 'name') {
+                    css += `  ${key}: ${theme[key]};\n`;
+                }
+            });
+            css += '}\n\nbody {\n';
+            css += `  background: var(--bg);\n`;
+            css += `  color: var(--text);\n`;
+            css += '}';
+
+            return css;
+        }
+
+        // Apply current theme to the page being edited
+        function applyThemeToPage() {
+            const themeCSS = exportThemeAsCSS();
+
+            // Add theme CSS as a style element
+            const id = 'el-' + (++elementIdCounter);
+            canvasElements.push({
+                id,
+                type: 'css',
+                html: `<style>${themeCSS}</style>`
+            });
+
+            saveState();
+            renderCanvas();
+            updateElementCount();
+
+            playSound('success', 'G5');
+            showStamp('🎨');
+            const themeName = themes[themeKeys[currentThemeIndex]].name;
+            updateStatus(`${themeName} applied to page! Check CSS editor to customize.`);
         }
 
         function loadSavedTheme() {
