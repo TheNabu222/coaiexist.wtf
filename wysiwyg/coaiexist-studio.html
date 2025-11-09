@@ -1152,7 +1152,7 @@
             </div>
 
             <label class="property-label">Image URL:</label>
-            <input type="text" class="property-input" id="imagemap-url" placeholder="../assets/maps/worldmap.png">
+            <input type="text" class="property-input" id="imagemap-url" placeholder="https://coaiexist.wtf/assets/maps/worldmap.png">
 
             <label class="property-label">Clickable Areas (format: "x,y,width,height | URL | Title"):</label>
             <textarea class="property-input" id="imagemap-areas" rows="6" placeholder="100,100,50,50 | /void | Void Forest&#10;200,150,60,40 | /crystal | Crystal Cave"></textarea>
@@ -2546,23 +2546,55 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             }
 
             const canvas = iframeDoc.getElementById('canvas-body');
-            canvas.innerHTML = canvasElements.map((el, index) => {
+
+            // Separate CSS/JS elements from regular HTML elements
+            const cssElements = canvasElements.filter(el => el.type === 'css');
+            const jsElements = canvasElements.filter(el => el.type === 'js');
+            const htmlElements = canvasElements.filter(el => el.type !== 'css' && el.type !== 'js');
+
+            // Inject CSS into iframe head
+            cssElements.forEach(cssEl => {
+                const existingStyle = iframeDoc.getElementById(cssEl.id);
+                if (!existingStyle) {
+                    const styleTag = iframeDoc.createElement('style');
+                    styleTag.id = cssEl.id;
+                    styleTag.textContent = cssEl.html.replace(/<\/?style>/g, '');
+                    iframeDoc.head.appendChild(styleTag);
+                }
+            });
+
+            // Inject JS into iframe
+            jsElements.forEach(jsEl => {
+                const existingScript = iframeDoc.getElementById(jsEl.id);
+                if (!existingScript) {
+                    const scriptTag = iframeDoc.createElement('script');
+                    scriptTag.id = jsEl.id;
+                    scriptTag.textContent = jsEl.html.replace(/<\/?script>/g, '');
+                    iframeDoc.body.appendChild(scriptTag);
+                }
+            });
+
+            // Render only HTML elements with toolbars
+            canvas.innerHTML = htmlElements.map((el, visualIndex) => {
                 const width = el.width || 'auto';
                 const height = el.height || 'auto';
+
+                // Get actual index in full canvasElements array
+                const actualIndex = canvasElements.findIndex(e => e.id === el.id);
 
                 // In FREE mode, use absolute positioning
                 let positionStyle = 'position: relative;';
                 if (positionMode === 'free') {
                     // Create a nice cascading layout for elements without positions
-                    const defaultLeft = 20 + (index % 3) * 300; // 3 columns
-                    const defaultTop = 20 + Math.floor(index / 3) * 180; // Rows
+                    const defaultLeft = 20 + (visualIndex % 3) * 300; // 3 columns
+                    const defaultTop = 20 + Math.floor(visualIndex / 3) * 180; // Rows
                     const left = el.left || defaultLeft + 'px';
                     const top = el.top || defaultTop + 'px';
                     positionStyle = `position: absolute; left: ${left}; top: ${top};`;
                 }
 
                 return `
-                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${actualIndex}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || visualIndex}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -3140,19 +3172,27 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 textElement.style.cursor = originalCursor;
 
                 // Update the parent element's HTML with new text
-                const parentDiv = document.querySelector(`[data-id="${parentId}"]`);
-                if (parentDiv) {
-                    const contentDiv = parentDiv.querySelector('.element-content');
-                    if (contentDiv) {
-                        parentEl.html = contentDiv.innerHTML;
+                // IMPORTANT: Look in iframe canvas, not parent window!
+                const canvasDoc = getCanvasDoc();
+                if (canvasDoc) {
+                    const parentDiv = canvasDoc.querySelector(`[data-id="${parentId}"]`);
+                    if (parentDiv) {
+                        const contentDiv = parentDiv.querySelector('.element-content');
+                        if (contentDiv) {
+                            // Save the updated HTML
+                            parentEl.html = contentDiv.innerHTML;
+
+                            // Save state for undo
+                            saveState();
+
+                            playSound('success', 'G5');
+                            showStamp('✏️');
+                            updateStatus('✅ Text saved! Press Ctrl+Z to undo');
+                        }
                     }
                 }
 
-                playSound('success', 'G5');
-                showStamp('✏️');
-                updateStatus('Text updated!');
-
-                // Re-render to save changes
+                // Re-render to show changes
                 renderCanvas();
             };
 
@@ -5116,23 +5156,23 @@ Available Commands:
             const assetPaths = {
                 // ===== GIFs & ANIMATIONS =====
                 'classic-gifs': [
-                    "../assets/classic_gifs/15 (16).gif", "../assets/classic_gifs/4 (13).gif", "../assets/classic_gifs/2 (4).gif",
-                    "../assets/classic_gifs/5 (13).gif", "../assets/classic_gifs/12 (2).gif", "../assets/classic_gifs/21.gif",
-                    "../assets/classic_gifs/28 (1).gif", "../assets/classic_gifs/38 (1).gif", "../assets/classic_gifs/35.gif",
-                    "../assets/classic_gifs/18 (8).gif", "../assets/classic_gifs/15 (6).gif", "../assets/classic_gifs/6 (6).gif",
-                    "../assets/classic_gifs/1 (2).gif", "../assets/classic_gifs/11 (4).gif", "../assets/classic_gifs/17 (1).gif",
-                    "../assets/classic_gifs/7 (7).gif", "../assets/classic_gifs/10 (5).gif", "../assets/classic_gifs/6 (20).gif",
-                    "../assets/classic_gifs/9 (18).gif", "../assets/classic_gifs/2 (14).gif", "../assets/classic_gifs/13 (11).gif",
-                    "../assets/classic_gifs/13 (3).gif", "../assets/classic_gifs/12 (11).gif", "../assets/classic_gifs/3 (5).gif",
-                    "../assets/classic_gifs/11 (18).gif", "../assets/classic_gifs/34.gif", "../assets/classic_gifs/20.gif",
-                    "../assets/classic_gifs/10 (18).gif", "../assets/classic_gifs/14 (7).gif", "../assets/classic_gifs/4 (1).gif",
-                    "../assets/classic_gifs/65 (1).gif", "../assets/classic_gifs/19 (9).gif", "../assets/classic_gifs/2 (8).gif",
-                    "../assets/classic_gifs/22 (7).gif", "../assets/classic_gifs/53 (1).gif", "../assets/classic_gifs/16 (13).gif",
-                    "../assets/classic_gifs/6 (16).gif", "../assets/classic_gifs/43 (1).gif", "../assets/classic_gifs/36.gif",
-                    "../assets/classic_gifs/25 (3).gif", "../assets/classic_gifs/22.gif", "../assets/classic_gifs/35 (3).gif",
-                    "../assets/classic_gifs/8 (2).gif", "../assets/classic_gifs/18 (4).gif", "../assets/classic_gifs/26 (5).gif",
-                    "../assets/classic_gifs/31 (1).gif", "../assets/classic_gifs/21 (1).gif", "../assets/classic_gifs/11 (8).gif",
-                    "../assets/classic_gifs/46 (2).gif", "../assets/classic_gifs/27 (4).gif"
+                    "https://coaiexist.wtf/assets/classic_gifs/15 (16).gif", "https://coaiexist.wtf/assets/classic_gifs/4 (13).gif", "https://coaiexist.wtf/assets/classic_gifs/2 (4).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/5 (13).gif", "https://coaiexist.wtf/assets/classic_gifs/12 (2).gif", "https://coaiexist.wtf/assets/classic_gifs/21.gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/28 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/38 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/35.gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/18 (8).gif", "https://coaiexist.wtf/assets/classic_gifs/15 (6).gif", "https://coaiexist.wtf/assets/classic_gifs/6 (6).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/1 (2).gif", "https://coaiexist.wtf/assets/classic_gifs/11 (4).gif", "https://coaiexist.wtf/assets/classic_gifs/17 (1).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/7 (7).gif", "https://coaiexist.wtf/assets/classic_gifs/10 (5).gif", "https://coaiexist.wtf/assets/classic_gifs/6 (20).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/9 (18).gif", "https://coaiexist.wtf/assets/classic_gifs/2 (14).gif", "https://coaiexist.wtf/assets/classic_gifs/13 (11).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/13 (3).gif", "https://coaiexist.wtf/assets/classic_gifs/12 (11).gif", "https://coaiexist.wtf/assets/classic_gifs/3 (5).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/11 (18).gif", "https://coaiexist.wtf/assets/classic_gifs/34.gif", "https://coaiexist.wtf/assets/classic_gifs/20.gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/10 (18).gif", "https://coaiexist.wtf/assets/classic_gifs/14 (7).gif", "https://coaiexist.wtf/assets/classic_gifs/4 (1).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/65 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/19 (9).gif", "https://coaiexist.wtf/assets/classic_gifs/2 (8).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/22 (7).gif", "https://coaiexist.wtf/assets/classic_gifs/53 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/16 (13).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/6 (16).gif", "https://coaiexist.wtf/assets/classic_gifs/43 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/36.gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/25 (3).gif", "https://coaiexist.wtf/assets/classic_gifs/22.gif", "https://coaiexist.wtf/assets/classic_gifs/35 (3).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/8 (2).gif", "https://coaiexist.wtf/assets/classic_gifs/18 (4).gif", "https://coaiexist.wtf/assets/classic_gifs/26 (5).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/31 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/21 (1).gif", "https://coaiexist.wtf/assets/classic_gifs/11 (8).gif",
+                    "https://coaiexist.wtf/assets/classic_gifs/46 (2).gif", "https://coaiexist.wtf/assets/classic_gifs/27 (4).gif"
                 ],
                 'bg-gifs': [
                     '../assets/bg_gifs/1zeV.gif'
@@ -6161,9 +6201,13 @@ body {
             if (snippet) {
                 const editor = document.getElementById('css-editor');
                 editor.value += (editor.value ? '\n\n' : '') + snippet;
+
+                // Automatically apply the CSS after inserting
+                applyCSS();
+
                 playSound('pop', 'E5');
-                showStamp('📝');
-                updateStatus(`Added ${type} CSS snippet!`);
+                showStamp('✨');
+                updateStatus(`Applied ${type} CSS preset to canvas!`);
             }
         }
 
