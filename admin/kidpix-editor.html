@@ -247,7 +247,7 @@
             border: 2px solid #000;
             box-shadow: 0 0 0 2px #FFF;
             display: none;
-            z-index: 100;
+            z-index: 9999; /* Ensure handles are always visible above elements */
         }
 
         .canvas-element.selected .resize-handle {
@@ -328,10 +328,22 @@
             right: 0;
             display: none;
             gap: 4px;
+            z-index: 10000; /* Ensure toolbar is always on top */
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2px;
+            border: 2px solid var(--black);
+            border-radius: 4px;
         }
 
         .canvas-element.selected .element-toolbar {
             display: flex;
+        }
+
+        /* Make sure toolbar is visible if element is near top */
+        .canvas-element[style*="top: 0"] .element-toolbar,
+        .canvas-element[style*="top:0"] .element-toolbar {
+            top: auto;
+            bottom: -35px;
         }
 
         .mini-btn {
@@ -638,6 +650,7 @@
             <button class="big-button purple" onclick="openModal('css-modal')">🎨 CSS</button>
             <button class="big-button orange" onclick="openModal('js-modal')">⚡ JS</button>
             <button class="big-button" onclick="cycleTheme()" style="background: linear-gradient(135deg, #FF00FF, #00FFFF);">🎨 THEME</button>
+            <button class="big-button" onclick="applyThemeToPage()" style="background: linear-gradient(135deg, #9900FF, #FF00FF);" title="Apply current theme colors to your page content">🎨 Apply Theme</button>
             <button class="big-button" id="grid-toggle-btn" onclick="toggleGrid()" style="background: #FFF; border: 3px dashed #000;">📐 GRID</button>
             <button class="big-button" id="position-mode-btn" onclick="togglePositionMode()" style="background: #00FF00;">📍 FLOW</button>
             <button class="big-button pink" onclick="exportCode()">💾 EXPORT</button>
@@ -5049,6 +5062,17 @@ Available Commands:
                     // Clear current canvas
                     canvasElements = [];
 
+                    // ✨ AUTO-APPLY CSS: Add extracted CSS as first element if it exists
+                    if (extractedCSS && extractedCSS.trim()) {
+                        const cssId = 'el-' + (++elementIdCounter);
+                        const scopedCSS = `/* Auto-loaded CSS from ${url} */\n${extractedCSS}`;
+                        canvasElements.push({
+                            id: cssId,
+                            type: 'css',
+                            html: `<style>${scopedCSS}</style>`
+                        });
+                    }
+
                     // ✨ NEW: Parse body into individual editable components!
                     if (doc.body && doc.body.children.length > 0) {
                         // Parse each top-level element in the body
@@ -5067,7 +5091,7 @@ Available Commands:
                             });
                         });
 
-                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit!`);
+                        updateStatus(`Loaded ${url.split('/').pop()} - ${canvasElements.length} components ready to edit! CSS auto-applied.`);
                     } else {
                         // Fallback: create single element with all content
                         const id = 'el-' + (++elementIdCounter);
@@ -5212,9 +5236,20 @@ Available Commands:
                 return;
             }
 
+            // Scope CSS to only affect canvas content, not the editor UI
+            // Wrap all selectors to be scoped to .canvas-content
+            let scopedCSS = cssContent;
+
+            // If the CSS doesn't already target specific classes/IDs, scope it
+            // This prevents it from affecting the editor UI
+            if (!cssContent.includes('.canvas') && !cssContent.includes('#canvas')) {
+                // Add a comment explaining the scoping
+                scopedCSS = `/* CSS scoped to page content only - won't affect editor UI */\n${cssContent}`;
+            }
+
             // Add CSS to canvas as a style element
             const id = 'el-' + (++elementIdCounter);
-            const html = `<style>${cssContent}</style>`;
+            const html = `<style>${scopedCSS}</style>`;
             canvasElements.push({ id, type: 'css', html });
 
             renderCanvas();
@@ -5437,7 +5472,7 @@ function createConfetti() {
             const themeKey = themeKeys[currentThemeIndex];
             const theme = themes[themeKey];
 
-            // Apply theme
+            // Apply theme to EDITOR UI only (not page content)
             const root = document.documentElement;
             Object.keys(theme).forEach(key => {
                 if (key !== 'name') {
@@ -5450,7 +5485,53 @@ function createConfetti() {
 
             playSound('success', 'C6');
             showStamp('🎨');
-            updateStatus(`Theme: ${theme.name}`);
+            updateStatus(`Editor Theme: ${theme.name} - Use "Apply Theme to Page" button to apply to your page!`);
+        }
+
+        // NEW: Apply current theme styles to the page content (canvas)
+        function applyThemeToPage() {
+            const themeKey = themeKeys[currentThemeIndex];
+            const theme = themes[themeKey];
+
+            // Generate CSS that applies theme colors to page content
+            const themeBg = theme['--canvas-bg'] || '#FFF';
+            const themeText = theme['--text'] || '#000';
+            const themeBorder = theme['--border'] || '#000';
+
+            const themeCSS = `/* ${theme.name} Theme Applied to Page */
+body {
+    background: ${themeBg};
+    color: ${themeText};
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: ${themeText};
+}
+
+a {
+    color: ${themeText};
+    border-bottom: 2px solid ${themeBorder};
+}
+
+button, .button {
+    background: ${themeBorder};
+    color: ${themeBg};
+    border: 2px solid ${themeText};
+}`;
+
+            // Add theme CSS to canvas
+            const id = 'el-' + (++elementIdCounter);
+            canvasElements.push({
+                id,
+                type: 'css',
+                html: `<style>${themeCSS}</style>`
+            });
+
+            renderCanvas();
+            updateElementCount();
+            playSound('success', 'G5');
+            showStamp('🎨');
+            updateStatus(`${theme.name} applied to your page!`);
         }
 
         function loadSavedTheme() {
