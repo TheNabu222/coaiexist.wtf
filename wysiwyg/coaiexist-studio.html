@@ -2526,6 +2526,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     <!DOCTYPE html>
                     <html>
                     <head>
+                        <base href="${window.location.href}">
                         <style>
                             body {
                                 margin: 0;
@@ -4492,7 +4493,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             extractionIframe = document.getElementById('extraction-iframe');
             const iframeDoc = extractionIframe.contentDocument || extractionIframe.contentWindow.document;
             iframeDoc.open();
-            iframeDoc.write(loadedPageData.fullHtml);
+            // Add base tag to help resolve relative URLs
+            const htmlWithBase = loadedPageData.fullHtml.replace(
+                '<head>',
+                `<head><base href="${window.location.href}">`
+            );
+            iframeDoc.write(htmlWithBase);
             iframeDoc.close();
 
             // Add click listeners to all elements in iframe
