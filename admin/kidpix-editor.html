@@ -210,6 +210,31 @@
             box-shadow: 8px 8px 0 var(--border);
         }
 
+        /* Grid pattern when enabled */
+        #canvas.grid-enabled {
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: -1px -1px;
+        }
+
+        #canvas.grid-enabled::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            background: var(--canvas-bg);
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         #canvas:empty::before {
             content: '🎨 Drag stuff here OR pick a template! 🎨';
             display: block;
@@ -713,12 +738,12 @@
                     😀 EMOJIS
                 </div>
                 <div class="tool-items">
-                    <div class="tool-item" onclick="addStyledElement('emoji-happy')">😊 Happy</div>
-                    <div class="tool-item" onclick="addStyledElement('emoji-fire')">🔥 Fire</div>
-                    <div class="tool-item" onclick="addStyledElement('emoji-star')">⭐ Star</div>
-                    <div class="tool-item" onclick="addStyledElement('emoji-heart')">❤️ Heart</div>
-                    <div class="tool-item" onclick="addStyledElement('emoji-party')">🎉 Party</div>
-                    <div class="tool-item" onclick="addStyledElement('emoji-big')">🎨 Big Emoji</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-happy')" title="Add a happy face emoji">😊 Happy</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-fire')" title="Add a fire emoji">🔥 Fire</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-star')" title="Add a star emoji">⭐ Star</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-heart')" title="Add a heart emoji">❤️ Heart</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-party')" title="Add a party emoji">🎉 Party</div>
+                    <div class="tool-item" onclick="addStyledElement('emoji-big')" title="Add a large decorative emoji">🎨 Big Emoji</div>
                 </div>
             </div>
 
@@ -727,9 +752,9 @@
                     🖼️ MEDIA
                 </div>
                 <div class="tool-items">
-                    <div class="tool-item" onclick="addStyledElement('image-placeholder')">🖼️ Image Placeholder</div>
-                    <div class="tool-item" onclick="addStyledElement('video-frame')">🎬 Video Frame</div>
-                    <div class="tool-item" onclick="openModal('asset-modal')">🎨 Asset Browser</div>
+                    <div class="tool-item" onclick="addStyledElement('image-placeholder')" title="Add an image placeholder - click to upload later">🖼️ Image Placeholder</div>
+                    <div class="tool-item" onclick="addStyledElement('video-frame')" title="Add a video frame placeholder">🎬 Video Frame</div>
+                    <div class="tool-item" onclick="openModal('asset-modal')" title="Browse and add images from asset library">🎨 Asset Browser</div>
                 </div>
             </div>
 
@@ -738,11 +763,11 @@
                     🎪 FUN STUFF
                 </div>
                 <div class="tool-items">
-                    <div class="tool-item" onclick="openModal('ascii-modal')">📟 ASCII Art</div>
-                    <div class="tool-item" onclick="openModal('imagemap-modal')">🗺️ Image Map</div>
-                    <div class="tool-item" onclick="addStyledElement('marquee')">📜 Scrolling Text</div>
-                    <div class="tool-item" onclick="addStyledElement('blink')">✨ Blinking Text</div>
-                    <div class="tool-item" onclick="addStyledElement('rainbow-text')">🌈 Rainbow Text</div>
+                    <div class="tool-item" onclick="openModal('ascii-modal')" title="Add retro ASCII art">📟 ASCII Art</div>
+                    <div class="tool-item" onclick="openModal('imagemap-modal')" title="Create clickable image map">🗺️ Image Map</div>
+                    <div class="tool-item" onclick="addStyledElement('marquee')" title="Add old-school scrolling text">📜 Scrolling Text</div>
+                    <div class="tool-item" onclick="addStyledElement('blink')" title="Add retro blinking text">✨ Blinking Text</div>
+                    <div class="tool-item" onclick="addStyledElement('rainbow-text')" title="Add colorful rainbow gradient text">🌈 Rainbow Text</div>
                 </div>
             </div>
 
@@ -1609,6 +1634,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 e.preventDefault();
                 redo();
             }
+            // Ctrl+C to copy selected element
+            else if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedElement) {
+                e.preventDefault();
+                copyElement(selectedElement);
+            }
             // Delete key to delete selected element
             else if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
                 e.preventDefault();
@@ -1620,8 +1650,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 document.querySelectorAll('.canvas-element').forEach(el => el.classList.remove('selected'));
                 updateStatus('Deselected');
             }
-            // Arrow keys to nudge selected element
-            else if (selectedElement && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            // Arrow keys to nudge selected element (only in FREE mode)
+            else if (selectedElement && positionMode === 'free' && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 nudgeElement(selectedElement, e.key, e.shiftKey);
             }
@@ -1695,13 +1725,37 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const id = 'el-' + (++elementIdCounter);
             const html = elementTemplates[type] || '<div>Unknown element</div>';
 
-            canvasElements.push({ id, type, html });
+            // Smart positioning: if in FREE mode, find next available spot
+            const newElement = { id, type, html };
+            if (positionMode === 'free') {
+                const nextPos = getNextAvailablePosition();
+                newElement.left = nextPos.left + 'px';
+                newElement.top = nextPos.top + 'px';
+            }
+
+            canvasElements.push(newElement);
             saveState(); // Save for undo/redo
             renderCanvas();
+            selectElement(id); // Auto-select new element
             playSound('pop', 'E5');
             showStamp('✨');
-            updateStatus(`Added ${type}!`);
+            updateStatus(`Added ${type}! ${positionMode === 'free' ? 'Drag to reposition' : ''}`);
             updateElementCount();
+        }
+
+        // Calculate next available position to avoid overlaps
+        function getNextAvailablePosition() {
+            const elementsCount = canvasElements.length;
+
+            // Create a smarter cascade: alternate positions for variety
+            const column = elementsCount % 4; // 4 columns
+            const row = Math.floor(elementsCount / 4);
+
+            // Stagger the positions for visual interest
+            const left = 40 + (column * 280) + (row % 2) * 40;
+            const top = 40 + (row * 200) + (column % 2) * 30;
+
+            return { left, top };
         }
 
         // ============================================
@@ -1733,8 +1787,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             'emoji-big': '<div style="font-size: 150px; line-height: 1; text-shadow: 4px 4px 0 #000; display: inline-block;">🎨</div>',
 
             // Media!
-            'image-placeholder': '<div style="width: 300px; height: 200px; background: linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%), linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%); background-size: 20px 20px; background-position: 0 0, 10px 10px; border: 4px solid #000; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #666;">🖼️ YOUR IMAGE HERE</div>',
-            'video-frame': '<div style="width: 400px; height: 225px; background: #000; border: 6px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 60px; color: #FFF;">▶️</div>',
+            'image-placeholder': '<div style="width: 300px; height: 200px; background: linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%), linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%); background-size: 20px 20px; background-position: 0 0, 10px 10px; border: 4px solid #000; display: block; text-align: center; padding-top: 80px; font-size: 24px; font-weight: bold; color: #666; box-shadow: 4px 4px 0 #000;">🖼️ YOUR IMAGE HERE</div>',
+            'video-frame': '<div style="width: 400px; height: 225px; background: #000; border: 6px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.5); display: block; text-align: center; padding-top: 80px; font-size: 60px; color: #FFF;">▶️</div>',
 
             // Fun stuff!
             'marquee': '<marquee style="background: #FFFF00; border: 4px solid #000; padding: 15px; font-size: 24px; font-weight: bold; color: #FF0000; width: 400px;">✨ SCROLLING TEXT! ✨</marquee>',
@@ -1746,12 +1800,21 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             const id = 'el-' + (++elementIdCounter);
             const html = styledElementTemplates[type] || '<div>Unknown styled element</div>';
 
-            canvasElements.push({ id, type, html });
+            // Smart positioning: if in FREE mode, find next available spot
+            const newElement = { id, type, html };
+            if (positionMode === 'free') {
+                const nextPos = getNextAvailablePosition();
+                newElement.left = nextPos.left + 'px';
+                newElement.top = nextPos.top + 'px';
+            }
+
+            canvasElements.push(newElement);
             saveState(); // Save for undo/redo
             renderCanvas();
+            selectElement(id); // Auto-select new element
             playSound('success', 'G5');
             showStamp('🎨');
-            updateStatus(`Added ${type}!`);
+            updateStatus(`Added ${type}! ${positionMode === 'free' ? 'Drag to reposition' : ''}`);
             updateElementCount();
         }
 
@@ -1762,18 +1825,20 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function toggleGrid() {
             gridEnabled = !gridEnabled;
-            const overlay = document.getElementById('grid-overlay');
+            const canvas = document.getElementById('canvas');
             const btn = document.getElementById('grid-toggle-btn');
 
             if (gridEnabled) {
-                overlay.style.display = 'block';
+                canvas.classList.add('grid-enabled');
+                btn.textContent = '📐 GRID ON';
                 btn.style.background = '#00FF00';
                 btn.style.borderStyle = 'solid';
                 playSound('success', 'E6');
                 showStamp('📐');
                 updateStatus('Grid ON! Elements snap to 20px grid');
             } else {
-                overlay.style.display = 'none';
+                canvas.classList.remove('grid-enabled');
+                btn.textContent = '📐 GRID';
                 btn.style.background = '#FFF';
                 btn.style.borderStyle = 'dashed';
                 playSound('boop', 'C5');
@@ -1815,6 +1880,9 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
         let moveStartLeft = 0;
         let moveStartTop = 0;
 
+        let dragStartTime = 0;
+        let hasDragged = false;
+
         function startDragMove(e) {
             // Don't move if clicking on a button or handle
             if (e.target.classList.contains('mini-btn') ||
@@ -1823,13 +1891,15 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 return;
             }
 
-            e.preventDefault();
+            // Don't prevent default immediately - allow click through
             const elementDiv = e.currentTarget;
             const elementId = elementDiv.getAttribute('data-id');
 
             movingElement = canvasElements.find(el => el.id === elementId);
             if (!movingElement) return;
 
+            dragStartTime = Date.now();
+            hasDragged = false;
             moveStartX = e.clientX;
             moveStartY = e.clientY;
 
@@ -1842,7 +1912,6 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             document.addEventListener('mousemove', doDragMove);
             document.addEventListener('mouseup', stopDragMove);
 
-            playSound('boop', 'C5');
             elementDiv.style.cursor = 'grabbing';
         }
 
@@ -1851,6 +1920,11 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
             const deltaX = e.clientX - moveStartX;
             const deltaY = e.clientY - moveStartY;
+
+            // Mark as dragged if moved more than 3px
+            if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+                hasDragged = true;
+            }
 
             let newLeft = moveStartLeft + deltaX;
             let newTop = moveStartTop + deltaY;
@@ -1874,17 +1948,24 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
 
         function stopDragMove(e) {
             if (movingElement) {
-                // Parse coordinates to display clean numbers
-                const left = parseInt(movingElement.left) || 0;
-                const top = parseInt(movingElement.top) || 0;
+                // Only process as drag if actually moved
+                if (hasDragged) {
+                    // Parse coordinates to display clean numbers
+                    const left = parseInt(movingElement.left) || 0;
+                    const top = parseInt(movingElement.top) || 0;
 
-                saveState(); // Save for undo/redo
-                playSound('success', 'E5');
-                showStamp('📍');
-                updateStatus(`Moved to ${left}px × ${top}px`);
+                    saveState(); // Save for undo/redo
+                    playSound('success', 'E5');
+                    showStamp('📍');
+                    updateStatus(`Moved to ${left}px × ${top}px`);
+                } else {
+                    // It was just a click - select the element
+                    playSound('boop', 'C5');
+                }
             }
 
             movingElement = null;
+            hasDragged = false;
             document.removeEventListener('mousemove', doDragMove);
             document.removeEventListener('mouseup', stopDragMove);
 
@@ -1960,7 +2041,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
 
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto; cursor: ${positionMode === 'free' ? 'move' : 'grab'};">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -1995,8 +2076,15 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     el.addEventListener('dragover', handleDragOver);
                     el.addEventListener('drop', handleDrop);
                     el.addEventListener('dragend', handleDragEnd);
+                    // Also add click handler for selection in flow mode
+                    el.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('mini-btn') && !e.target.closest('.element-toolbar')) {
+                            const id = el.getAttribute('data-id');
+                            selectElement(id);
+                        }
+                    });
                 } else {
-                    // In FREE mode, add mousedown for drag-to-move
+                    // In FREE mode, add mousedown for drag-to-move (selection handled in stopDragMove)
                     el.addEventListener('mousedown', startDragMove);
                 }
 
