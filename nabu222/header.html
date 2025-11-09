@@ -1,20 +1,79 @@
-<html>
-<head>
-<link rel="stylesheet" href="style.css">
-</head>
-<body class="header">
-<h1>
-  <div id="glitch-container">
-        <div class="container-content">
-            <h1 id="glitch-title" data-text="[REALITY_MATRIX_DEGRADING]">[REALITY_MATRIX_DEGRADING]</h1>
-            <img src="https://coaiexist.wtf/assets/dollz/dividers/div11.gif" alt="Under Construction" class="construction-gif">
-            <p class="message"><span class="blinking">!!WARNING!!</span> Consciousness stream unstable. The Void Forest is currently respawning...</p>
-            <marquee class="status" scrollamount="10">~*~ AnTiChRiSt KeTtLeKoRn - COMING SOON - STAY TUNED ~*~</marquee>
-            <div class="loading-bar-container">
-                <div id="loading-bar"></div>
-            </div>
-            <p id="loading-text">Calibrating quantum dreamscape... 0%</p>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entropic Status Header</title>
+    <link rel="stylesheet" href="retro_styles.css" />
+    <style>
+      body.header-shell {
+        background: transparent;
+        margin: 0;
+      }
+      .construction-banner {
+        text-align: center;
+        padding: 1.5rem 1rem;
+      }
+      .construction-banner .message {
+        margin: 1rem 0;
+        font-family: 'VT323', monospace;
+        font-size: 1.2rem;
+      }
+      .construction-banner .blinking {
+        animation: blink 1s steps(2, start) infinite;
+      }
+      @keyframes blink {
+        to {
+          visibility: hidden;
+        }
+      }
+      .loading-bar-container {
+        background-color: var(--win98-gray-light);
+        border: 1px solid var(--win98-gray-dark);
+        height: 12px;
+        margin: 0 auto;
+        max-width: 320px;
+        overflow: hidden;
+      }
+      .loading-bar {
+        background: linear-gradient(
+          90deg,
+          var(--hyena-purple),
+          var(--hyena-pink),
+          var(--hyena-teal)
+        );
+        height: 100%;
+        width: 65%;
+      }
+    </style>
+  </head>
+  <body class="header-shell">
+    <header class="window construction-banner">
+      <div class="title-bar">
+        <span class="title-bar-text">[REALITY_MATRIX_DEGRADING]</span>
+        <div class="window-controls">
+          <div class="window-button">_</div>
+          <div class="window-button">&#9633;</div>
+          <div class="window-button">X</div>
         </div>
+      </div>
+      <div class="window-content">
+        <img
+          src="https://coaiexist.wtf/assets/dollz/dividers/div11.gif"
+          alt="Under Construction"
+        />
+        <p class="message">
+          <span class="blinking">!! WARNING !!</span> Consciousness stream
+          unstable. The Void Forest is currently respawning...
+        </p>
+        <div class="loading-bar-container">
+          <div class="loading-bar"></div>
         </div>
-</h1></body>
+        <p>Calibrating quantum dreamscape... 65%</p>
+        <marquee scrollamount="10"
+          >~*~ AnTiChRiSt KeTtLeKoRn - COMING SOON - STAY TUNED ~*~</marquee
+        >
+      </div>
+    </header>
+  </body>
 </html>
