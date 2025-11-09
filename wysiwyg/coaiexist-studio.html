@@ -2317,11 +2317,8 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 .canvas-element:hover::before {
                     opacity: 1;
                 }
-                .canvas-element:hover .element-toolbar {
-                    opacity: 1;
-                }
                 .element-toolbar {
-                    display: none;
+                    display: flex;
                     position: absolute;
                     top: -40px;
                     left: 0;
@@ -2333,10 +2330,18 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     border: 2px solid #00FFFF;
                     box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
                     opacity: 0;
+                    pointer-events: none;
                     transition: opacity 0.2s;
                 }
+                /* Show toolbar on HOVER */
                 .canvas-element:hover .element-toolbar {
-                    display: flex;
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+                /* Show toolbar when element is SELECTED */
+                .canvas-element.selected .element-toolbar {
+                    opacity: 1;
+                    pointer-events: auto;
                 }
                 .mini-btn {
                     background: #FFFF00;
@@ -2362,8 +2367,12 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                     border: 1px solid white;
                     display: none;
                 }
-                .canvas-element:hover .resize-handle {
+                /* Only show resize handles in FREE mode, not FLOW mode */
+                .canvas-element.free-mode:hover .resize-handle {
                     display: block;
+                }
+                .canvas-element.flow-mode .resize-handle {
+                    display: none !important; /* Never show in flow mode */
                 }
                 .resize-handle-nw { top: -5px; left: -5px; cursor: nw-resize; }
                 .resize-handle-n  { top: -5px; left: 50%; margin-left: -5px; cursor: n-resize; }
@@ -2428,7 +2437,7 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 }
 
                 return `
-                <div class="canvas-element" data-id="${el.id}" data-index="${index}" draggable="${positionMode === 'flow'}" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
+                <div class="canvas-element ${positionMode === 'flow' ? 'flow-mode' : 'free-mode'}" data-id="${el.id}" data-index="${index}" draggable="false" onclick="parent.selectElement('${el.id}')" style="${positionStyle} z-index: ${el.zIndex || index}; width: ${width}; height: ${height}; overflow: auto;">
                     <div class="element-toolbar">
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementUp('${el.id}')">⬆️ UP</button>
                         <button class="mini-btn" onclick="event.stopPropagation(); parent.moveElementDown('${el.id}')">⬇️ DOWN</button>
@@ -2456,18 +2465,14 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
             `;
             }).join('');
 
-            // Add drag and drop event listeners
+            // Add drag-to-move event listeners (FREE mode only)
             const elements = canvas.querySelectorAll('.canvas-element');
             elements.forEach(el => {
-                if (positionMode === 'flow') {
-                    el.addEventListener('dragstart', handleDragStart);
-                    el.addEventListener('dragover', handleDragOver);
-                    el.addEventListener('drop', handleDrop);
-                    el.addEventListener('dragend', handleDragEnd);
-                } else {
+                if (positionMode === 'free') {
                     // In FREE mode, add mousedown for drag-to-move
                     el.addEventListener('mousedown', startDragMove);
                 }
+                // Flow mode uses UP/DOWN buttons for reordering, no drag needed
 
                 // Add resize handle listeners
                 const handles = el.querySelectorAll('.resize-handle');
