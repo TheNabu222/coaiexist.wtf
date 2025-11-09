@@ -3172,19 +3172,27 @@ BC7F2A | /bc7f2a/synergistic_manifesto.html"></textarea>
                 textElement.style.cursor = originalCursor;
 
                 // Update the parent element's HTML with new text
-                const parentDiv = document.querySelector(`[data-id="${parentId}"]`);
-                if (parentDiv) {
-                    const contentDiv = parentDiv.querySelector('.element-content');
-                    if (contentDiv) {
-                        parentEl.html = contentDiv.innerHTML;
+                // IMPORTANT: Look in iframe canvas, not parent window!
+                const canvasDoc = getCanvasDoc();
+                if (canvasDoc) {
+                    const parentDiv = canvasDoc.querySelector(`[data-id="${parentId}"]`);
+                    if (parentDiv) {
+                        const contentDiv = parentDiv.querySelector('.element-content');
+                        if (contentDiv) {
+                            // Save the updated HTML
+                            parentEl.html = contentDiv.innerHTML;
+
+                            // Save state for undo
+                            saveState();
+
+                            playSound('success', 'G5');
+                            showStamp('✏️');
+                            updateStatus('✅ Text saved! Press Ctrl+Z to undo');
+                        }
                     }
                 }
 
-                playSound('success', 'G5');
-                showStamp('✏️');
-                updateStatus('Text updated!');
-
-                // Re-render to save changes
+                // Re-render to show changes
                 renderCanvas();
             };
 
