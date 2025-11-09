@@ -1,0 +1,485 @@
+/**
+ * COAIEXIST.WTF - Core UI System
+ * Unified retro-mystical aesthetic with theme support
+ *
+ * Usage: Include this CSS on every page, then optionally override
+ * theme colors with data-theme attribute on <body>
+ */
+
+/* ========================================
+   CORE COLOR PALETTE & VARIABLES
+   ======================================== */
+:root {
+  /* Primary Colors */
+  --magenta: #f312af;
+  --cyan: #72FADE;
+  --yellow: #fffb01;
+  --purple: #7722ff;
+  --green: #00ff41;
+
+  /* Background Colors */
+  --dark-bg: #021313;
+  --card-bg: #0a0a0a;
+  --modal-bg: rgba(2, 19, 19, 0.95);
+
+  /* Text Colors */
+  --text-primary: #f0f0f0;
+  --text-secondary: #a89cb3;
+  --text-dim: #666;
+
+  /* UI Elements */
+  --border-color: var(--magenta);
+  --border-style: 2px solid var(--border-color);
+  --glow: 0 0 20px var(--cyan);
+  --glow-strong: 0 0 40px var(--cyan), 0 0 80px var(--cyan);
+
+  /* Typography */
+  --font-heading: 'VT323', monospace;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Courier New', 'Courier', monospace;
+  --font-size-body: 16px;
+  --font-size-small: 14px;
+  --font-size-heading: 2.5rem;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.6s ease;
+}
+
+/* Theme Overrides */
+body[data-theme="gold"] {
+  --border-color: #FFD700;
+  --cyan: #26619C;
+}
+
+body[data-theme="green"] {
+  --border-color: #00ff41;
+  --magenta: #00ffff;
+}
+
+body[data-theme="violet"] {
+  --border-color: #bc72fa;
+  --cyan: #72fade;
+}
+
+body[data-theme="pink"] {
+  --border-color: #ff72b6;
+  --magenta: #c066f6;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+  padding-bottom: 60px; /* Space for taskbar */
+  min-height: 100vh;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(114, 122, 222, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(243, 18, 175, 0.05) 0%, transparent 50%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(114, 122, 222, 0.03) 2px, rgba(114, 122, 222, 0.03) 4px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--cyan);
+  text-shadow: 0 0 10px var(--cyan);
+  line-height: 1.2;
+  margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: 3rem; letter-spacing: 0.05em; }
+h2 { font-size: 2.5rem; }
+h3 { font-size: 2rem; }
+h4 { font-size: 1.5rem; }
+
+p {
+  margin-bottom: var(--spacing-md);
+}
+
+a {
+  color: var(--cyan);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+a:hover {
+  color: var(--yellow);
+  text-shadow: 0 0 5px var(--yellow);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ========================================
+   CORE COMPONENTS
+   ======================================== */
+
+/* Windows/Cards */
+.coai-window {
+  background-color: var(--card-bg);
+  border: var(--border-style);
+  border-radius: 4px;
+  box-shadow: var(--glow);
+  margin-bottom: var(--spacing-lg);
+  overflow: hidden;
+  transition: box-shadow var(--transition-normal);
+}
+
+.coai-window:hover {
+  box-shadow: var(--glow-strong);
+}
+
+.coai-window-header {
+  background: linear-gradient(90deg, var(--purple), var(--magenta));
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.coai-window-title {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 1px 1px 2px #000;
+  margin: 0;
+}
+
+.coai-window-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.coai-window-controls span {
+  width: 16px;
+  height: 16px;
+  background: var(--dark-bg);
+  border: 1px solid var(--border-color);
+  display: inline-block;
+  cursor: pointer;
+}
+
+.coai-window-content {
+  padding: var(--spacing-lg);
+}
+
+/* Buttons */
+.coai-btn {
+  background: linear-gradient(45deg, var(--magenta), var(--purple));
+  border: 2px solid var(--cyan);
+  color: #fff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: inline-block;
+  text-align: center;
+}
+
+.coai-btn:hover {
+  box-shadow: 0 0 20px var(--cyan);
+  transform: translateY(-2px);
+}
+
+.coai-btn:active {
+  transform: translateY(0);
+}
+
+.coai-btn-secondary {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--border-color);
+}
+
+.coai-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px var(--border-color);
+}
+
+.coai-btn-small {
+  padding: 4px 12px;
+  font-size: 0.875rem;
+}
+
+/* Tags/Badges */
+.coai-tag {
+  display: inline-block;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  color: var(--border-color);
+  padding: 4px 12px;
+  margin: 4px;
+  font-size: var(--font-size-small);
+  font-family: var(--font-mono);
+  border-radius: 3px;
+}
+
+/* Dividers */
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  opacity: 0.5;
+  margin: var(--spacing-lg) 0;
+}
+
+/* Forms */
+.coai-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  width: 100%;
+  transition: all var(--transition-fast);
+}
+
+.coai-input:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--cyan);
+  border-color: var(--cyan);
+}
+
+textarea.coai-input {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Modals */
+.coai-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+}
+
+.coai-modal {
+  background: var(--modal-bg);
+  border: var(--border-style);
+  box-shadow: var(--glow-strong);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* ========================================
+   EFFECTS & ANIMATIONS
+   ======================================== */
+
+/* Glitch Text */
+.coai-glitch {
+  position: relative;
+  animation: glitch-skew 3s infinite;
+}
+
+@keyframes glitch-skew {
+  0%, 90%, 100% { transform: skew(0deg); }
+  91% { transform: skew(2deg); }
+  93% { transform: skew(-2deg); }
+  95% { transform: skew(1deg); }
+}
+
+/* Glow Pulse */
+.coai-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 10px var(--cyan); }
+  50% { box-shadow: 0 0 30px var(--cyan), 0 0 60px var(--cyan); }
+}
+
+/* Scanlines Overlay */
+.coai-scanlines::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Loading Spinner */
+.coai-loading {
+  border: 3px solid var(--dark-bg);
+  border-top: 3px solid var(--cyan);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
+.coai-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.coai-container-narrow {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.coai-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.coai-grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.coai-grid-3 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+.coai-flex {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.coai-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Spacing Utilities */
+.coai-mt { margin-top: var(--spacing-lg); }
+.coai-mb { margin-bottom: var(--spacing-lg); }
+.coai-my { margin-top: var(--spacing-lg); margin-bottom: var(--spacing-lg); }
+.coai-pt { padding-top: var(--spacing-lg); }
+.coai-pb { padding-bottom: var(--spacing-lg); }
+.coai-py { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+
+/* Text Utilities */
+.coai-text-center { text-align: center; }
+.coai-text-right { text-align: right; }
+.coai-text-small { font-size: var(--font-size-small); }
+.coai-text-mono { font-family: var(--font-mono); }
+.coai-text-glow { text-shadow: 0 0 10px currentColor; }
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  :root {
+    --font-size-body: 14px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+  }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+
+  .coai-window-content {
+    padding: var(--spacing-md);
+  }
+
+  body {
+    padding-bottom: 50px;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .coai-window {
+    border: 1px solid black;
+    box-shadow: none;
+  }
+
+  .coai-window-header {
+    background: #f0f0f0;
+    color: black;
+  }
+}
