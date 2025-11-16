@@ -455,6 +455,7 @@
             <button id="view-source" class="primary" type="button">View Source</button>
             <button id="reset-selection" type="button">Clear Selection</button>
           </div>
+          <button id="reset-selection">Clear Selection</button>
         </div>
         <iframe id="preview-frame" title="COAIEXIST Studio Preview"></iframe>
       </section>
@@ -500,6 +501,7 @@
     </main>
 
   <footer class="studio-footer">
+    <footer class="studio-footer">
       COAIEXIST Studio Prototype · Based on docs/BESPOKE_EDITOR_RECOMMENDATIONS.md
     </footer>
   </div>
@@ -1517,6 +1519,7 @@
       { name: 'Void Black', value: '#021313' },
       { name: 'Bubblegum Pink', value: '#ff72b6' },
       { name: 'Neon Green', value: '#39ff14' }
+      { name: 'Void Black', value: '#021313' }
     ];
 
     const effectOptions = [
@@ -1552,6 +1555,7 @@
     const closeSourceButton = document.getElementById('close-source');
     const copySourceButton = document.getElementById('copy-source');
     const downloadSourceButton = document.getElementById('download-source');
+    const iframe = document.getElementById('preview-frame');
 
     let selectedElement = null;
     let dropZones = [];
