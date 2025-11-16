@@ -21,6 +21,7 @@ open kidpix-editor.html
 | Editor | File | Status | Best For |
 |--------|------|--------|----------|
 | **Studio Lite** | `coaiexist-studio-lite.html` | 🚀 New | Bespoke COAIEXIST component builder (Phase 2 MVP) |
+| **Bespoke Studio** | `coaiexist-bespoke-editor.html` | 🚧 Prototype | Component-driven COAIEXIST builds |
 | **KidPix** | `kidpix-editor.html` | ✅ Active | General page building, Phase 2 target |
 | **Pro** | `coaiexist-pro-editor.html` | ✅ Active | Advanced features, 3D/audio integration |
 | **Creative Studio** | `coaiexist-creative-studio.html` | ✅ Active | Streamlined creative workflows |
