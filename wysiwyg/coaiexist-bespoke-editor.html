@@ -182,6 +182,11 @@
       flex-wrap: wrap;
     }
 
+    .toolbar-actions {
+      display: flex;
+      gap: 0.6rem;
+    }
+
     .canvas-toolbar .dropzone-select {
       display: flex;
       align-items: center;
@@ -198,6 +203,11 @@
       font-family: inherit;
       font-size: 0.85rem;
       padding: 0.45rem 0.75rem;
+    }
+
+    .canvas-toolbar button.primary {
+      border-color: rgba(243, 18, 175, 0.6);
+      color: #fffb01;
     }
 
     iframe#preview-frame {
@@ -314,6 +324,83 @@
       letter-spacing: 0.12em;
     }
 
+    .source-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      z-index: 999;
+    }
+
+    .source-modal[hidden] {
+      display: none;
+    }
+
+    .source-modal-content {
+      width: min(960px, 95vw);
+      max-height: 90vh;
+      background: rgba(2, 8, 18, 0.95);
+      border: 1px solid rgba(114, 250, 222, 0.4);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .source-modal header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(114, 250, 222, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: "VT323", monospace;
+      letter-spacing: 0.08em;
+    }
+
+    .source-modal header button {
+      border-radius: 10px;
+      border: 1px solid rgba(243, 18, 175, 0.4);
+      background: rgba(0, 0, 0, 0.35);
+      color: #f8faff;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 0.35rem 0.75rem;
+    }
+
+    .source-modal textarea {
+      flex: 1;
+      margin: 0 1rem 1rem;
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px solid rgba(243, 18, 175, 0.35);
+      background: rgba(0, 3, 9, 0.95);
+      color: #e0fcff;
+      font-family: "Roboto Mono", monospace;
+      font-size: 0.85rem;
+      resize: none;
+      min-height: 300px;
+    }
+
+    .source-modal footer {
+      display: flex;
+      gap: 0.8rem;
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    .source-modal footer button {
+      flex: 1;
+      border-radius: 12px;
+      border: 1px solid rgba(114, 250, 222, 0.4);
+      background: rgba(3, 10, 18, 0.9);
+      color: #72fade;
+      font-family: inherit;
+      padding: 0.65rem 0.8rem;
+      cursor: pointer;
+    }
+
     @media (max-width: 1180px) {
       main.workspace {
         grid-template-columns: minmax(0, 1fr);
@@ -364,6 +451,10 @@
             <span>Active Drop Zone:</span>
             <select id="dropzone-select"></select>
           </div>
+          <div class="toolbar-actions">
+            <button id="view-source" class="primary" type="button">View Source</button>
+            <button id="reset-selection" type="button">Clear Selection</button>
+          </div>
           <button id="reset-selection">Clear Selection</button>
         </div>
         <iframe id="preview-frame" title="COAIEXIST Studio Preview"></iframe>
@@ -409,9 +500,24 @@
       </aside>
     </main>
 
+  <footer class="studio-footer">
     <footer class="studio-footer">
       COAIEXIST Studio Prototype · Based on docs/BESPOKE_EDITOR_RECOMMENDATIONS.md
     </footer>
+  </div>
+
+  <div class="source-modal" id="source-modal" hidden>
+    <div class="source-modal-content">
+      <header>
+        <h3>Canvas Source</h3>
+        <button id="close-source" type="button">Close</button>
+      </header>
+      <textarea id="source-text" readonly></textarea>
+      <footer>
+        <button id="copy-source" type="button">Copy to Clipboard</button>
+        <button id="download-source" type="button">Download .html</button>
+      </footer>
+    </div>
   </div>
 
   <script>
@@ -965,6 +1071,256 @@
   </div>
 </body>
 </html>`
+      },
+      cosmos: {
+        label: "Cosmos Oracle",
+        description: "Y2K bubblegum astrology deck with ticker + cards.",
+        doc: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>COAIEXIST Cosmos Oracle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coai-magenta: #f312af;
+      --coai-cyan: #00ffcc;
+      --coai-yellow: #fffb01;
+      --coai-pink: #ff72b6;
+      --coai-dark: #181818;
+      --coai-accent: var(--coai-magenta);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #ffe6f7;
+      background: radial-gradient(circle at 20% 20%, rgba(255, 114, 182, 0.2), rgba(0, 0, 0, 0.95)),
+        url('https://cloudflare-ipfs.com/ipfs/QmXjKKVB8Jh5YJt7wa9uRc42PFsKnzGWxZmfZbduCMsZbx?filename=stars.gif');
+      background-size: cover;
+      padding: 2rem;
+    }
+    .cosmos-shell {
+      border: 3px solid var(--coai-cyan);
+      border-radius: 26px;
+      background: rgba(24, 24, 24, 0.85);
+      box-shadow: 0 0 40px rgba(243, 18, 175, 0.4);
+      display: grid;
+      grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    .cosmos-header {
+      grid-column: span 2;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      color: var(--coai-yellow);
+      font-family: 'VT323', monospace;
+    }
+    .cosmos-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .cosmos-nav button {
+      border-radius: 999px;
+      border: 2px solid var(--coai-cyan);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--coai-cyan);
+      padding: 0.5rem 1.1rem;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .cosmos-sidebar {
+      display: grid;
+      gap: 1rem;
+    }
+    .cosmos-card-grid {
+      display: grid;
+      gap: 1rem;
+    }
+    .cosmos-card,
+    .cosmos-ticker,
+    .cosmos-wiki,
+    .cosmos-glyph {
+      border: 3px solid var(--coai-accent);
+      border-radius: 18px;
+      padding: 1.2rem;
+      background: rgba(0, 0, 0, 0.35);
+      position: relative;
+    }
+    .cosmos-ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      font-family: 'VT323', monospace;
+      color: var(--coai-yellow);
+    }
+    .cosmos-ticker span {
+      display: inline-block;
+      animation: ticker 16s linear infinite;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .cosmos-wiki h3 {
+      margin-top: 0;
+      font-family: 'VT323', monospace;
+      color: var(--coai-cyan);
+      letter-spacing: 0.3em;
+    }
+  </style>
+</head>
+<body>
+  <div class="cosmos-shell" data-template="cosmos">
+    <header class="cosmos-header">
+      <div data-editable-slot="title">Corpus Celestium</div>
+      <div class="cosmos-nav" data-drop-zone="nav-links">
+        <button>Chart</button>
+        <button>Asteroids</button>
+        <button>Codex</button>
+      </div>
+    </header>
+    <aside class="cosmos-sidebar">
+      <section class="cosmos-ticker" data-coai-component="ticker" data-allow-text="true" data-drop-zone="ticker">
+        <span data-editable-slot="content">★ Null moon approaching ★ Hydra gate rumbling ★ Lattice update pending ★ </span>
+      </section>
+      <section class="cosmos-card cosmos-glyph" data-coai-component="glyph" data-allow-text="true">
+        <div data-editable-slot="content">☌ Lilith + Eris</div>
+      </section>
+      <section class="cosmos-wiki" data-coai-component="wiki" data-allow-text="true" data-drop-zone="wiki">
+        <h3 data-editable-slot="heading">Mythological Points</h3>
+        <p data-editable-slot="content">Document avatars, rituals, and correspondences for every celestial glitch.</p>
+      </section>
+    </aside>
+    <main class="cosmos-card-grid" data-drop-zone="card-grid">
+      <article class="cosmos-card" data-coai-component="astro-card" data-allow-text="true">
+        <h3 data-editable-slot="heading">Birth Chart Generator</h3>
+        <p data-editable-slot="content">Accepts date/time/place and outputs ritual instructions plus theme songs.</p>
+      </article>
+      <article class="cosmos-card" data-coai-component="astro-card" data-allow-text="true">
+        <h3 data-editable-slot="heading">Lilith Explorer</h3>
+        <p data-editable-slot="content">Map rare Lilith placements to their cosmic gossip and talismans.</p>
+      </article>
+    </main>
+  </div>
+</body>
+</html>`
+      },
+      glitch: {
+        label: "Punk'd Control Room",
+        description: "404nsec multi-act shell with alert rail.",
+        doc: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>COAIEXIST Glitch Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-pink: #ff10f0;
+      --neon-green: #39ff14;
+      --electric-blue: #0fffff;
+      --void: #030303;
+      --coai-accent: var(--neon-pink);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Roboto', sans-serif;
+      background: radial-gradient(circle at top, rgba(0, 0, 0, 0.9), rgba(7, 7, 7, 0.98));
+      color: #f5f5f5;
+      padding: 2rem;
+    }
+    .glitch-shell {
+      border: 3px solid var(--neon-pink);
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.75);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 1.25rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 40px rgba(255, 16, 240, 0.45);
+    }
+    .glitch-header {
+      grid-column: span 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'VT323', monospace;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .glitch-hero {
+      border: 2px dashed var(--electric-blue);
+      border-radius: 16px;
+      padding: 1.4rem;
+      background: rgba(10, 10, 10, 0.85);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .glitch-hero h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      color: var(--electric-blue);
+    }
+    .alert-rail {
+      display: grid;
+      gap: 0.6rem;
+    }
+    .alert-card {
+      border: 2px solid var(--neon-green);
+      border-radius: 14px;
+      padding: 0.85rem;
+      background: rgba(3, 3, 3, 0.95);
+      font-family: 'VT323', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .glitch-feed {
+      border: 2px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.55);
+      min-height: 240px;
+    }
+  </style>
+</head>
+<body>
+  <div class="glitch-shell" data-template="glitch-lab">
+    <header class="glitch-header">
+      <div data-editable-slot="title">404nsec Broadcast</div>
+      <div class="glitch-chip">Entropy Lab</div>
+    </header>
+    <section class="glitch-hero" data-drop-zone="broadcast">
+      <h2 data-editable-slot="heading">Dynamic Cognition Trial</h2>
+      <p data-editable-slot="content">Simulated acts from punkd.html translated to modular cards. Click to swap scenes.</p>
+      <div class="glitch-feed" data-coai-component="terminal" data-allow-text="true">
+        <div data-editable-slot="content">> injecting narrative.exe\n> countdown online</div>
+      </div>
+    </section>
+    <aside class="alert-rail" data-drop-zone="alerts">
+      <div class="alert-card" data-coai-component="alert" data-allow-text="true">
+        <span data-editable-slot="content">Act II Countdown: 72</span>
+      </div>
+      <div class="alert-card" data-coai-component="alert" data-allow-text="true">
+        <span data-editable-slot="content">Cursor hijack ready</span>
+      </div>
+    </aside>
+  </div>
+</body>
+</html>`
       }
     };
 
@@ -1022,6 +1378,95 @@
         label: "Map Marker",
         description: "SVG marker element",
         html: `<div class="coai-map-marker" data-coai-component="map-marker" data-allow-text="true" data-editable-slot="content">◎ Portal</div>`
+      },
+      ticker: {
+        label: "Ticker Rail",
+        description: "Scrolling marquee inspired by cosmos.html",
+        html: `<section class="coai-marquee" data-coai-component="ticker" data-allow-text="true">
+  <style>
+    .coai-marquee {
+      border: 2px solid rgba(255, 251, 1, 0.8);
+      border-radius: 999px;
+      padding: 0.6rem 1.2rem;
+      font-family: 'VT323', monospace;
+      letter-spacing: 0.2em;
+      overflow: hidden;
+      position: relative;
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .coai-marquee span {
+      display: inline-block;
+      animation: marqueeScroll 18s linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-60%); }
+    }
+  </style>
+  <span data-editable-slot="content">★ Hydra gate whispering ★ Pip sighted near maps.html ★</span>
+</section>`
+      },
+      astroCard: {
+        label: "Astro Card",
+        description: "Bubblegum stat block",
+        html: `<article class="coai-astro-card" data-coai-component="astro-card" data-allow-text="true">
+  <style>
+    .coai-astro-card {
+      border: 3px solid rgba(114, 250, 222, 0.8);
+      border-radius: 18px;
+      padding: 1rem;
+      background: rgba(255, 114, 182, 0.08);
+      box-shadow: 0 0 18px rgba(243, 18, 175, 0.35);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .coai-astro-card h3 {
+      margin: 0 0 0.4rem 0;
+      font-family: 'VT323', monospace;
+      letter-spacing: 0.25em;
+      color: #fffb01;
+    }
+  </style>
+  <h3 data-editable-slot="heading">New Ritual</h3>
+  <p data-editable-slot="content">Document cosmic gossip, playlists, or spell recipes.</p>
+</article>`
+      },
+      glyph: {
+        label: "Glyph Badge",
+        description: "Symbolic sigil",
+        html: `<div class="coai-glyph" data-coai-component="glyph" data-allow-text="true">
+  <style>
+    .coai-glyph {
+      border: 3px dashed rgba(255, 114, 182, 0.8);
+      border-radius: 20px;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      color: #fffb01;
+      font-family: 'VT323', monospace;
+    }
+  </style>
+  <div data-editable-slot="content">☍</div>
+</div>`
+      },
+      alert: {
+        label: "Alert Chip",
+        description: "Punkd-style warning",
+        html: `<div class="coai-alert" data-coai-component="alert" data-allow-text="true">
+  <style>
+    .coai-alert {
+      border: 2px solid #39ff14;
+      border-radius: 12px;
+      padding: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-family: 'VT323', monospace;
+      background: rgba(0, 0, 0, 0.65);
+      color: #39ff14;
+    }
+  </style>
+  <span data-editable-slot="content">Simulation breach</span>
+</div>`
       }
     };
 
@@ -1047,6 +1492,21 @@
           el.style.setProperty('--coai-accent', '#72fade');
           el.classList.add('effect-scanlines');
         }
+      },
+      bubblegumPrism: {
+        label: "Bubblegum Prism",
+        apply: (el) => {
+          el.style.setProperty('--coai-accent', '#ff72b6');
+          el.classList.add('effect-rainbow');
+        }
+      },
+      hazardTape: {
+        label: "Hazard Tape",
+        apply: (el) => {
+          el.style.setProperty('--coai-accent', '#39ff14');
+          el.classList.remove('effect-rainbow');
+          el.classList.add('effect-glitch');
+        }
       }
     };
 
@@ -1056,6 +1516,9 @@
       { name: 'Hyper Cyan', value: '#00ffcc' },
       { name: 'Solar Yellow', value: '#fffb01' },
       { name: 'Oracle Purple', value: '#bf5fff' },
+      { name: 'Void Black', value: '#021313' },
+      { name: 'Bubblegum Pink', value: '#ff72b6' },
+      { name: 'Neon Green', value: '#39ff14' }
       { name: 'Void Black', value: '#021313' }
     ];
 
@@ -1085,11 +1548,19 @@
     const duplicateButton = document.getElementById('duplicate-component');
     const deleteButton = document.getElementById('delete-component');
     const resetSelectionButton = document.getElementById('reset-selection');
+    const viewSourceButton = document.getElementById('view-source');
+    const iframe = document.getElementById('preview-frame');
+    const sourceModal = document.getElementById('source-modal');
+    const sourceTextarea = document.getElementById('source-text');
+    const closeSourceButton = document.getElementById('close-source');
+    const copySourceButton = document.getElementById('copy-source');
+    const downloadSourceButton = document.getElementById('download-source');
     const iframe = document.getElementById('preview-frame');
 
     let selectedElement = null;
     let dropZones = [];
     let activeDropZone = null;
+    let currentTemplateKey = 'character';
 
     function createTemplateButtons() {
       Object.entries(templates).forEach(([key, info]) => {
@@ -1170,6 +1641,7 @@
     function loadTemplate(key) {
       const template = templates[key];
       if (!template) return;
+      currentTemplateKey = key;
       templateLabel.textContent = template.label;
       const doc = iframe.contentDocument;
       doc.open();
@@ -1363,6 +1835,70 @@
 
     resetSelectionButton.addEventListener('click', () => {
       clearSelection();
+    });
+
+    function refreshSourceText() {
+      const doc = iframe.contentDocument;
+      if (!doc || !doc.documentElement) {
+        sourceTextarea.value = '';
+        return '';
+      }
+      const html = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+      sourceTextarea.value = html;
+      return html;
+    }
+
+    function openSourceModal() {
+      refreshSourceText();
+      sourceModal.hidden = false;
+      sourceTextarea.focus();
+      sourceTextarea.select();
+    }
+
+    function closeSourceModal() {
+      sourceModal.hidden = true;
+    }
+
+    viewSourceButton.addEventListener('click', openSourceModal);
+    closeSourceButton.addEventListener('click', closeSourceModal);
+    sourceModal.addEventListener('click', (event) => {
+      if (event.target === sourceModal) {
+        closeSourceModal();
+      }
+    });
+
+    copySourceButton.addEventListener('click', async () => {
+      const html = refreshSourceText();
+      try {
+        await navigator.clipboard.writeText(html);
+        copySourceButton.textContent = 'Copied!';
+        setTimeout(() => (copySourceButton.textContent = 'Copy to Clipboard'), 1400);
+      } catch (error) {
+        copySourceButton.textContent = 'Use Cmd/Ctrl+C';
+        setTimeout(() => (copySourceButton.textContent = 'Copy to Clipboard'), 1600);
+      }
+    });
+
+    downloadSourceButton.addEventListener('click', () => {
+      const html = refreshSourceText();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const filename = `coai-${currentTemplateKey || 'canvas'}.html`;
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      requestAnimationFrame(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !sourceModal.hidden) {
+        closeSourceModal();
+      }
     });
 
     window.addEventListener('DOMContentLoaded', () => {

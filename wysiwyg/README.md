@@ -27,6 +27,8 @@ open kidpix-editor.html
 | **Creative Studio** | `coaiexist-creative-studio.html` | ✅ Active | Streamlined creative workflows |
 | **Ultimate** | `ULTIMATE-EDITOR-WORKING.html` | ⚠️ Experimental | Feature testing, experimental builds |
 
+> **New in Bespoke Studio:** Cosmos Oracle + Punk'd Control Room templates, ticker/alert components, and an inline source viewer so you can export the iframe HTML without leaving the prototype.
+
 ---
 
 ## Directory Structure
