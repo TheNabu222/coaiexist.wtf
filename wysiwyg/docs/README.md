@@ -67,6 +67,7 @@ This directory contains analysis, recommendations, and implementation notes for 
 
 ### Active Development
 - `../kidpix-editor.html` - Main editor (Phase 1 complete)
+- `../coaiexist-bespoke-editor.html` - Phase 2 bespoke prototype (component-driven with Cosmos/Punk'd templates, inline source export, classic KidPix blocks, custom HTML insertion, inline editing, and local snapshots)
 - `../coaiexist-pro-editor.html` - Advanced features, Three.js integration
 - `../coaiexist-creative-studio.html` - Streamlined creative tool
 - `../ULTIMATE-EDITOR-WORKING.html` - Feature-complete experimental build
