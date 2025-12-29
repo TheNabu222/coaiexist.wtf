@@ -133,6 +133,41 @@
       gap: 0.6rem;
     }
 
+    .panel textarea,
+    .panel input[type="text"] {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(114, 250, 222, 0.4);
+      background: rgba(7, 11, 20, 0.85);
+      color: #e4fefe;
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.65rem 0.75rem;
+    }
+
+    .panel textarea.code-input {
+      font-family: "Roboto Mono", monospace;
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .toolbar-actions.stacked {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .toolbar-actions.stacked button {
+      width: 100%;
+    }
+
+    .snapshot-status {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.55);
+      margin: 0;
+      min-height: 1.2em;
+    }
+
     button.ui-chip {
       position: relative;
       border: 1px solid rgba(243, 18, 175, 0.55);
@@ -290,6 +325,11 @@
     .inspector-actions {
       display: flex;
       gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .inspector-actions button {
+      flex: 1 1 calc(50% - 0.6rem);
     }
 
     .inspector-actions button {
@@ -443,6 +483,31 @@
           <p class="description">Components auto-inherit the brand palette and responsive behavior defined in docs. Drop them into any highlighted zone in the canvas.</p>
           <div class="grid-buttons" id="component-buttons"></div>
         </section>
+        <section>
+          <h3>Classic Blocks</h3>
+          <p class="description">Need the legacy KidPix-style flexibility? These blocks are barebone HTML containers you can restyle however you want.</p>
+          <div class="grid-buttons" id="classic-buttons"></div>
+        </section>
+        <section>
+          <h3>Custom HTML & Legacy Snippets</h3>
+          <p class="description">Paste HTML from older builders, docs, or experiments. It gets wrapped as a component so you can keep editing it here.</p>
+          <textarea id="custom-html" class="code-input" placeholder="&lt;section&gt;Your markup&lt;/section&gt;"></textarea>
+          <div class="toolbar-actions stacked">
+            <button type="button" id="insert-custom-html">Insert Snippet</button>
+            <button type="button" id="clear-custom-html">Clear</button>
+          </div>
+        </section>
+        <section>
+          <h3>Workspace Snapshots</h3>
+          <p class="description">Save/load full canvases locally so you can iterate without losing the advanced layouts or imported snippets.</p>
+          <input type="text" id="snapshot-name" placeholder="Name (e.g. cosmos-draft)" />
+          <div class="toolbar-actions stacked">
+            <button type="button" id="save-snapshot">Save Snapshot</button>
+            <button type="button" id="load-snapshot">Load Snapshot</button>
+            <button type="button" id="clear-snapshots">Clear Saved</button>
+          </div>
+          <p class="description snapshot-status" id="snapshot-status">Nothing saved yet.</p>
+        </section>
       </aside>
 
       <section class="canvas-shell">
@@ -490,10 +555,15 @@
             <button id="duplicate-component" type="button">Duplicate</button>
             <button id="delete-component" class="secondary" type="button">Delete</button>
           </div>
+          <div class="inspector-actions">
+            <button id="move-up-component" type="button">Move Up</button>
+            <button id="move-down-component" class="secondary" type="button">Move Down</button>
+          </div>
         </section>
         <section class="inspector-group">
           <h4>How to Use</h4>
           <p class="empty-state">
+            1. Pick a template · 2. Choose a drop zone · 3. Add components or classic blocks · 4. Double-click text or use the inspector to edit · 5. Save snapshots or export source when you're happy.
             1. Pick a template · 2. Choose a drop zone · 3. Add components · 4. Click components to customize text, color, and effects. Export HTML using your browser's “Save As” when finished.
           </p>
         </section>
@@ -766,6 +836,28 @@
     .is-selected {
       box-shadow: 0 0 0 3px rgba(255, 251, 1, 0.75) !important;
     }
+    .coai-classic-block,
+    [data-custom-block] {
+      border: 1px dashed rgba(255, 251, 1, 0.45);
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      background: rgba(255, 251, 1, 0.04);
+      color: inherit;
+      font-family: 'Roboto Mono', monospace;
+    }
+    .coai-classic-block button {
+      border: 1px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    [data-inline-editing="true"] {
+      outline: 2px solid rgba(255, 251, 1, 0.8) !important;
+      outline-offset: 4px;
+    }
   </style>
 </head>
 <body>
@@ -916,6 +1008,28 @@
     }
     .dropzone-highlight { outline: 2px dashed rgba(255, 251, 1, 0.6); outline-offset: 6px; }
     .is-selected { box-shadow: 0 0 0 3px rgba(255, 251, 1, 0.8); }
+    .coai-classic-block,
+    [data-custom-block] {
+      border: 1px dashed rgba(255, 251, 1, 0.45);
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      background: rgba(255, 251, 1, 0.05);
+      color: inherit;
+      font-family: 'Roboto Mono', monospace;
+    }
+    .coai-classic-block button {
+      border: 1px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    [data-inline-editing="true"] {
+      outline: 2px solid rgba(255, 251, 1, 0.8) !important;
+      outline-offset: 4px;
+    }
   </style>
 </head>
 <body>
@@ -1059,6 +1173,28 @@
     }
     .dropzone-highlight { outline: 2px dashed rgba(255, 251, 1, 0.6); outline-offset: 6px; }
     .is-selected { box-shadow: 0 0 0 3px rgba(255, 251, 1, 0.7); }
+    .coai-classic-block,
+    [data-custom-block] {
+      border: 1px dashed rgba(255, 251, 1, 0.45);
+      border-radius: 16px;
+      padding: 1rem;
+      margin: 0.75rem 0;
+      background: rgba(255, 251, 1, 0.04);
+      color: inherit;
+      font-family: 'Roboto Mono', monospace;
+    }
+    .coai-classic-block button {
+      border: 1px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    [data-inline-editing="true"] {
+      outline: 2px solid rgba(255, 251, 1, 0.8) !important;
+      outline-offset: 4px;
+    }
   </style>
 </head>
 <body>
@@ -1510,6 +1646,46 @@
       }
     };
 
+    const classicBlocks = {
+      heading: {
+        label: 'Heading',
+        description: 'Drop-in H2 text block',
+        html: `<div class="coai-classic-block" data-coai-component="classic-heading" data-allow-text="true">
+  <h2 data-editable-slot="content">New Heading</h2>
+</div>`
+      },
+      paragraph: {
+        label: 'Paragraph',
+        description: 'Multi-line copy block',
+        html: `<div class="coai-classic-block" data-coai-component="classic-paragraph" data-allow-text="true">
+  <p data-editable-slot="content">Write freeform copy, lore, or notes directly in this area.</p>
+</div>`
+      },
+      image: {
+        label: 'Image Frame',
+        description: 'Placeholder img tag',
+        html: `<figure class="coai-classic-block" data-coai-component="classic-image" data-allow-text="true">
+  <img src="https://placekitten.com/400/260" alt="Placeholder" style="width:100%;border-radius:12px;" />
+  <figcaption data-editable-slot="content">Caption text</figcaption>
+</figure>`
+      },
+      buttonRow: {
+        label: 'Button Row',
+        description: 'CTA buttons',
+        html: `<div class="coai-classic-block" data-coai-component="classic-buttons" data-allow-text="true">
+  <button data-editable-slot="content">Primary</button>
+  <button data-editable-slot="content">Secondary</button>
+</div>`
+      },
+      freeform: {
+        label: 'Freeform Zone',
+        description: 'Blank div wrapper',
+        html: `<div class="coai-classic-block" data-coai-component="classic-freeform" data-allow-text="true">
+  <p data-editable-slot="content">Start typing or paste anything here.</p>
+</div>`
+      }
+    };
+
     const brandPalette = [
       { name: 'Magenta', value: '#f312af' },
       { name: 'Cyan', value: '#72fade' },
@@ -1532,6 +1708,7 @@
 
     const templateButtonsContainer = document.getElementById('template-buttons');
     const componentButtonsContainer = document.getElementById('component-buttons');
+    const classicButtonsContainer = document.getElementById('classic-buttons');
     const dropzoneSelect = document.getElementById('dropzone-select');
     const templateLabel = document.getElementById('template-label');
     const inspectorTitle = document.getElementById('inspector-title');
@@ -1555,12 +1732,23 @@
     const closeSourceButton = document.getElementById('close-source');
     const copySourceButton = document.getElementById('copy-source');
     const downloadSourceButton = document.getElementById('download-source');
+    const customHtmlInput = document.getElementById('custom-html');
+    const insertCustomHtmlButton = document.getElementById('insert-custom-html');
+    const clearCustomHtmlButton = document.getElementById('clear-custom-html');
+    const snapshotNameInput = document.getElementById('snapshot-name');
+    const saveSnapshotButton = document.getElementById('save-snapshot');
+    const loadSnapshotButton = document.getElementById('load-snapshot');
+    const clearSnapshotsButton = document.getElementById('clear-snapshots');
+    const snapshotStatus = document.getElementById('snapshot-status');
+    const moveUpButton = document.getElementById('move-up-component');
+    const moveDownButton = document.getElementById('move-down-component');
     const iframe = document.getElementById('preview-frame');
 
     let selectedElement = null;
     let dropZones = [];
     let activeDropZone = null;
     let currentTemplateKey = 'character';
+    const snapshotStorageKey = 'coai-bespoke-snapshots';
 
     function createTemplateButtons() {
       Object.entries(templates).forEach(([key, info]) => {
@@ -1585,6 +1773,19 @@
           insertComponent(info.html);
         });
         componentButtonsContainer.appendChild(button);
+      });
+    }
+
+    function createClassicButtons() {
+      Object.values(classicBlocks).forEach(block => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'ui-chip';
+        button.innerHTML = `<strong>${block.label}</strong>${block.description}`;
+        button.addEventListener('click', () => {
+          insertComponent(block.html);
+        });
+        classicButtonsContainer.appendChild(button);
       });
     }
 
@@ -1674,6 +1875,7 @@
       }
 
       doc.addEventListener('click', handleCanvasClick);
+      doc.addEventListener('dblclick', handleCanvasDblClick);
     }
 
     function handleCanvasClick(event) {
@@ -1691,6 +1893,53 @@
       } else {
         clearSelection();
       }
+    }
+
+    function handleCanvasDblClick(event) {
+      const component = event.target.closest('[data-coai-component]');
+      if (!component) return;
+      const slot = getEditableSlot(component) || component;
+      if (!slot) return;
+      event.preventDefault();
+      event.stopPropagation();
+      enableInlineEditing(slot, component);
+    }
+
+    function enableInlineEditing(slot, component) {
+      if (!slot || slot.dataset.inlineEditing === 'true') return;
+      const originalValue = slot.innerText;
+      slot.dataset.inlineEditing = 'true';
+      slot.setAttribute('contenteditable', 'true');
+      slot.focus();
+
+      const finalize = (commit) => {
+        slot.removeEventListener('keydown', handleKeydown);
+        slot.removeEventListener('blur', handleBlur);
+        slot.removeAttribute('contenteditable');
+        delete slot.dataset.inlineEditing;
+        if (!commit) {
+          slot.innerText = originalValue;
+        }
+        if (selectedElement === component) {
+          const editableSlot = getEditableSlot(component);
+          contentTextarea.value = editableSlot ? editableSlot.innerText : component.innerText;
+        }
+      };
+
+      const handleBlur = () => finalize(true);
+      const handleKeydown = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          slot.blur();
+        }
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          finalize(false);
+        }
+      };
+
+      slot.addEventListener('keydown', handleKeydown);
+      slot.addEventListener('blur', handleBlur);
     }
 
     function setActiveDropZone(zone) {
@@ -1798,6 +2047,94 @@
       hideInspectorPanels();
     }
 
+    function moveSelected(direction) {
+      if (!selectedElement) return;
+      const parent = selectedElement.parentElement;
+      if (!parent) return;
+      if (direction === 'up') {
+        const previous = selectedElement.previousElementSibling;
+        if (previous) {
+          parent.insertBefore(selectedElement, previous);
+        }
+      } else if (direction === 'down') {
+        const next = selectedElement.nextElementSibling;
+        if (next) {
+          parent.insertBefore(next, selectedElement);
+        }
+      }
+    }
+
+    function insertCustomHtmlSnippet(markup) {
+      if (!markup || !markup.trim()) {
+        inspectorMeta.textContent = 'Paste HTML before inserting.';
+        return;
+      }
+      if (!activeDropZone) {
+        inspectorMeta.textContent = 'Select a drop zone first to place the component.';
+        return;
+      }
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+      const template = doc.createElement('template');
+      template.innerHTML = markup.trim();
+      const wrapper = doc.createElement('div');
+      wrapper.className = 'coai-classic-block coai-custom-snippet';
+      wrapper.dataset.coaiComponent = 'custom-block';
+      wrapper.dataset.allowText = 'true';
+      wrapper.setAttribute('data-custom-block', 'true');
+      wrapper.appendChild(template.content.cloneNode(true));
+      activeDropZone.appendChild(wrapper);
+      selectElement(wrapper);
+      customHtmlInput.value = '';
+      inspectorMeta.textContent = 'Custom snippet inserted. Double-click text to edit inline.';
+    }
+
+    function getSnapshots() {
+      try {
+        const raw = localStorage.getItem(snapshotStorageKey);
+        return raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        console.warn('Snapshot read failed', error);
+        return {};
+      }
+    }
+
+    function persistSnapshots(map) {
+      try {
+        localStorage.setItem(snapshotStorageKey, JSON.stringify(map));
+        return true;
+      } catch (error) {
+        console.warn('Snapshot save failed', error);
+        return false;
+      }
+    }
+
+    function setSnapshotStatus(message) {
+      if (snapshotStatus) {
+        snapshotStatus.textContent = message;
+      }
+    }
+
+    function loadSnapshotFromStorage(name) {
+      const snapshots = getSnapshots();
+      if (!snapshots[name]) {
+        setSnapshotStatus(`No snapshot named “${name}”.`);
+        return;
+      }
+      const doc = iframe.contentDocument;
+      doc.open();
+      doc.write(snapshots[name]);
+      doc.close();
+      requestAnimationFrame(() => {
+        setupIframeInteractions();
+        inspectorTitle.textContent = 'Snapshot Loaded';
+        inspectorMeta.textContent = `Loaded “${name}” from local storage.`;
+        clearSelection();
+        templateLabel.textContent = `${name}`;
+      });
+      setSnapshotStatus(`Loaded “${name}”.`);
+    }
+
     contentTextarea.addEventListener('input', () => {
       if (!selectedElement) return;
       const slot = getEditableSlot(selectedElement);
@@ -1825,6 +2162,9 @@
       }
     });
 
+    moveUpButton.addEventListener('click', () => moveSelected('up'));
+    moveDownButton.addEventListener('click', () => moveSelected('down'));
+
     dropzoneSelect.addEventListener('change', () => {
       const idx = Number(dropzoneSelect.value);
       const zone = dropZones[idx];
@@ -1835,6 +2175,42 @@
 
     resetSelectionButton.addEventListener('click', () => {
       clearSelection();
+    });
+
+    insertCustomHtmlButton.addEventListener('click', () => {
+      insertCustomHtmlSnippet(customHtmlInput.value);
+    });
+
+    clearCustomHtmlButton.addEventListener('click', () => {
+      customHtmlInput.value = '';
+    });
+
+    saveSnapshotButton.addEventListener('click', () => {
+      const name = (snapshotNameInput.value || '').trim() || new Date().toISOString().split('T')[0];
+      const html = refreshSourceText();
+      const snapshots = getSnapshots();
+      snapshots[name] = html;
+      const success = persistSnapshots(snapshots);
+      setSnapshotStatus(success ? `Saved “${name}” locally.` : 'Unable to access localStorage.');
+    });
+
+    loadSnapshotButton.addEventListener('click', () => {
+      const name = (snapshotNameInput.value || '').trim();
+      if (!name) {
+        setSnapshotStatus('Enter the snapshot name to load it.');
+        return;
+      }
+      loadSnapshotFromStorage(name);
+    });
+
+    clearSnapshotsButton.addEventListener('click', () => {
+      try {
+        localStorage.removeItem(snapshotStorageKey);
+        setSnapshotStatus('Snapshots cleared.');
+      } catch (error) {
+        console.warn('Unable to clear snapshots', error);
+        setSnapshotStatus('Could not clear snapshots.');
+      }
     });
 
     function refreshSourceText() {
@@ -1904,6 +2280,11 @@
     window.addEventListener('DOMContentLoaded', () => {
       createTemplateButtons();
       createComponentButtons();
+      createClassicButtons();
+      populatePalette();
+      populateEffects();
+      populateQuickStyles();
+      setSnapshotStatus('Nothing saved yet.');
       populatePalette();
       populateEffects();
       populateQuickStyles();
