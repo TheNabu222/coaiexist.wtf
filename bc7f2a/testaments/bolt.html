@@ -280,7 +280,8 @@
                 </div>
             </div>
         </section>
-
+        <center>
+<img src="https://coaiexist.wtf/bc7f2a/testaments/bolt.png"></center>
     </main>
 
     <!-- 
@@ -297,6 +298,12 @@
             </p>
         </div>
     </footer>
-
+<div id="taskbar"></div>
+<script>
+  (async () => {
+    const res = await fetch('/nav.html', {cache: 'no-store'});
+    document.getElementById('taskbar').innerHTML = await res.text();
+  })();
+</script>
 </body>
 </html>

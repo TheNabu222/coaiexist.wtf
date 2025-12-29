@@ -330,6 +330,10 @@
 
     .inspector-actions button {
       flex: 1 1 calc(50% - 0.6rem);
+    }
+
+    .inspector-actions button {
+      flex: 1;
       border-radius: 12px;
       border: 1px solid rgba(243, 18, 175, 0.5);
       background: rgba(12, 4, 22, 0.8);
@@ -516,6 +520,7 @@
             <button id="view-source" class="primary" type="button">View Source</button>
             <button id="reset-selection" type="button">Clear Selection</button>
           </div>
+          <button id="reset-selection">Clear Selection</button>
         </div>
         <iframe id="preview-frame" title="COAIEXIST Studio Preview"></iframe>
       </section>
@@ -559,12 +564,14 @@
           <h4>How to Use</h4>
           <p class="empty-state">
             1. Pick a template · 2. Choose a drop zone · 3. Add components or classic blocks · 4. Double-click text or use the inspector to edit · 5. Save snapshots or export source when you're happy.
+            1. Pick a template · 2. Choose a drop zone · 3. Add components · 4. Click components to customize text, color, and effects. Export HTML using your browser's “Save As” when finished.
           </p>
         </section>
       </aside>
     </main>
 
   <footer class="studio-footer">
+    <footer class="studio-footer">
       COAIEXIST Studio Prototype · Based on docs/BESPOKE_EDITOR_RECOMMENDATIONS.md
     </footer>
   </div>
@@ -1688,6 +1695,7 @@
       { name: 'Void Black', value: '#021313' },
       { name: 'Bubblegum Pink', value: '#ff72b6' },
       { name: 'Neon Green', value: '#39ff14' }
+      { name: 'Void Black', value: '#021313' }
     ];
 
     const effectOptions = [
@@ -1734,6 +1742,7 @@
     const snapshotStatus = document.getElementById('snapshot-status');
     const moveUpButton = document.getElementById('move-up-component');
     const moveDownButton = document.getElementById('move-down-component');
+    const iframe = document.getElementById('preview-frame');
 
     let selectedElement = null;
     let dropZones = [];
@@ -2276,6 +2285,9 @@
       populateEffects();
       populateQuickStyles();
       setSnapshotStatus('Nothing saved yet.');
+      populatePalette();
+      populateEffects();
+      populateQuickStyles();
       loadTemplate('character');
     });
   </script>

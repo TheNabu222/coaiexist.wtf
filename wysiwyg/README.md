@@ -20,6 +20,7 @@ open kidpix-editor.html
 
 | Editor | File | Status | Best For |
 |--------|------|--------|----------|
+| **Studio Lite** | `coaiexist-studio-lite.html` | 🚀 New | Bespoke COAIEXIST component builder (Phase 2 MVP) |
 | **Bespoke Studio** | `coaiexist-bespoke-editor.html` | 🚧 Prototype | Component-driven COAIEXIST builds |
 | **KidPix** | `kidpix-editor.html` | ✅ Active | General page building, Phase 2 target |
 | **Pro** | `coaiexist-pro-editor.html` | ✅ Active | Advanced features, 3D/audio integration |
@@ -27,6 +28,7 @@ open kidpix-editor.html
 | **Ultimate** | `ULTIMATE-EDITOR-WORKING.html` | ⚠️ Experimental | Feature testing, experimental builds |
 
 > **New in Bespoke Studio:** Cosmos Oracle + Punk'd Control Room templates, ticker/alert components, inline source export **plus** the restored KidPix-era functionality (classic blocks, custom HTML wrapping, inline editing, and local snapshots) so nothing is lost while shifting aesthetics.
+> **New in Bespoke Studio:** Cosmos Oracle + Punk'd Control Room templates, ticker/alert components, and an inline source viewer so you can export the iframe HTML without leaving the prototype.
 
 ---
 
